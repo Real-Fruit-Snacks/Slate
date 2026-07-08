@@ -17,6 +17,9 @@ pnpm-debug.log*
 .env.*
 !.env.example
 
+# Local build-deploy target (path to a vault's plugin folder for auto-copy)
+.plugin-target
+
 # Build and tool caches
 .cache/
 .parcel-cache/

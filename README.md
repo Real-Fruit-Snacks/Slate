@@ -224,6 +224,21 @@ Build output is written to:
 - `styles.css`
 - `manifest.json`
 
+### Auto-deploy to a vault
+
+To have each build copy `main.js`, `manifest.json`, and `styles.css` straight
+into a vault's plugin folder, set a deploy target — either the `SLATE_PLUGIN_DIR`
+environment variable, or a local `.plugin-target` file (gitignored) containing
+the path, for example:
+
+```text
+/path/to/YourVault/.obsidian/plugins/slate
+```
+
+Both `npm run build` and `npm run dev` (watch) then copy the files there after
+each successful build. If no target is set, deployment is skipped. Reload
+Obsidian (or toggle the plugin) to pick up a new `main.js`.
+
 ---
 
 ## Privacy and Network Usage

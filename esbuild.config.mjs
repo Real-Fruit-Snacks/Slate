@@ -1,11 +1,62 @@
 import esbuild from "esbuild";
 import { builtinModules } from "node:module";
+import { copyFileSync, existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const production = process.argv[2] === "production";
 const builtins = [
   ...builtinModules,
   ...builtinModules.map((moduleName) => `node:${moduleName}`)
 ];
+
+// Optional local deploy target: after each successful build, copy the plugin
+// files into a vault's plugin folder so changes are live without a manual copy.
+// Configure the path via the SLATE_PLUGIN_DIR env var or a gitignored
+// `.plugin-target` file containing the path. If neither is set, deploy is
+// skipped — keeping this committed config free of machine-specific paths.
+function resolveDeployDir() {
+  const fromEnv = process.env.SLATE_PLUGIN_DIR?.trim();
+  if (fromEnv) {
+    return fromEnv;
+  }
+  if (existsSync(".plugin-target")) {
+    const fromFile = readFileSync(".plugin-target", "utf8").trim();
+    if (fromFile) {
+      return fromFile;
+    }
+  }
+  return null;
+}
+
+function deployToVault() {
+  const dir = resolveDeployDir();
+  if (!dir) {
+    return;
+  }
+  if (!existsSync(dir)) {
+    console.warn(`[slate] Deploy target not found, skipping copy: ${dir}`);
+    return;
+  }
+  for (const file of ["main.js", "manifest.json", "styles.css"]) {
+    try {
+      copyFileSync(file, join(dir, file));
+    } catch (error) {
+      console.warn(`[slate] Failed to copy ${file} to ${dir}:`, error.message);
+    }
+  }
+  console.log(`[slate] Deployed main.js, manifest.json, styles.css -> ${dir}`);
+}
+
+const deployPlugin = {
+  name: "slate-deploy",
+  setup(build) {
+    build.onEnd((result) => {
+      if (result.errors.length === 0) {
+        deployToVault();
+      }
+    });
+  }
+};
 
 const context = await esbuild.context({
   banner: {
@@ -34,7 +85,8 @@ const context = await esbuild.context({
   logLevel: "info",
   sourcemap: production ? false : "inline",
   treeShaking: true,
-  outfile: "main.js"
+  outfile: "main.js",
+  plugins: [deployPlugin]
 });
 
 if (production) {
