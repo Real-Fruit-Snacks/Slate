@@ -1,20 +1,54 @@
 import { normalizeLabelName } from "./labels";
 
+// Palette colors reference the active Obsidian theme's named colors so project
+// and label swatches adapt to any theme. Overrides picked from this palette are
+// stored as these `var(...)` strings and stay theme-adaptive; tints resolve via
+// the palette match in lightColorForOverride().
 export const SLATE_COLOR_PALETTE = [
-  { name: "yellow", regular: "#DFAB00", light: "#FBF3DA" },
-  { name: "red", regular: "#E03E3E", light: "#FBE4E3" },
-  { name: "purple", regular: "#6940A5", light: "#EAE5F2" },
-  { name: "pink", regular: "#AD1A72", light: "#F4DFEB" },
-  { name: "orange", regular: "#D9730D", light: "#FAEBDD" },
-  { name: "green", regular: "#0E7B6C", light: "#DDEDEA" },
-  { name: "gray", regular: "#878B82", light: "#EBECED" },
-  { name: "brown", regular: "#64473A", light: "#E9E5DF" },
-  { name: "blue", regular: "#0C6E99", light: "#DDEBF1" }
+  { name: "yellow", regular: "var(--color-yellow)", light: "rgba(var(--color-yellow-rgb), 0.14)" },
+  { name: "red", regular: "var(--color-red)", light: "rgba(var(--color-red-rgb), 0.14)" },
+  { name: "purple", regular: "var(--color-purple)", light: "rgba(var(--color-purple-rgb), 0.14)" },
+  { name: "pink", regular: "var(--color-pink)", light: "rgba(var(--color-pink-rgb), 0.14)" },
+  { name: "orange", regular: "var(--color-orange)", light: "rgba(var(--color-orange-rgb), 0.14)" },
+  { name: "green", regular: "var(--color-green)", light: "rgba(var(--color-green-rgb), 0.14)" },
+  { name: "gray", regular: "var(--text-muted)", light: "var(--background-modifier-hover)" },
+  { name: "cyan", regular: "var(--color-cyan)", light: "rgba(var(--color-cyan-rgb), 0.14)" },
+  { name: "blue", regular: "var(--color-blue)", light: "rgba(var(--color-blue-rgb), 0.14)" }
 ] as const;
 
 export interface SlateColorPair {
   regular: string;
   light: string;
+}
+
+/**
+ * Resolve a CSS color (possibly a `var(--color-*)` reference) to a concrete hex
+ * value. Needed for Obsidian's native color picker, which only accepts hex.
+ * Returns the input unchanged if it is already hex.
+ */
+export function resolveColorToHex(value: string): string {
+  const trimmed = value.trim();
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(trimmed)) {
+    return trimmed;
+  }
+  if (typeof document === "undefined") {
+    return "#888888";
+  }
+
+  const probe = document.createElement("span");
+  probe.style.color = trimmed;
+  probe.style.display = "none";
+  document.body.appendChild(probe);
+  const computed = getComputedStyle(probe).color;
+  probe.remove();
+
+  const match = computed.match(/(\d+),\s*(\d+),\s*(\d+)/);
+  if (!match) {
+    return "#888888";
+  }
+
+  const toHex = (channel: string) => Number(channel).toString(16).padStart(2, "0");
+  return `#${toHex(match[1])}${toHex(match[2])}${toHex(match[3])}`;
 }
 
 export function colorForName(value: string, override?: string): SlateColorPair {

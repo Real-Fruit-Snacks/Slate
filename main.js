@@ -23,7 +23,7 @@ __export(main_exports, {
   default: () => SlatePlugin
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian15 = require("obsidian");
+var import_obsidian16 = require("obsidian");
 
 // src/dailyNotes.ts
 var import_obsidian = require("obsidian");
@@ -240,16 +240,37 @@ function dedupeLabels(labels) {
 
 // src/colors.ts
 var SLATE_COLOR_PALETTE = [
-  { name: "yellow", regular: "#DFAB00", light: "#FBF3DA" },
-  { name: "red", regular: "#E03E3E", light: "#FBE4E3" },
-  { name: "purple", regular: "#6940A5", light: "#EAE5F2" },
-  { name: "pink", regular: "#AD1A72", light: "#F4DFEB" },
-  { name: "orange", regular: "#D9730D", light: "#FAEBDD" },
-  { name: "green", regular: "#0E7B6C", light: "#DDEDEA" },
-  { name: "gray", regular: "#878B82", light: "#EBECED" },
-  { name: "brown", regular: "#64473A", light: "#E9E5DF" },
-  { name: "blue", regular: "#0C6E99", light: "#DDEBF1" }
+  { name: "yellow", regular: "var(--color-yellow)", light: "rgba(var(--color-yellow-rgb), 0.14)" },
+  { name: "red", regular: "var(--color-red)", light: "rgba(var(--color-red-rgb), 0.14)" },
+  { name: "purple", regular: "var(--color-purple)", light: "rgba(var(--color-purple-rgb), 0.14)" },
+  { name: "pink", regular: "var(--color-pink)", light: "rgba(var(--color-pink-rgb), 0.14)" },
+  { name: "orange", regular: "var(--color-orange)", light: "rgba(var(--color-orange-rgb), 0.14)" },
+  { name: "green", regular: "var(--color-green)", light: "rgba(var(--color-green-rgb), 0.14)" },
+  { name: "gray", regular: "var(--text-muted)", light: "var(--background-modifier-hover)" },
+  { name: "cyan", regular: "var(--color-cyan)", light: "rgba(var(--color-cyan-rgb), 0.14)" },
+  { name: "blue", regular: "var(--color-blue)", light: "rgba(var(--color-blue-rgb), 0.14)" }
 ];
+function resolveColorToHex(value) {
+  const trimmed = value.trim();
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(trimmed)) {
+    return trimmed;
+  }
+  if (typeof document === "undefined") {
+    return "#888888";
+  }
+  const probe = document.createElement("span");
+  probe.style.color = trimmed;
+  probe.style.display = "none";
+  document.body.appendChild(probe);
+  const computed = getComputedStyle(probe).color;
+  probe.remove();
+  const match = computed.match(/(\d+),\s*(\d+),\s*(\d+)/);
+  if (!match) {
+    return "#888888";
+  }
+  const toHex = (channel) => Number(channel).toString(16).padStart(2, "0");
+  return `#${toHex(match[1])}${toHex(match[2])}${toHex(match[3])}`;
+}
 function colorForName(value, override) {
   if (override) {
     return {
@@ -506,6 +527,7 @@ var DEFAULT_SETTINGS = {
   labelRegistry: [],
   projectRegistry: [],
   archivedProjects: [],
+  hideDataFolderFromVault: true,
   sortMode: "smart",
   groupBy: "none",
   defaultOverdueRange: "last7",
@@ -643,6 +665,14 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
         text.inputEl.blur();
       });
     });
+    new import_obsidian3.Setting(containerEl).setName("Hide data folder from the vault UI").setDesc(
+      "Hide the Slate data folder from the file explorer, search, and graph. Files stay on disk and Slate keeps using them."
+    ).addToggle((toggle) => {
+      toggle.setValue(this.plugin.settings.hideDataFolderFromVault).onChange(async (value) => {
+        this.plugin.settings.hideDataFolderFromVault = value;
+        await this.plugin.saveSettings();
+      });
+    });
     new import_obsidian3.Setting(containerEl).setName("Default overdue range").setDesc("Default range used by the Today overdue section.").addDropdown((dropdown) => {
       for (const range of OVERDUE_RANGES) {
         dropdown.addOption(range, overdueRangeLabel(range));
@@ -752,7 +782,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
     const automaticColor = colorForName(project).regular;
     const override = this.plugin.settings.projectColors[project];
     new import_obsidian3.Setting(this.containerEl).setName(project).setDesc(override ? "Custom color override" : "Automatic palette color").addColorPicker((picker) => {
-      picker.setValue(override || automaticColor).onChange(async (value) => {
+      picker.setValue(resolveColorToHex(override || automaticColor)).onChange(async (value) => {
         this.plugin.settings.projectColors[project] = value;
         await this.plugin.saveSettings();
         this.plugin.refreshSlateViews();
@@ -796,7 +826,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
     const automaticColor = colorForName(label).regular;
     const override = this.plugin.settings.labelColors[label];
     new import_obsidian3.Setting(this.containerEl).setName(displayLabel(label)).setDesc(override ? "Custom color override" : "Automatic palette color").addColorPicker((picker) => {
-      picker.setValue(override || automaticColor).onChange(async (value) => {
+      picker.setValue(resolveColorToHex(override || automaticColor)).onChange(async (value) => {
         this.plugin.settings.labelColors[label] = value;
         await this.plugin.saveSettings();
         this.plugin.refreshSlateViews();
@@ -833,8 +863,102 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
   }
 };
 
+// src/vaultVisibility.ts
+var import_obsidian4 = require("obsidian");
+var STYLE_EL_ID = "slate-data-folder-visibility";
+var IGNORE_FILTERS_KEY = "userIgnoreFilters";
+var DataFolderVisibility = class {
+  constructor(app) {
+    this.app = app;
+    this.styleEl = null;
+    this.lastFilterPath = null;
+    this.warnedFilterFailure = false;
+  }
+  /** Reconcile both mechanisms to the given folder path and hidden state. */
+  apply(folderPath, hidden) {
+    this.applyExplorerHiding(folderPath, hidden);
+    this.applyExcludedFilter(folderPath, hidden);
+  }
+  /** Remove the injected CSS. Excluded-files entries are left as-is. */
+  destroy() {
+    var _a;
+    (_a = this.styleEl) == null ? void 0 : _a.remove();
+    this.styleEl = null;
+  }
+  applyExplorerHiding(folderPath, hidden) {
+    if (!hidden || !folderPath) {
+      if (this.styleEl) {
+        this.styleEl.textContent = "";
+      }
+      return;
+    }
+    const esc = cssAttrEscape(folderPath);
+    this.ensureStyleEl().textContent = [
+      `.nav-folder:has(> .nav-folder-title[data-path="${esc}"]) { display: none !important; }`,
+      `.nav-folder-title[data-path="${esc}"] { display: none !important; }`,
+      `.nav-file-title[data-path^="${esc}/"] { display: none !important; }`
+    ].join("\n");
+  }
+  ensureStyleEl() {
+    if (this.styleEl && this.styleEl.isConnected) {
+      return this.styleEl;
+    }
+    const el = document.createElement("style");
+    el.id = STYLE_EL_ID;
+    document.head.appendChild(el);
+    this.styleEl = el;
+    return el;
+  }
+  applyExcludedFilter(folderPath, hidden) {
+    const vault = this.app.vault;
+    if (typeof vault.getConfig !== "function" || typeof vault.setConfig !== "function") {
+      this.warnFilterFallback(folderPath, hidden);
+      return;
+    }
+    try {
+      const current = vault.getConfig(IGNORE_FILTERS_KEY);
+      const original = Array.isArray(current) ? current : [];
+      let next = [...original];
+      if (this.lastFilterPath && this.lastFilterPath !== folderPath) {
+        next = next.filter((filter) => filter !== this.lastFilterPath);
+      }
+      if (hidden && folderPath) {
+        if (!next.includes(folderPath)) {
+          next.push(folderPath);
+        }
+        this.lastFilterPath = folderPath;
+      } else {
+        next = next.filter((filter) => filter !== folderPath);
+        this.lastFilterPath = null;
+      }
+      if (!arraysEqual(original, next)) {
+        vault.setConfig(IGNORE_FILTERS_KEY, next);
+      }
+    } catch (error) {
+      console.warn("[slate] Could not update Obsidian excluded files list.", error);
+      this.warnFilterFallback(folderPath, hidden);
+    }
+  }
+  warnFilterFallback(folderPath, hidden) {
+    if (!hidden || this.warnedFilterFailure) {
+      return;
+    }
+    this.warnedFilterFailure = true;
+    new import_obsidian4.Notice(
+      `Slate hid "${folderPath}" from the file explorer. To also hide it from search and graph, add it to Settings \u2192 Files and links \u2192 Excluded files.`,
+      1e4
+    );
+  }
+};
+function cssAttrEscape(value) {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+function arraysEqual(a, b) {
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+
 // src/taskStore.ts
-var import_obsidian5 = require("obsidian");
+var import_obsidian6 = require("obsidian");
 
 // src/repeatUtils.ts
 var WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -1302,12 +1426,12 @@ var KNOWN_PROPERTIES2 = /* @__PURE__ */ new Set([
   "repeat",
   "completedoccurrences"
 ]);
-function serializeTaskDocument(document, tasks) {
+function serializeTaskDocument(document2, tasks) {
   const orderedTasks = [...tasks].sort((a, b) => a.order - b.order);
   const tasksById = new Map(orderedTasks.map((task) => [task.id, task]));
   const serializedTaskIds = /* @__PURE__ */ new Set();
   const outputLines = [];
-  for (const block of document.blocks) {
+  for (const block of document2.blocks) {
     if (block.type === "raw") {
       outputLines.push(...block.lines);
       continue;
@@ -1399,7 +1523,7 @@ function serializeDescriptionLines(description) {
 }
 
 // src/demoData.ts
-var import_obsidian4 = require("obsidian");
+var import_obsidian5 = require("obsidian");
 var DEMO_MAIN_CONTENT = [
   "# slate demo data",
   "",
@@ -1718,7 +1842,7 @@ function taskFromSpec(spec, order, sourcePath, created) {
   };
 }
 function attachmentPath(attachmentsDir, taskId, filename) {
-  return (0, import_obsidian4.normalizePath)(`${attachmentsDir}/${taskId}/${filename}`);
+  return (0, import_obsidian5.normalizePath)(`${attachmentsDir}/${taskId}/${filename}`);
 }
 function moodboardSvg() {
   return [
@@ -1788,25 +1912,25 @@ var TaskStore = class {
     this.writingPaths = /* @__PURE__ */ new Set();
   }
   get filePath() {
-    return (0, import_obsidian5.normalizePath)(this.settings.tasksFilePath);
+    return (0, import_obsidian6.normalizePath)(this.settings.tasksFilePath);
   }
   get rootDir() {
     return normalizeDataFolderPath(this.settings.dataFolderPath);
   }
   get mainFilePath() {
-    return (0, import_obsidian5.normalizePath)(`${this.rootDir}/main.md`);
+    return (0, import_obsidian6.normalizePath)(`${this.rootDir}/main.md`);
   }
   get dataDir() {
-    return (0, import_obsidian5.normalizePath)(`${this.rootDir}/Data`);
+    return (0, import_obsidian6.normalizePath)(`${this.rootDir}/Data`);
   }
   get attachmentsDir() {
-    return (0, import_obsidian5.normalizePath)(`${this.rootDir}/Attachments`);
+    return (0, import_obsidian6.normalizePath)(`${this.rootDir}/Attachments`);
   }
   isCurrentlyWriting(path) {
-    return this.writingPaths.has((0, import_obsidian5.normalizePath)(path));
+    return this.writingPaths.has((0, import_obsidian6.normalizePath)(path));
   }
   isTaskStorageFile(path) {
-    const normalizedPath = (0, import_obsidian5.normalizePath)(path);
+    const normalizedPath = (0, import_obsidian6.normalizePath)(path);
     return normalizedPath === this.filePath || normalizedPath.startsWith(`${this.dataDir}/`) && MONTHLY_FILE_PATTERN.test(normalizedPath.split("/").pop() || "");
   }
   getTasks() {
@@ -1860,9 +1984,9 @@ var TaskStore = class {
     }
     for (const file of files.sort((a, b) => a.path.localeCompare(b.path))) {
       const content = await this.app.vault.read(file);
-      const document = parseTaskDocument(content, file.path);
-      nextDocuments.set(file.path, document);
-      for (const task of document.tasks) {
+      const document2 = parseTaskDocument(content, file.path);
+      nextDocuments.set(file.path, document2);
+      for (const task of document2.tasks) {
         nextTasks.push({
           ...task,
           created: task.created || todayIso(),
@@ -1891,7 +2015,7 @@ var TaskStore = class {
     const sourcePath = this.monthlyPathForDate(created);
     const sourceReady = await this.ensureSourceDocument(sourcePath);
     if (!sourceReady) {
-      new import_obsidian5.Notice("slate could not create the task data file. Check the console for details.");
+      new import_obsidian6.Notice("slate could not create the task data file. Check the console for details.");
       return;
     }
     const attachments = normalizeAttachments(input.attachments || []);
@@ -1966,7 +2090,7 @@ var TaskStore = class {
           completedOccurrences: occurrences,
           due: nextDue
         });
-        new import_obsidian5.Notice(`Recurring task rescheduled to ${formatDueDateChip(nextDue)}`);
+        new import_obsidian6.Notice(`Recurring task rescheduled to ${formatDueDateChip(nextDue)}`);
       }
       return;
     }
@@ -2122,7 +2246,7 @@ var TaskStore = class {
     return targetPath;
   }
   async copyAttachmentFile(taskId, file) {
-    const folderPath = (0, import_obsidian5.normalizePath)(`${this.attachmentsDir}/${taskId}`);
+    const folderPath = (0, import_obsidian6.normalizePath)(`${this.attachmentsDir}/${taskId}`);
     const folderReady = await this.ensureFolder(folderPath);
     if (!folderReady) {
       throw new Error(`slate cannot use attachment folder: ${folderPath}`);
@@ -2195,35 +2319,35 @@ var TaskStore = class {
   async writeSources(sourcePaths) {
     for (const sourcePath of dedupeStrings(sourcePaths.filter(Boolean))) {
       await this.ensureSourceDocument(sourcePath);
-      const document = this.documents.get(sourcePath) || { blocks: [], tasks: [] };
+      const document2 = this.documents.get(sourcePath) || { blocks: [], tasks: [] };
       const tasks = this.tasks.filter((task) => task.sourcePath === sourcePath).map((task) => normalizeTaskForSave(task, sourcePath));
-      const content = serializeTaskDocument(document, tasks);
+      const content = serializeTaskDocument(document2, tasks);
       const file = await this.ensureFile(sourcePath, "");
       if (!file) {
         continue;
       }
-      this.writingPaths.add((0, import_obsidian5.normalizePath)(sourcePath));
+      this.writingPaths.add((0, import_obsidian6.normalizePath)(sourcePath));
       try {
         await this.app.vault.modify(file, content);
       } finally {
-        this.writingPaths.delete((0, import_obsidian5.normalizePath)(sourcePath));
+        this.writingPaths.delete((0, import_obsidian6.normalizePath)(sourcePath));
       }
       this.documents.set(sourcePath, parseTaskDocument(content, sourcePath));
     }
   }
   reorderDocumentBlocksForSource(sourcePath) {
-    const document = this.documents.get(sourcePath);
-    if (!document) {
+    const document2 = this.documents.get(sourcePath);
+    if (!document2) {
       return;
     }
     const existingBlockIds = new Set(
-      document.blocks.filter((block) => block.type === "task").map((block) => block.taskId)
+      document2.blocks.filter((block) => block.type === "task").map((block) => block.taskId)
     );
     const orderedTaskIds = this.tasks.filter((task) => task.sourcePath === sourcePath && existingBlockIds.has(task.id)).sort((a, b) => a.order - b.order).map((task) => task.id);
     let cursor = 0;
     this.documents.set(sourcePath, {
-      ...document,
-      blocks: document.blocks.map((block) => {
+      ...document2,
+      blocks: document2.blocks.map((block) => {
         if (block.type !== "task") {
           return block;
         }
@@ -2259,7 +2383,7 @@ var TaskStore = class {
   }
   getDataFiles() {
     return this.app.vault.getFiles().filter((file) => {
-      const path = (0, import_obsidian5.normalizePath)(file.path);
+      const path = (0, import_obsidian6.normalizePath)(file.path);
       return path.startsWith(`${this.dataDir}/`) && MONTHLY_FILE_PATTERN.test(file.name);
     }).sort((a, b) => a.path.localeCompare(b.path));
   }
@@ -2269,7 +2393,7 @@ var TaskStore = class {
       return null;
     }
     const existing = this.app.vault.getAbstractFileByPath(path);
-    return existing instanceof import_obsidian5.TFile ? existing : null;
+    return existing instanceof import_obsidian6.TFile ? existing : null;
   }
   async ensureSourceDocument(sourcePath) {
     if (this.documents.has(sourcePath)) {
@@ -2285,9 +2409,9 @@ var TaskStore = class {
     return true;
   }
   async ensureFile(path, content) {
-    const normalizedPath = (0, import_obsidian5.normalizePath)(path);
+    const normalizedPath = (0, import_obsidian6.normalizePath)(path);
     const existing = this.app.vault.getAbstractFileByPath(normalizedPath);
-    if (existing instanceof import_obsidian5.TFile) {
+    if (existing instanceof import_obsidian6.TFile) {
       return existing;
     }
     if (existing) {
@@ -2305,7 +2429,7 @@ var TaskStore = class {
         throw error;
       }
       const created = this.app.vault.getAbstractFileByPath(normalizedPath);
-      if (created instanceof import_obsidian5.TFile) {
+      if (created instanceof import_obsidian6.TFile) {
         return created;
       }
       if (created) {
@@ -2327,7 +2451,7 @@ var TaskStore = class {
     return file;
   }
   async ensureParentFolders(path) {
-    const parts = (0, import_obsidian5.normalizePath)(path).split("/");
+    const parts = (0, import_obsidian6.normalizePath)(path).split("/");
     parts.pop();
     let current = "";
     for (const part of parts) {
@@ -2340,9 +2464,9 @@ var TaskStore = class {
     return true;
   }
   async ensureFolder(path) {
-    const normalizedPath = (0, import_obsidian5.normalizePath)(path);
+    const normalizedPath = (0, import_obsidian6.normalizePath)(path);
     const existing = this.app.vault.getAbstractFileByPath(normalizedPath);
-    if (existing instanceof import_obsidian5.TFolder) {
+    if (existing instanceof import_obsidian6.TFolder) {
       return true;
     }
     if (existing) {
@@ -2361,7 +2485,7 @@ var TaskStore = class {
         throw error;
       }
       const created = this.app.vault.getAbstractFileByPath(normalizedPath);
-      if (created instanceof import_obsidian5.TFolder) {
+      if (created instanceof import_obsidian6.TFolder) {
         return true;
       }
       if (created) {
@@ -2399,9 +2523,9 @@ var TaskStore = class {
       return;
     }
     this.warnedStorageIssues.add(key);
-    const actualType = existing instanceof import_obsidian5.TFolder ? "folder" : "file";
+    const actualType = existing instanceof import_obsidian6.TFolder ? "folder" : "file";
     const message = `slate expected a ${expectedType} at "${path}", but found a ${actualType}.`;
-    new import_obsidian5.Notice(`${message} Please rename or move the conflicting vault item.`);
+    new import_obsidian6.Notice(`${message} Please rename or move the conflicting vault item.`);
     console.warn("[slate] Storage path type mismatch.", {
       path,
       expectedType,
@@ -2414,16 +2538,16 @@ var TaskStore = class {
     const extensionStart = safeName.lastIndexOf(".");
     const base = extensionStart > 0 ? safeName.slice(0, extensionStart) : safeName;
     const extension = extensionStart > 0 ? safeName.slice(extensionStart) : "";
-    let candidate = (0, import_obsidian5.normalizePath)(`${folderPath}/${safeName}`);
+    let candidate = (0, import_obsidian6.normalizePath)(`${folderPath}/${safeName}`);
     let index = 2;
     while (this.app.vault.getAbstractFileByPath(candidate)) {
-      candidate = (0, import_obsidian5.normalizePath)(`${folderPath}/${base}-${index}${extension}`);
+      candidate = (0, import_obsidian6.normalizePath)(`${folderPath}/${base}-${index}${extension}`);
       index += 1;
     }
     return candidate;
   }
   async nextBackupPath(path) {
-    const normalizedPath = (0, import_obsidian5.normalizePath)(path);
+    const normalizedPath = (0, import_obsidian6.normalizePath)(path);
     const extensionStart = normalizedPath.lastIndexOf(".md");
     const base = extensionStart > -1 ? normalizedPath.slice(0, extensionStart) : normalizedPath;
     let candidate = `${base}.migrated-backup.md`;
@@ -2447,7 +2571,7 @@ var TaskStore = class {
   }
   monthlyPathForDate(value) {
     const month = /^\d{4}-\d{2}/.test(value) ? value.slice(0, 7) : todayIso().slice(0, 7);
-    return (0, import_obsidian5.normalizePath)(`${this.dataDir}/${month}.md`);
+    return (0, import_obsidian6.normalizePath)(`${this.dataDir}/${month}.md`);
   }
 };
 function normalizeTaskForSave(task, sourcePath) {
@@ -2496,7 +2620,7 @@ function cloneTask(task) {
 }
 
 // src/views/TaskBoardView.ts
-var import_obsidian12 = require("obsidian");
+var import_obsidian13 = require("obsidian");
 
 // src/activityData.ts
 function getActivityDataSignature(allTasks) {
@@ -2641,13 +2765,25 @@ function toLocalIsoDate(date) {
 }
 
 // src/views/AddTaskComposer.ts
-var import_obsidian8 = require("obsidian");
+var import_obsidian9 = require("obsidian");
 
 // src/priority.ts
 var PRIORITY_COLORS = {
-  P1: { name: "Priority 1", color: "#E03E3E", light: "#FBE4E3" },
-  P2: { name: "Priority 2", color: "#D9730D", light: "#FAEBDD" },
-  P3: { name: "Priority 3", color: "#0C6E99", light: "#DDEBF1" },
+  P1: {
+    name: "Priority 1",
+    color: "var(--color-red)",
+    light: "rgba(var(--color-red-rgb), 0.14)"
+  },
+  P2: {
+    name: "Priority 2",
+    color: "var(--color-orange)",
+    light: "rgba(var(--color-orange-rgb), 0.14)"
+  },
+  P3: {
+    name: "Priority 3",
+    color: "var(--color-blue)",
+    light: "rgba(var(--color-blue-rgb), 0.14)"
+  },
   P4: {
     name: "Priority 4",
     color: "var(--slate-muted)",
@@ -2685,10 +2821,10 @@ function getPriorityClass(priority) {
 }
 
 // src/views/CustomRepeatModal.ts
-var import_obsidian7 = require("obsidian");
+var import_obsidian8 = require("obsidian");
 
 // src/ui/components/SlateIcon.ts
-var import_obsidian6 = require("obsidian");
+var import_obsidian7 = require("obsidian");
 
 // src/ui/icons/slateIcons.ts
 var SLATE_ICON_MAP = {
@@ -2734,7 +2870,7 @@ function createSlateIcon(parent, icon, options = {}) {
     cls: classNames("slate-icon", options.className),
     attr: options.ariaLabel ? { "aria-label": options.ariaLabel, role: "img" } : { "aria-hidden": "true" }
   });
-  (0, import_obsidian6.setIcon)(iconEl, resolveSlateIcon(icon));
+  (0, import_obsidian7.setIcon)(iconEl, resolveSlateIcon(icon));
   applyIconOptions(iconEl, options);
   return iconEl;
 }
@@ -2800,6 +2936,271 @@ function classNames2(...parts) {
   return parts.filter(Boolean).join(" ");
 }
 
+// src/ui/popover.ts
+function alignLocalPopover(wrapper, popover, options = {}) {
+  const margin = 12;
+  const preferredSide = options.preferredSide || "below";
+  popover.removeClass("is-align-right");
+  popover.removeClass("is-open-up");
+  popover.removeClass("is-open-down");
+  popover.setCssProps({ "--slate-popover-shift-x": "0px" });
+  const wrapperRect = wrapper.getBoundingClientRect();
+  if (options.useFixed) {
+    popover.setCssStyles({
+      top: "",
+      bottom: "",
+      left: "",
+      right: ""
+    });
+    const popoverWidth2 = popover.offsetWidth || 240;
+    const popoverHeight2 = popover.offsetHeight || 220;
+    let left = wrapperRect.left;
+    if (left + popoverWidth2 > window.innerWidth - margin) {
+      left = wrapperRect.right - popoverWidth2;
+    }
+    const fixedStyles = {
+      left: `${Math.max(margin, left)}px`
+    };
+    const fitsBelow2 = wrapperRect.bottom + popoverHeight2 + margin <= window.innerHeight;
+    const fitsAbove2 = wrapperRect.top - popoverHeight2 - margin >= 0;
+    if (preferredSide === "above" && fitsAbove2 || preferredSide === "above" && !fitsBelow2) {
+      fixedStyles.bottom = `${window.innerHeight - wrapperRect.top + 8}px`;
+      popover.addClass("is-open-up");
+    } else {
+      fixedStyles.top = `${wrapperRect.bottom + 8}px`;
+      popover.addClass("is-open-down");
+    }
+    popover.setCssStyles(fixedStyles);
+    return;
+  }
+  const popoverRect = popover.getBoundingClientRect();
+  const popoverWidth = popoverRect.width || 240;
+  const popoverHeight = popoverRect.height || 220;
+  const ownerWindow = wrapper.ownerDocument.defaultView || window;
+  let shiftX = 0;
+  const rightOverflow = wrapperRect.left + popoverWidth - (ownerWindow.innerWidth - margin);
+  if (rightOverflow > 0) {
+    shiftX -= rightOverflow;
+  }
+  const shiftedLeft = wrapperRect.left + shiftX;
+  if (shiftedLeft < margin) {
+    shiftX += margin - shiftedLeft;
+  }
+  if (shiftX !== 0) {
+    popover.setCssProps({ "--slate-popover-shift-x": `${Math.round(shiftX)}px` });
+  }
+  const fitsBelow = wrapperRect.bottom + popoverHeight + margin <= ownerWindow.innerHeight;
+  const fitsAbove = wrapperRect.top - popoverHeight - margin >= 0;
+  if (preferredSide === "above" && fitsAbove) {
+    popover.addClass("is-open-up");
+    return;
+  }
+  if (preferredSide === "above" && !fitsBelow) {
+    popover.addClass("is-open-up");
+    return;
+  }
+  if (preferredSide === "below" && !fitsBelow && fitsAbove) {
+    popover.addClass("is-open-up");
+    return;
+  }
+  popover.addClass("is-open-down");
+}
+
+// src/ui/components/SlateDropdown.ts
+var SlateDropdown = class {
+  constructor(config) {
+    this.config = config;
+    this.labelEl = null;
+    this.dotEl = null;
+    this.menuEl = null;
+    this.detachOutside = () => void 0;
+    if (config.trigger) {
+      this.triggerEl = config.trigger;
+    } else {
+      const parent = config.triggerParent;
+      if (!parent) {
+        throw new Error("SlateDropdown requires either `trigger` or `triggerParent`.");
+      }
+      this.triggerEl = this.buildDefaultTrigger(parent);
+    }
+    this.triggerEl.setAttribute("role", "combobox");
+    this.triggerEl.setAttribute("aria-haspopup", "listbox");
+    this.triggerEl.setAttribute("aria-expanded", "false");
+    if (config.ariaLabel) {
+      this.triggerEl.setAttribute("aria-label", config.ariaLabel);
+    }
+    if (!this.triggerEl.hasAttribute("tabindex") && this.triggerEl.tagName !== "BUTTON") {
+      this.triggerEl.setAttribute("tabindex", "0");
+    }
+    this.triggerEl.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      this.toggle();
+    });
+    this.triggerEl.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        this.open();
+      }
+    });
+    this.refresh();
+  }
+  /** Re-read the current value/options and update the trigger (and open menu). */
+  refresh() {
+    var _a, _b;
+    const option = this.currentOption();
+    if (this.labelEl) {
+      this.labelEl.setText(option ? option.label : "");
+    }
+    if (this.dotEl) {
+      const color = option == null ? void 0 : option.dotColor;
+      this.dotEl.toggleClass("is-hidden", !color);
+      if (color) {
+        this.dotEl.setCssStyles({ backgroundColor: color });
+      }
+    }
+    (_b = (_a = this.config).onRenderTrigger) == null ? void 0 : _b.call(_a, option);
+    if (this.menuEl) {
+      this.renderMenu();
+    }
+  }
+  toggle() {
+    if (this.menuEl) {
+      this.close();
+    } else {
+      this.open();
+    }
+  }
+  open() {
+    if (this.menuEl) {
+      return;
+    }
+    const doc = this.triggerEl.ownerDocument;
+    const menu = doc.createElement("div");
+    menu.className = "slate-dropdown-menu";
+    if (this.config.menuClassName) {
+      menu.classList.add(this.config.menuClassName);
+    }
+    menu.setAttribute("role", "listbox");
+    doc.body.appendChild(menu);
+    this.menuEl = menu;
+    this.triggerEl.setAttribute("aria-expanded", "true");
+    this.renderMenu();
+    alignLocalPopover(this.triggerEl, menu, {
+      preferredSide: this.config.preferredSide,
+      useFixed: true
+    });
+    const handleOutside = (event) => {
+      if (event.target instanceof Node && (this.triggerEl.contains(event.target) || menu.contains(event.target))) {
+        return;
+      }
+      this.close();
+    };
+    doc.addEventListener("pointerdown", handleOutside, true);
+    this.detachOutside = () => doc.removeEventListener("pointerdown", handleOutside, true);
+    const firstOption = menu.querySelector(".slate-dropdown-option");
+    firstOption == null ? void 0 : firstOption.focus({ preventScroll: true });
+  }
+  close() {
+    var _a;
+    this.detachOutside();
+    this.detachOutside = () => void 0;
+    (_a = this.menuEl) == null ? void 0 : _a.remove();
+    this.menuEl = null;
+    this.triggerEl.setAttribute("aria-expanded", "false");
+  }
+  destroy() {
+    this.close();
+    if (!this.config.trigger) {
+      this.triggerEl.remove();
+    }
+  }
+  buildDefaultTrigger(parent) {
+    const trigger = parent.createEl("button", {
+      cls: "slate-dropdown-trigger",
+      attr: { type: "button" }
+    });
+    if (this.config.triggerClassName) {
+      trigger.addClass(this.config.triggerClassName);
+    }
+    this.dotEl = trigger.createSpan({ cls: "slate-dropdown-dot is-hidden" });
+    this.labelEl = trigger.createSpan({ cls: "slate-dropdown-trigger-label" });
+    trigger.createSpan({ cls: "slate-dropdown-caret" });
+    return trigger;
+  }
+  currentOption() {
+    const value = this.config.getValue();
+    return this.config.getOptions().find((option) => option.value === value) || null;
+  }
+  renderMenu() {
+    const menu = this.menuEl;
+    if (!menu) {
+      return;
+    }
+    menu.empty();
+    const selected = this.config.getValue();
+    let lastSection;
+    for (const option of this.config.getOptions()) {
+      if (option.section && option.section !== lastSection) {
+        menu.createDiv({ cls: "slate-dropdown-section", text: option.section });
+        lastSection = option.section;
+      }
+      const isSelected = option.value === selected;
+      const item = menu.createEl("button", {
+        cls: "slate-dropdown-option",
+        attr: {
+          type: "button",
+          role: "option",
+          "aria-selected": String(isSelected),
+          tabindex: "-1"
+        }
+      });
+      item.toggleClass("is-selected", isSelected);
+      item.createSpan({
+        cls: "slate-dropdown-option-check",
+        text: isSelected ? "\u2713" : ""
+      });
+      if (option.dotColor) {
+        item.createSpan({ cls: "slate-dropdown-option-dot" }).setCssStyles({ backgroundColor: option.dotColor });
+      }
+      item.createSpan({ cls: "slate-dropdown-option-label", text: option.label });
+      item.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        this.close();
+        this.config.onSelect(option.value);
+      });
+      item.addEventListener("keydown", (event) => this.handleMenuKeydown(event, item));
+    }
+  }
+  handleMenuKeydown(event, item) {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      this.close();
+      this.triggerEl.focus({ preventScroll: true });
+      return;
+    }
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      const next = item.nextElementSibling;
+      this.focusOption(next, "next");
+      return;
+    }
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      const previous = item.previousElementSibling;
+      this.focusOption(previous, "previous");
+    }
+  }
+  focusOption(start, direction) {
+    let candidate = start;
+    while (candidate && !candidate.classList.contains("slate-dropdown-option")) {
+      candidate = direction === "next" ? candidate.nextElementSibling : candidate.previousElementSibling;
+    }
+    candidate == null ? void 0 : candidate.focus({ preventScroll: true });
+  }
+};
+
 // src/views/CustomRepeatModal.ts
 var FREQ_LABELS = {
   daily: "Day",
@@ -2817,7 +3218,7 @@ var DISPLAY_DAYS = [
   { label: "Sat", value: 6 },
   { label: "Sun", value: 0 }
 ];
-var CustomRepeatModal = class extends import_obsidian7.Modal {
+var CustomRepeatModal = class extends import_obsidian8.Modal {
   constructor(app, current, onSave) {
     super(app);
     this.onSave = onSave;
@@ -2862,18 +3263,20 @@ var CustomRepeatModal = class extends import_obsidian7.Modal {
       this.draft.interval = v >= 1 && Number.isInteger(v) ? v : 1;
       intervalInput.value = String(this.draft.interval);
     });
-    const freqSelect = everyRow.createEl("select", { cls: "slate-repeat-freq-select" });
     const freqs = ["daily", "weekly", "weekdays", "monthly", "yearly"];
-    for (const f of freqs) {
-      freqSelect.createEl("option", { value: f, text: FREQ_LABELS[f] });
-    }
-    freqSelect.value = this.draft.frequency;
-    freqSelect.addEventListener("change", () => {
-      this.draft.frequency = freqSelect.value;
-      if (this.draft.frequency !== "weekly") {
-        this.clearWeekdays();
+    new SlateDropdown({
+      triggerParent: everyRow,
+      triggerClassName: "slate-repeat-freq-trigger",
+      ariaLabel: "Frequency",
+      getOptions: () => freqs.map((f) => ({ value: f, label: FREQ_LABELS[f] })),
+      getValue: () => this.draft.frequency,
+      onSelect: (value) => {
+        this.draft.frequency = value;
+        if (this.draft.frequency !== "weekly") {
+          this.clearWeekdays();
+        }
+        this.render();
       }
-      this.render();
     });
     if (this.draft.frequency === "weekly" && this.draft.mode === "scheduledDate") {
       this.renderSection(contentEl, "On");
@@ -2945,7 +3348,7 @@ var CustomRepeatModal = class extends import_obsidian7.Modal {
     cancelBtn.addEventListener("click", () => this.close());
     saveBtn.addEventListener("click", () => {
       if (this.requiresWeekdays() && getRepeatWeekdays(this.draft).length === 0) {
-        new import_obsidian7.Notice("Choose at least one weekday.");
+        new import_obsidian8.Notice("Choose at least one weekday.");
         return;
       }
       const v = parseInt(intervalInput.value);
@@ -3349,32 +3752,34 @@ var AddTaskComposer = class {
     createIcon(priorityWrap, "priority");
     const priorityIndicator = priorityWrap.createSpan({ cls: "slate-priority-indicator" });
     const priorityDisplay = priorityWrap.createSpan({ cls: "slate-priority-display" });
-    const prioritySelect = priorityWrap.createEl("select", {
-      cls: "slate-chip-select",
-      attr: {
-        "aria-label": "Priority"
-      }
-    });
-    for (const priority of PRIORITIES.filter((priority2) => priority2 !== "none")) {
-      prioritySelect.createEl("option", {
-        text: getPriorityDropdownLabel(priority),
-        value: priority
-      });
-    }
-    prioritySelect.value = "P4";
+    const priorityChoices = PRIORITIES.filter((priority) => priority !== "none");
+    let priorityValue = "P4";
     const updatePriorityStyle = () => {
-      const priority = prioritySelect.value;
-      const color = getPriorityColor(priority);
+      const color = getPriorityColor(priorityValue);
       priorityWrap.setCssProps({
         "--slate-priority-text": color.color,
         "--slate-priority-bg": color.light,
         "--slate-priority-border": color.color
       });
-      priorityWrap.toggleClass("has-priority", hasVisiblePriority(priority));
+      priorityWrap.toggleClass("has-priority", hasVisiblePriority(priorityValue));
       priorityIndicator.setCssStyles({ backgroundColor: color.color });
-      priorityDisplay.setText(getPriorityDisplayLabel(priority));
+      priorityDisplay.setText(getPriorityDisplayLabel(priorityValue));
     };
-    prioritySelect.addEventListener("change", updatePriorityStyle);
+    new SlateDropdown({
+      trigger: priorityWrap,
+      ariaLabel: "Priority",
+      getValue: () => priorityValue,
+      getOptions: () => priorityChoices.map((priority) => ({
+        value: priority,
+        label: getPriorityDropdownLabel(priority),
+        dotColor: getPriorityColor(priority).color
+      })),
+      onSelect: (value) => {
+        priorityValue = value;
+        updatePriorityStyle();
+      },
+      onRenderTrigger: () => updatePriorityStyle()
+    });
     updatePriorityStyle();
     const attachmentButton = createChipButton(chipRow, "Attachment", "paperclip");
     const attachmentInput = chipRow.createEl("input", {
@@ -3421,7 +3826,7 @@ var AddTaskComposer = class {
       attachmentInput.value = "";
       renderPendingAttachments();
     });
-    const mobilePanelSide = import_obsidian8.Platform.isMobile ? "above" : "below";
+    const mobilePanelSide = import_obsidian9.Platform.isMobile ? "above" : "below";
     const labelsWrap = chipRow.createDiv({ cls: "slate-composer-labels-wrap" });
     const labelsButton = createChipButton(labelsWrap, "Labels", "tag");
     const deadlineWrap = chipRow.createDiv({ cls: "slate-composer-deadline-wrap" });
@@ -3519,7 +3924,7 @@ var AddTaskComposer = class {
         panel.addClass("is-hidden");
         panel.removeClass("is-calendar-open");
       };
-      let canSelectDeadline = !import_obsidian8.Platform.isMobile;
+      let canSelectDeadline = !import_obsidian9.Platform.isMobile;
       const selectDeadline = (value) => {
         if (!canSelectDeadline) {
           return;
@@ -3552,12 +3957,12 @@ var AddTaskComposer = class {
         const shouldOpen = panel.hasClass("is-hidden");
         closeComposerPopovers();
         if (shouldOpen) {
-          canSelectDeadline = !import_obsidian8.Platform.isMobile;
+          canSelectDeadline = !import_obsidian9.Platform.isMobile;
           const ownerWindow = btn.ownerDocument.defaultView || window;
           ownerWindow.setTimeout(() => {
             panel.removeClass("is-hidden");
             watchLocalPopover(deadlineWrap, panel, { preferredSide: mobilePanelSide });
-            if (import_obsidian8.Platform.isMobile) {
+            if (import_obsidian9.Platform.isMobile) {
               ownerWindow.setTimeout(() => {
                 canSelectDeadline = true;
               }, 250);
@@ -3877,7 +4282,7 @@ var AddTaskComposer = class {
             due: selectedDue,
             deadline: selectedDeadline,
             project: explicitProject || parsed.project || "",
-            priority: prioritySelect.value,
+            priority: priorityValue,
             labels: dedupeLabels([...selectedLabels, ...parsed.labels]),
             pendingAttachments,
             repeat: selectedRepeat
@@ -3904,7 +4309,7 @@ var AddTaskComposer = class {
         createSlateIcon(clearBtn, "close");
         clearBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          if (selectedRepeat) new import_obsidian8.Notice("Date and repeat rule removed.");
+          if (selectedRepeat) new import_obsidian9.Notice("Date and repeat rule removed.");
           selectedDue = "";
           selectedRepeat = void 0;
           closeDueDatePopover();
@@ -4067,74 +4472,6 @@ function createChipButton(parent, label, iconName, ariaLabel) {
 function createIcon(parent, iconName, className = "slate-chip-icon") {
   return createSlateIcon(parent, iconName, { className });
 }
-function alignLocalPopover(wrapper, popover, options = {}) {
-  const margin = 12;
-  const preferredSide = options.preferredSide || "below";
-  popover.removeClass("is-align-right");
-  popover.removeClass("is-open-up");
-  popover.removeClass("is-open-down");
-  popover.setCssProps({ "--slate-popover-shift-x": "0px" });
-  const wrapperRect = wrapper.getBoundingClientRect();
-  if (options.useFixed) {
-    popover.setCssStyles({
-      top: "",
-      bottom: "",
-      left: "",
-      right: ""
-    });
-    const popoverWidth2 = popover.offsetWidth || 240;
-    const popoverHeight2 = popover.offsetHeight || 220;
-    let left = wrapperRect.left;
-    if (left + popoverWidth2 > window.innerWidth - margin) {
-      left = wrapperRect.right - popoverWidth2;
-    }
-    const fixedStyles = {
-      left: `${Math.max(margin, left)}px`
-    };
-    const fitsBelow2 = wrapperRect.bottom + popoverHeight2 + margin <= window.innerHeight;
-    const fitsAbove2 = wrapperRect.top - popoverHeight2 - margin >= 0;
-    if (preferredSide === "above" && fitsAbove2 || preferredSide === "above" && !fitsBelow2) {
-      fixedStyles.bottom = `${window.innerHeight - wrapperRect.top + 8}px`;
-      popover.addClass("is-open-up");
-    } else {
-      fixedStyles.top = `${wrapperRect.bottom + 8}px`;
-      popover.addClass("is-open-down");
-    }
-    popover.setCssStyles(fixedStyles);
-    return;
-  }
-  const popoverRect = popover.getBoundingClientRect();
-  const popoverWidth = popoverRect.width || 240;
-  const popoverHeight = popoverRect.height || 220;
-  const ownerWindow = wrapper.ownerDocument.defaultView || window;
-  let shiftX = 0;
-  const rightOverflow = wrapperRect.left + popoverWidth - (ownerWindow.innerWidth - margin);
-  if (rightOverflow > 0) {
-    shiftX -= rightOverflow;
-  }
-  const shiftedLeft = wrapperRect.left + shiftX;
-  if (shiftedLeft < margin) {
-    shiftX += margin - shiftedLeft;
-  }
-  if (shiftX !== 0) {
-    popover.setCssProps({ "--slate-popover-shift-x": `${Math.round(shiftX)}px` });
-  }
-  const fitsBelow = wrapperRect.bottom + popoverHeight + margin <= ownerWindow.innerHeight;
-  const fitsAbove = wrapperRect.top - popoverHeight - margin >= 0;
-  if (preferredSide === "above" && fitsAbove) {
-    popover.addClass("is-open-up");
-    return;
-  }
-  if (preferredSide === "above" && !fitsBelow) {
-    popover.addClass("is-open-up");
-    return;
-  }
-  if (preferredSide === "below" && !fitsBelow && fitsAbove) {
-    popover.addClass("is-open-up");
-    return;
-  }
-  popover.addClass("is-open-down");
-}
 function renderComposerCustomDatePicker(parent, currentValue, onSelect) {
   const today = todayIso();
   const initialDate = currentValue ? /* @__PURE__ */ new Date(`${currentValue}T00:00:00`) : /* @__PURE__ */ new Date();
@@ -4257,11 +4594,11 @@ function isImageFile(file) {
 }
 
 // src/views/TaskDetailModal.ts
-var import_obsidian10 = require("obsidian");
+var import_obsidian11 = require("obsidian");
 
 // src/views/ImagePreviewModal.ts
-var import_obsidian9 = require("obsidian");
-var ImagePreviewModal = class extends import_obsidian9.Modal {
+var import_obsidian10 = require("obsidian");
+var ImagePreviewModal = class extends import_obsidian10.Modal {
   constructor(app, file, label) {
     super(app);
     this.file = file;
@@ -4333,7 +4670,7 @@ var DESCRIPTION_FORMAT_ACTIONS = [
   { id: "numbered-list", label: "1.", title: "Numbered list" },
   { id: "link", label: "\u2197", title: "Link" }
 ];
-var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
+var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
   constructor(app, options) {
     super(app);
     this.options = options;
@@ -4379,7 +4716,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
     this.modalEl.addClass("slate-modal-detail");
     this.containerEl.addClass("slate-modal-detail-container");
     (_a = this.markdownRenderComponent) == null ? void 0 : _a.unload();
-    this.markdownRenderComponent = new import_obsidian10.Component();
+    this.markdownRenderComponent = new import_obsidian11.Component();
     this.markdownRenderComponent.load();
     applySlateFontSettings(contentEl, this.options.settings);
     this.modalEl.addEventListener("keydown", this.handleEscape, true);
@@ -4485,7 +4822,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
       }
       const renderTarget = descRendered.createDiv({ cls: "slate-detail-description-content" });
       try {
-        await import_obsidian10.MarkdownRenderer.render(
+        await import_obsidian11.MarkdownRenderer.render(
           this.app,
           markdown,
           renderTarget,
@@ -4582,10 +4919,9 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
     this.renderAttachments(main);
     this.renderSidePanel(side);
     const footer = contentEl.createDiv({ cls: "slate-detail-footer" });
-    footer.createEl("button", {
-      cls: "slate-detail-delete",
+    createSlateButton(footer, {
       text: "Delete task",
-      attr: { type: "button" }
+      variant: "destructive"
     }).addEventListener("click", () => {
       void (async () => {
         await this.options.store.deleteTask(this.draft.id);
@@ -4616,7 +4952,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
     createSlateButton(footerActions, { text: "Save", variant: "primary" }).addEventListener("click", () => {
       void this.save();
     });
-    if (!import_obsidian10.Platform.isMobile) {
+    if (!import_obsidian11.Platform.isMobile) {
       titleInput.focus();
     }
   }
@@ -4722,7 +5058,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
     const toolbarWidth = toolbar.offsetWidth;
     const toolbarHeight = toolbar.offsetHeight;
     const textareaRect = textarea.getBoundingClientRect();
-    const anchor = import_obsidian10.Platform.isMobile ? {
+    const anchor = import_obsidian11.Platform.isMobile ? {
       left: textareaRect.left + 8,
       top: textareaRect.top,
       bottom: textareaRect.bottom
@@ -4792,7 +5128,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
       list.empty();
       const imagePaths = this.draft.attachments.filter((path) => {
         const file = this.app.vault.getAbstractFileByPath(path);
-        return isImagePath(path) && file instanceof import_obsidian10.TFile;
+        return isImagePath(path) && file instanceof import_obsidian11.TFile;
       });
       if (this.draft.attachments.length === 0) {
         list.createDiv({
@@ -4811,7 +5147,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
         item.setAttr("tabindex", "0");
         const openAttachment = () => {
           const file = this.app.vault.getAbstractFileByPath(path);
-          if (isImagePath(path) && file instanceof import_obsidian10.TFile) {
+          if (isImagePath(path) && file instanceof import_obsidian11.TFile) {
             new ImagePreviewModal(this.app, file, attachmentName(path)).open();
             return;
           }
@@ -4900,7 +5236,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
     });
     for (const path of imagePaths) {
       const file = this.app.vault.getAbstractFileByPath(path);
-      if (!(file instanceof import_obsidian10.TFile)) {
+      if (!(file instanceof import_obsidian11.TFile)) {
         continue;
       }
       const preview = gallery.createDiv({ cls: "slate-image-attachment-card" });
@@ -4966,7 +5302,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
   }
   async downloadAttachment(path) {
     const file = this.app.vault.getAbstractFileByPath(path);
-    if (!(file instanceof import_obsidian10.TFile)) {
+    if (!(file instanceof import_obsidian11.TFile)) {
       await this.app.workspace.openLinkText(path, "", false);
       return;
     }
@@ -5255,16 +5591,8 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
       };
       renderChips();
       const btnRow = addRow.createDiv({ cls: "slate-subtask-btn-row" });
-      const addBtn = btnRow.createEl("button", {
-        cls: "slate-button slate-button-primary",
-        text: "Add task",
-        attr: { type: "button" }
-      });
-      const cancelBtn = btnRow.createEl("button", {
-        cls: "slate-button",
-        text: "Cancel",
-        attr: { type: "button" }
-      });
+      const addBtn = createSlateButton(btnRow, { text: "Add task", variant: "primary" });
+      const cancelBtn = createSlateButton(btnRow, { text: "Cancel" });
       const submit = () => {
         const title = input.value.trim();
         if (!title) return;
@@ -5333,9 +5661,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
     const projectDot = projectPicker.createSpan({
       cls: "slate-project-dot slate-detail-project-dot"
     });
-    const select = projectPicker.createEl("select", {
-      cls: "slate-detail-input slate-detail-select"
-    });
+    const projectLabel = projectPicker.createSpan({ cls: "slate-detail-project-label" });
     const createRow = field.createDiv({ cls: "slate-detail-project-create is-hidden" });
     const createInput = createRow.createEl("input", {
       cls: "slate-detail-project-create-input",
@@ -5361,17 +5687,9 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
       ...Object.keys(this.options.settings.projectColors),
       this.draft.project
     ]);
-    const renderOptions = () => {
-      select.empty();
-      select.createEl("option", { text: "No project", value: "" });
-      for (const project of getProjects()) {
-        select.createEl("option", { text: project, value: project });
-      }
-      select.createEl("option", { text: "Create project...", value: createValue });
-      select.value = normalizeTaskProject(this.draft.project) || "";
-    };
     const updateProjectStyle = () => {
       const project = normalizeTaskProject(this.draft.project);
+      projectLabel.setText(project || "No project");
       if (!project) {
         projectDot.setCssStyles({ backgroundColor: "var(--slate-faint)" });
         projectPicker.setCssStyles({
@@ -5387,10 +5705,38 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
         borderColor: color.light
       });
     };
+    const dropdown = new SlateDropdown({
+      trigger: projectPicker,
+      ariaLabel: "Project",
+      getValue: () => normalizeTaskProject(this.draft.project) || "",
+      getOptions: () => {
+        const options = [{ value: "", label: "No project" }];
+        for (const project of getProjects()) {
+          options.push({
+            value: project,
+            label: project,
+            dotColor: getProjectColor(project, this.options.settings.projectColors).regular,
+            section: "Projects"
+          });
+        }
+        options.push({ value: createValue, label: "Create project..." });
+        return options;
+      },
+      onSelect: (value) => {
+        if (value === createValue) {
+          createRow.removeClass("is-hidden");
+          createInput.focus();
+          return;
+        }
+        this.draft.project = normalizeTaskProject(value);
+        createRow.addClass("is-hidden");
+        updateProjectStyle();
+      },
+      onRenderTrigger: () => updateProjectStyle()
+    });
     const hideCreateRow = () => {
       createInput.value = "";
       createRow.addClass("is-hidden");
-      select.value = normalizeTaskProject(this.draft.project) || "";
     };
     const createProject = () => {
       const project = normalizeTaskProject(createInput.value);
@@ -5400,20 +5746,9 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
       }
       this.draft.project = project;
       hideCreateRow();
-      renderOptions();
+      dropdown.refresh();
       updateProjectStyle();
     };
-    select.addEventListener("change", () => {
-      if (select.value === createValue) {
-        createRow.removeClass("is-hidden");
-        select.value = normalizeTaskProject(this.draft.project) || "";
-        createInput.focus();
-        return;
-      }
-      this.draft.project = normalizeTaskProject(select.value);
-      createRow.addClass("is-hidden");
-      updateProjectStyle();
-    });
     createButton.addEventListener("click", createProject);
     cancelCreateButton.addEventListener("click", hideCreateRow);
     createInput.addEventListener("keydown", (event) => {
@@ -5427,7 +5762,6 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
         hideCreateRow();
       }
     });
-    renderOptions();
     updateProjectStyle();
   }
   renderDueDatePicker(parent) {
@@ -5458,7 +5792,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
         createSlateIcon(clearBtn, "close");
         clearBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          if (this.draft.repeat) new import_obsidian10.Notice("Date and repeat rule removed.");
+          if (this.draft.repeat) new import_obsidian11.Notice("Date and repeat rule removed.");
           this.draft.due = void 0;
           this.draft.repeat = void 0;
           closePopover();
@@ -5647,14 +5981,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
     const priorityWrap = field.createDiv({ cls: "slate-priority-select-wrap slate-detail-priority-wrap" });
     const indicator = priorityWrap.createSpan({ cls: "slate-priority-indicator" });
     const display = priorityWrap.createSpan({ cls: "slate-priority-display" });
-    const select = priorityWrap.createEl("select", {
-      cls: "slate-detail-input slate-priority-select",
-      attr: { "aria-label": "Priority" }
-    });
-    for (const priority of PRIORITIES.filter((priority2) => priority2 !== "none")) {
-      select.createEl("option", { text: getPriorityDropdownLabel(priority), value: priority });
-    }
-    select.value = isDefaultPriority(this.draft.priority) ? "P4" : this.draft.priority;
+    const priorities = PRIORITIES.filter((priority) => priority !== "none");
     const updatePriorityStyle = () => {
       const color = getPriorityColor(this.draft.priority);
       priorityWrap.setCssProps({
@@ -5666,9 +5993,20 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
       indicator.setCssStyles({ backgroundColor: color.color });
       display.setText(getPriorityDisplayLabel(this.draft.priority));
     };
-    select.addEventListener("change", () => {
-      this.draft.priority = select.value;
-      updatePriorityStyle();
+    new SlateDropdown({
+      trigger: priorityWrap,
+      ariaLabel: "Priority",
+      getValue: () => isDefaultPriority(this.draft.priority) ? "P4" : this.draft.priority,
+      getOptions: () => priorities.map((priority) => ({
+        value: priority,
+        label: getPriorityDropdownLabel(priority),
+        dotColor: getPriorityColor(priority).color
+      })),
+      onSelect: (value) => {
+        this.draft.priority = value;
+        updatePriorityStyle();
+      },
+      onRenderTrigger: () => updatePriorityStyle()
     });
     updatePriorityStyle();
   }
@@ -6218,8 +6556,8 @@ function compareOptionalDateDesc(a, b) {
 }
 
 // src/views/projects/ProjectModals.ts
-var import_obsidian11 = require("obsidian");
-var RenameProjectModal = class extends import_obsidian11.Modal {
+var import_obsidian12 = require("obsidian");
+var RenameProjectModal = class extends import_obsidian12.Modal {
   constructor(app, currentName, existingProjects, onSubmit) {
     super(app);
     this.currentName = currentName;
@@ -6277,7 +6615,7 @@ var RenameProjectModal = class extends import_obsidian11.Modal {
     input.focus();
   }
 };
-var DeleteProjectModal = class extends import_obsidian11.Modal {
+var DeleteProjectModal = class extends import_obsidian12.Modal {
   constructor(app, projectName, taskCount, onConfirm) {
     super(app);
     this.projectName = projectName;
@@ -6302,7 +6640,7 @@ var DeleteProjectModal = class extends import_obsidian11.Modal {
     });
   }
 };
-var CreateProjectModal = class extends import_obsidian11.Modal {
+var CreateProjectModal = class extends import_obsidian12.Modal {
   constructor(app, existingProjects, onSubmit) {
     super(app);
     this.existingProjects = existingProjects;
@@ -6539,7 +6877,7 @@ var SORT_OPTIONS = [
   { mode: "project", label: "Project" },
   { mode: "alphabetical", label: "Alphabetical" }
 ];
-var TaskBoardView = class extends import_obsidian12.ItemView {
+var TaskBoardView = class extends import_obsidian13.ItemView {
   constructor(leaf, store, settings, saveSettings) {
     super(leaf);
     this.store = store;
@@ -6771,7 +7109,7 @@ var TaskBoardView = class extends import_obsidian12.ItemView {
     containerEl.empty();
     containerEl.addClass("slate-root");
     containerEl.addClass("slate-view");
-    containerEl.toggleClass("is-mobile", import_obsidian12.Platform.isMobile);
+    containerEl.toggleClass("is-mobile", import_obsidian13.Platform.isMobile);
     applySlateFontSettings(containerEl, this.settings);
     containerEl.addEventListener("keydown", this.handleRootKeyDown, true);
     containerEl.addEventListener("click", this.handleRootClick, true);
@@ -7016,7 +7354,7 @@ var TaskBoardView = class extends import_obsidian12.ItemView {
     this.projectActionsOpen = null;
     this.searchOpen = false;
     this.searchQuery = "";
-    if (import_obsidian12.Platform.isMobile) {
+    if (import_obsidian13.Platform.isMobile) {
       this.mobileComposerReturnScroll = this.getMainScrollSnapshot();
       this.mobileComposerOpen = true;
       this.composerOpen = false;
@@ -7054,11 +7392,11 @@ var TaskBoardView = class extends import_obsidian12.ItemView {
         await this.createTaskFromComposer(input);
         onClose();
       },
-      presentation: import_obsidian12.Platform.isMobile ? "mobile-screen" : "default"
+      presentation: import_obsidian13.Platform.isMobile ? "mobile-screen" : "default"
     });
     const ownerWindow = parent.ownerDocument.defaultView || window;
     ownerWindow.requestAnimationFrame(() => {
-      if (import_obsidian12.Platform.isMobile) {
+      if (import_obsidian13.Platform.isMobile) {
         composer.focusTitleForMobileCapture();
       } else {
         composer.focus();
@@ -7802,26 +8140,19 @@ var TaskBoardView = class extends import_obsidian12.ItemView {
     }
   }
   renderOverdueRangeSelect(parent) {
-    const select = parent.createEl("select", {
-      cls: "slate-overdue-range-select",
-      attr: {
-        "aria-label": "Overdue range"
+    new SlateDropdown({
+      triggerParent: parent,
+      triggerClassName: "slate-overdue-range-trigger",
+      ariaLabel: "Overdue range",
+      getOptions: () => OVERDUE_RANGES.map((range) => ({ value: range, label: overdueRangeLabel(range) })),
+      getValue: () => this.settings.defaultOverdueRange,
+      onSelect: (value) => {
+        this.settings.defaultOverdueRange = normalizeOverdueRange(value);
+        void (async () => {
+          await this.saveSettings();
+          this.renderPreservingMainScroll();
+        })();
       }
-    });
-    for (const range of OVERDUE_RANGES) {
-      select.createEl("option", {
-        text: overdueRangeLabel(range),
-        value: range
-      });
-    }
-    select.value = this.settings.defaultOverdueRange;
-    select.addEventListener("click", (event) => event.stopPropagation());
-    select.addEventListener("change", () => {
-      this.settings.defaultOverdueRange = normalizeOverdueRange(select.value);
-      void (async () => {
-        await this.saveSettings();
-        this.renderPreservingMainScroll();
-      })();
     });
   }
   enableTodayDrop(section) {
@@ -8842,7 +9173,7 @@ var TaskBoardView = class extends import_obsidian12.ItemView {
     event.stopImmediatePropagation();
   }
 };
-var LabelPromptModal = class extends import_obsidian12.Modal {
+var LabelPromptModal = class extends import_obsidian13.Modal {
   constructor(app, onSubmit) {
     super(app);
     this.onSubmit = onSubmit;
@@ -8983,8 +9314,8 @@ function searchableText(task) {
 }
 
 // src/views/QuickAddModal.ts
-var import_obsidian13 = require("obsidian");
-var QuickAddModal = class extends import_obsidian13.Modal {
+var import_obsidian14 = require("obsidian");
+var QuickAddModal = class extends import_obsidian14.Modal {
   constructor(app, onSubmit) {
     super(app);
     this.onSubmit = onSubmit;
@@ -9051,10 +9382,10 @@ var QuickAddModal = class extends import_obsidian13.Modal {
 };
 
 // src/views/DailyNoteCompletedBlock.ts
-var import_obsidian14 = require("obsidian");
+var import_obsidian15 = require("obsidian");
 var DATE_OPTION_RE = /(?:^|\n)\s*date\s*:\s*(\d{4}-\d{2}-\d{2})\s*(?:\n|$)/i;
 var DATE_LINE_RE = /^\s*(\d{4}-\d{2}-\d{2})\s*$/m;
-var DailyNoteCompletedBlock = class extends import_obsidian14.MarkdownRenderChild {
+var DailyNoteCompletedBlock = class extends import_obsidian15.MarkdownRenderChild {
   constructor(options) {
     super(options.containerEl);
     this.source = options.source;
@@ -9188,14 +9519,17 @@ function formatDailyBlockTitle(date) {
 // src/main.ts
 var SLATE_COMPLETED_CODE_BLOCK = "```slate-completed\n```";
 var SLATE_COMPLETED_CODE_BLOCK_RE = /```slate-completed\b[\s\S]*?```/i;
-var SlatePlugin = class extends import_obsidian15.Plugin {
+var SlatePlugin = class extends import_obsidian16.Plugin {
   constructor() {
     super(...arguments);
     this.reloadDebounceTimer = null;
+    this.dataFolderVisibility = null;
   }
   async onload() {
     await this.loadSettings();
     this.store = new TaskStore(this.app, this.settings);
+    this.dataFolderVisibility = new DataFolderVisibility(this.app);
+    this.applyDataFolderVisibility();
     this.registerView(
       VIEW_TYPE_SLATE,
       (leaf) => new TaskBoardView(leaf, this.store, this.settings, () => this.saveSettings())
@@ -9222,7 +9556,7 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
       callback: () => {
         new QuickAddModal(this.app, async (title) => {
           await this.store.createTask({ title });
-          new import_obsidian15.Notice("Task added to Inbox");
+          new import_obsidian16.Notice("Task added to Inbox");
         }).open();
       }
     });
@@ -9251,7 +9585,7 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
           ...Object.keys(this.settings.labelColors)
         ]);
         await this.saveSettings();
-        new import_obsidian15.Notice("slate labels normalized.");
+        new import_obsidian16.Notice("slate labels normalized.");
       }
     });
     this.addCommand({
@@ -9260,10 +9594,10 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
       callback: async () => {
         const migratedCount = await this.store.migrateOldTaskFile();
         if (migratedCount === 0) {
-          new import_obsidian15.Notice("slate found no old tasks to migrate.");
+          new import_obsidian16.Notice("slate found no old tasks to migrate.");
           return;
         }
-        new import_obsidian15.Notice(`slate migrated ${migratedCount} task${migratedCount === 1 ? "" : "s"}.`);
+        new import_obsidian16.Notice(`slate migrated ${migratedCount} task${migratedCount === 1 ? "" : "s"}.`);
       }
     });
     this.addSettingTab(new SlateSettingTab(this.app, this));
@@ -9302,9 +9636,12 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
     void this.initializeStore();
   }
   onunload() {
+    var _a;
     if (this.reloadDebounceTimer !== null) {
       window.clearTimeout(this.reloadDebounceTimer);
     }
+    (_a = this.dataFolderVisibility) == null ? void 0 : _a.destroy();
+    this.dataFolderVisibility = null;
   }
   async loadSettings() {
     var _a, _b;
@@ -9348,12 +9685,20 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
   }
   async saveSettings() {
     await this.saveData(this.settings);
+    this.applyDataFolderVisibility();
+  }
+  applyDataFolderVisibility() {
+    var _a;
+    (_a = this.dataFolderVisibility) == null ? void 0 : _a.apply(
+      normalizeDataFolderPath(this.settings.dataFolderPath),
+      this.settings.hideDataFolderFromVault
+    );
   }
   async reloadTasks() {
     try {
       await this.store.reloadFromDisk();
     } catch (error) {
-      new import_obsidian15.Notice("slate could not reload task data.");
+      new import_obsidian16.Notice("slate could not reload task data.");
       console.error(error);
     }
   }
@@ -9459,40 +9804,40 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
   }
   async openActiveDailyNoteCompletedTasks() {
     if (!this.settings.dailyNotesIntegrationEnabled) {
-      new import_obsidian15.Notice("slate Daily Notes integration is disabled in settings.");
+      new import_obsidian16.Notice("slate Daily Notes integration is disabled in settings.");
       return;
     }
     const file = this.app.workspace.getActiveFile();
     if (!file) {
-      new import_obsidian15.Notice("Open a daily note first.");
+      new import_obsidian16.Notice("Open a daily note first.");
       return;
     }
     const date = this.dateFromDailyNoteFile(file);
     if (!date) {
-      new import_obsidian15.Notice("slate could not detect a date from the active note.");
+      new import_obsidian16.Notice("slate could not detect a date from the active note.");
       return;
     }
     await this.activateDailyNoteView(date, file.path);
   }
   async insertActiveDailyNoteCompletedBlock() {
     if (!this.settings.dailyNotesIntegrationEnabled) {
-      new import_obsidian15.Notice("slate Daily Notes integration is disabled in settings.");
+      new import_obsidian16.Notice("slate Daily Notes integration is disabled in settings.");
       return;
     }
     const file = this.app.workspace.getActiveFile();
     if (!file) {
-      new import_obsidian15.Notice("Open a daily note first.");
+      new import_obsidian16.Notice("Open a daily note first.");
       return;
     }
     if (!this.dateFromDailyNoteFile(file)) {
-      new import_obsidian15.Notice("slate could not detect a date from the active note.");
+      new import_obsidian16.Notice("slate could not detect a date from the active note.");
       return;
     }
     const result = await this.ensureDailyNoteCompletedBlock(file);
     if (result === "inserted") {
-      new import_obsidian15.Notice("slate completed tasks block added.");
+      new import_obsidian16.Notice("slate completed tasks block added.");
     } else if (result === "exists") {
-      new import_obsidian15.Notice("This note already has a slate completed tasks block.");
+      new import_obsidian16.Notice("This note already has a slate completed tasks block.");
     }
   }
   async handleDailyNoteFileOpen(file) {
@@ -9568,7 +9913,7 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
     try {
       await this.store.load();
     } catch (error) {
-      new import_obsidian15.Notice("slate could not initialize task storage. Open the developer console for details.");
+      new import_obsidian16.Notice("slate could not initialize task storage. Open the developer console for details.");
       console.error("[slate] Failed to initialize task storage.", error, {
         dataFolderPath: this.settings.dataFolderPath,
         tasksFilePath: this.settings.tasksFilePath

@@ -1,22 +1,32 @@
-.slate-root {
-  --slate-bg: #ffffff;
-  --slate-surface: #ffffff;
-  --slate-sidebar-bg: #f7f7f5;
-  --slate-hover: #f1f1ef;
-  --slate-border: #ebeced;
-  --slate-border-soft: #ebeced;
-  --slate-text: #37352f;
-  --slate-muted: #787774;
-  --slate-faint: #a8a6a1;
-  --slate-accent: #37352f;
-  --slate-accent-hover: #2f2e2a;
-  --slate-on-accent: #ffffff;
-  --slate-danger: #e03e3e;
-  --slate-danger-light: #fbe4e3;
-  --slate-chip-bg: #f7f7f5;
-  --slate-nav-hover-bg: var(--slate-hover);
-  --slate-nav-active-bg: color-mix(in srgb, var(--slate-accent) 8%, transparent);
-  --slate-nav-active-border: color-mix(in srgb, var(--slate-accent) 12%, transparent);
+/* Design tokens are defined on `body` (not just `.slate-root`) so every plugin
+   surface — the main view AND modals rendered outside the view — receives the
+   full, consistent set. All `--slate-*` names are namespaced, so defining them
+   globally is safe and never affects non-plugin UI. Colors derive from the
+   active Obsidian theme, so the plugin adopts any theme (light, dark, custom)
+   automatically. */
+body {
+  --slate-bg: var(--background-primary);
+  --slate-surface: var(--background-secondary);
+  --slate-sidebar-bg: var(--background-secondary);
+  --slate-hover: var(--background-modifier-hover);
+  --slate-border: var(--background-modifier-border);
+  --slate-border-soft: var(--background-modifier-border);
+  --slate-text: var(--text-normal);
+  --slate-muted: var(--text-muted);
+  --slate-faint: var(--text-faint);
+  --slate-accent: var(--text-normal);
+  --slate-accent-hover: var(--text-normal);
+  --slate-on-accent: var(--background-primary);
+  --slate-danger: var(--color-red);
+  --slate-danger-hover: color-mix(in srgb, var(--color-red), #000 12%);
+  --slate-danger-light: rgba(var(--color-red-rgb), 0.16);
+  --slate-success: var(--color-green);
+  --slate-success-hover: color-mix(in srgb, var(--color-green), #000 12%);
+  --slate-on-success: var(--text-on-accent);
+  --slate-chip-bg: var(--background-secondary);
+  --slate-nav-hover-bg: var(--background-modifier-hover);
+  --slate-nav-active-bg: color-mix(in srgb, var(--text-normal) 10%, transparent);
+  --slate-nav-active-border: color-mix(in srgb, var(--text-normal) 12%, transparent);
   --slate-radius-sm: 4px;
   --slate-radius: 6px;
   --slate-radius-lg: 10px;
@@ -36,30 +46,13 @@
   --slate-font-label: var(--slate-font-ui);
   --slate-mobile-safe-top: max(24px, env(safe-area-inset-top, 0px));
   --slate-mobile-bottom-toolbar: 88px;
+}
+
+.slate-root {
   color: var(--slate-text);
   font-family: var(--slate-font-ui);
   height: 100%;
   position: relative;
-}
-
-.theme-dark .slate-root {
-  --slate-bg: var(--background-primary);
-  --slate-surface: var(--background-secondary);
-  --slate-sidebar-bg: var(--background-secondary);
-  --slate-hover: var(--background-modifier-hover);
-  --slate-border: var(--background-modifier-border);
-  --slate-border-soft: var(--background-modifier-border);
-  --slate-text: var(--text-normal);
-  --slate-muted: var(--text-muted);
-  --slate-faint: var(--text-faint);
-  --slate-accent: var(--text-normal);
-  --slate-accent-hover: var(--text-normal);
-  --slate-on-accent: var(--background-primary);
-  --slate-chip-bg: var(--background-secondary-alt);
-  --slate-nav-hover-bg: var(--background-modifier-hover);
-  --slate-nav-active-bg: color-mix(in srgb, var(--text-normal) 10%, transparent);
-  --slate-nav-active-border: color-mix(in srgb, var(--text-normal) 12%, transparent);
-  --slate-danger-light: rgba(224, 62, 62, 0.16);
 }
 
 .slate-icon {
@@ -671,22 +664,22 @@ button.slate-project-button.is-active {
 
 .slate-task-checkbox.priority-p1,
 .slate-task-checkbox.priority-p1:hover {
-  border-color: #e03e3e;
+  border-color: var(--color-red);
 }
 
 .slate-task-checkbox.priority-p2,
 .slate-task-checkbox.priority-p2:hover {
-  border-color: #d9730d;
+  border-color: var(--color-orange);
 }
 
 .slate-task-checkbox.priority-p3,
 .slate-task-checkbox.priority-p3:hover {
-  border-color: #0c6e99;
+  border-color: var(--color-blue);
 }
 
 .slate-task-checkbox.priority-p4,
 .slate-task-checkbox.priority-p4:hover {
-  border-color: #878b82;
+  border-color: var(--text-muted);
 }
 
 .slate-task-checkbox.is-checked::after {
@@ -866,27 +859,27 @@ button.slate-project-button.is-active {
 }
 
 .slate-priority-p1 {
-  --slate-priority-text: #e03e3e;
-  --slate-priority-bg: #fbe4e3;
-  --slate-priority-border: #e03e3e;
+  --slate-priority-text: var(--color-red);
+  --slate-priority-bg: rgba(var(--color-red-rgb), 0.14);
+  --slate-priority-border: var(--color-red);
 }
 
 .slate-priority-p2 {
-  --slate-priority-text: #d9730d;
-  --slate-priority-bg: #faebdd;
-  --slate-priority-border: #d9730d;
+  --slate-priority-text: var(--color-orange);
+  --slate-priority-bg: rgba(var(--color-orange-rgb), 0.14);
+  --slate-priority-border: var(--color-orange);
 }
 
 .slate-priority-p3 {
-  --slate-priority-text: #0c6e99;
-  --slate-priority-bg: #ddebf1;
-  --slate-priority-border: #0c6e99;
+  --slate-priority-text: var(--color-blue);
+  --slate-priority-bg: rgba(var(--color-blue-rgb), 0.14);
+  --slate-priority-border: var(--color-blue);
 }
 
 .slate-priority-p4 {
-  --slate-priority-text: #878b82;
-  --slate-priority-bg: #ebeced;
-  --slate-priority-border: #dadad7;
+  --slate-priority-text: var(--text-muted);
+  --slate-priority-bg: var(--background-modifier-hover);
+  --slate-priority-border: var(--background-modifier-border);
 }
 
 .slate-task-delete {
@@ -1828,6 +1821,7 @@ button.slate-add-inline {
   border: 1px solid var(--slate-priority-border, var(--slate-border));
   border-radius: 6px;
   color: var(--slate-priority-text, var(--slate-muted));
+  cursor: pointer;
   display: inline-flex;
   gap: 6px;
   height: 32px;
@@ -1906,6 +1900,7 @@ button.slate-add-inline {
   border: 1px solid var(--slate-priority-border, var(--slate-border));
   border-radius: 6px;
   color: var(--slate-priority-text, var(--slate-text));
+  cursor: pointer;
   display: inline-flex;
   gap: 8px;
   min-height: 32px;
@@ -2815,17 +2810,7 @@ button.slate-add-inline {
   padding: var(--slate-spacing-3);
 }
 
-/* Custom repeat modal */
-.slate-custom-repeat-modal {
-  --slate-border: var(--background-modifier-border, #d0d0d0);
-  --slate-text: var(--text-normal);
-  --slate-muted: var(--text-muted);
-  --slate-surface: var(--background-secondary, #f5f5f5);
-  --slate-hover: var(--background-modifier-hover, #f0f0f0);
-  --slate-accent: var(--color-accent, #7c5cfc);
-  --slate-on-accent: #fff;
-}
-
+/* Custom repeat modal — inherits the unified theme tokens from .slate-root. */
 .slate-custom-repeat-modal .modal-content {
   max-height: min(720px, calc(100dvh - 96px));
   overflow-x: hidden;
@@ -3347,10 +3332,10 @@ button.slate-label-actions-button:focus-visible {
 .slate-activity-day {
   appearance: none;
   aspect-ratio: 1 / 1;
-  background: #f1f1ef;
+  background: var(--background-modifier-hover);
   border: 0;
   border-radius: 3px;
-  box-shadow: inset 0 0 0 1px rgba(55, 53, 47, 0.08);
+  box-shadow: inset 0 0 0 1px var(--background-modifier-border);
   cursor: pointer;
   height: auto;
   min-width: 0;
@@ -3359,53 +3344,28 @@ button.slate-label-actions-button:focus-visible {
 }
 
 .slate-activity-day.level-0 {
-  background: #f1f1ef;
+  background: var(--background-modifier-hover);
 }
 
 .slate-activity-day.level-1 {
-  background: #ddedea;
+  background: rgba(var(--color-green-rgb), 0.25);
 }
 
 .slate-activity-day.level-2 {
-  background: #a9d4cc;
+  background: rgba(var(--color-green-rgb), 0.45);
 }
 
 .slate-activity-day.level-3 {
-  background: #5aa99d;
+  background: rgba(var(--color-green-rgb), 0.65);
 }
 
 .slate-activity-day.level-4 {
-  background: #0e7b6c;
+  background: rgba(var(--color-green-rgb), 0.9);
 }
 
 .slate-activity-day.is-selected {
   outline: 2px solid var(--slate-text);
   outline-offset: 1px;
-}
-
-.theme-dark .slate-activity-day {
-  background: rgba(255, 255, 255, 0.09);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-}
-
-.theme-dark .slate-activity-day.level-0 {
-  background: rgba(255, 255, 255, 0.09);
-}
-
-.theme-dark .slate-activity-day.level-1 {
-  background: rgba(14, 123, 108, 0.28);
-}
-
-.theme-dark .slate-activity-day.level-2 {
-  background: rgba(14, 123, 108, 0.42);
-}
-
-.theme-dark .slate-activity-day.level-3 {
-  background: rgba(14, 123, 108, 0.62);
-}
-
-.theme-dark .slate-activity-day.level-4 {
-  background: rgba(14, 123, 108, 0.88);
 }
 
 .slate-activity-feed {
@@ -4641,11 +4601,6 @@ button.slate-search-result.is-selected {
 .slate-root.is-mobile .slate-activity-day {
   height: auto;
   width: 100%;
-}
-
-.theme-light .slate-root.is-mobile .slate-activity-day.level-0 {
-  background: #e7e7e4;
-  box-shadow: inset 0 0 0 1px rgba(55, 53, 47, 0.12);
 }
 
 .slate-root.is-mobile .slate-activity-heatmap {

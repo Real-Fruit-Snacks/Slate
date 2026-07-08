@@ -7,9 +7,21 @@ export interface PriorityColor {
 }
 
 export const PRIORITY_COLORS: Record<Priority, PriorityColor> = {
-  P1: { name: "Priority 1", color: "#E03E3E", light: "#FBE4E3" },
-  P2: { name: "Priority 2", color: "#D9730D", light: "#FAEBDD" },
-  P3: { name: "Priority 3", color: "#0C6E99", light: "#DDEBF1" },
+  P1: {
+    name: "Priority 1",
+    color: "var(--color-red)",
+    light: "rgba(var(--color-red-rgb), 0.14)"
+  },
+  P2: {
+    name: "Priority 2",
+    color: "var(--color-orange)",
+    light: "rgba(var(--color-orange-rgb), 0.14)"
+  },
+  P3: {
+    name: "Priority 3",
+    color: "var(--color-blue)",
+    light: "rgba(var(--color-blue-rgb), 0.14)"
+  },
   P4: {
     name: "Priority 4",
     color: "var(--slate-muted)",

@@ -1,5 +1,5 @@
 import { App, normalizePath, Plugin, PluginSettingTab, Setting } from "obsidian";
-import { colorForName } from "./colors";
+import { colorForName, resolveColorToHex } from "./colors";
 import {
   DEFAULT_DAILY_NOTE_DATE_FORMAT,
   normalizeDailyNoteDateFormat
@@ -448,7 +448,7 @@ export class SlateSettingTab extends PluginSettingTab {
       .setName(project)
       .setDesc(override ? "Custom color override" : "Automatic palette color")
       .addColorPicker((picker) => {
-        picker.setValue(override || automaticColor).onChange(async (value) => {
+        picker.setValue(resolveColorToHex(override || automaticColor)).onChange(async (value) => {
           this.plugin.settings.projectColors[project] = value;
           await this.plugin.saveSettings();
           this.plugin.refreshSlateViews();
@@ -505,7 +505,7 @@ export class SlateSettingTab extends PluginSettingTab {
       .setName(displayLabel(label))
       .setDesc(override ? "Custom color override" : "Automatic palette color")
       .addColorPicker((picker) => {
-        picker.setValue(override || automaticColor).onChange(async (value) => {
+        picker.setValue(resolveColorToHex(override || automaticColor)).onChange(async (value) => {
           this.plugin.settings.labelColors[label] = value;
           await this.plugin.saveSettings();
           this.plugin.refreshSlateViews();
