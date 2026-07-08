@@ -15,7 +15,7 @@ A calm, Todoist-like task manager for Obsidian — every task is a line in a pla
 &nbsp;![Version](https://img.shields.io/badge/version-0.1.0-6bdcff?style=flat-square)
 &nbsp;![Obsidian](https://img.shields.io/badge/Obsidian-1.6.6%2B-63f2ab?style=flat-square)
 
-[Changelog](CHANGELOG.md) · [Report an issue](https://github.com/Real-Fruit-Snacks/Slate/issues)
+[Website](https://real-fruit-snacks.github.io/Slate/) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/Real-Fruit-Snacks/Slate/issues)
 
 </div>
 
