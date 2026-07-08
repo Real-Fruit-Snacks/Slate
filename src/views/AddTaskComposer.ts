@@ -16,6 +16,8 @@ import { attachWikilinkAutocomplete } from "./wikilinkAutocomplete";
 import { attachQuickAddAutocomplete, parseQuickAddTokens } from "./quickAddAutocomplete";
 import { createSlateActionRow, createSlateButton } from "../ui";
 import { createSlateIcon } from "../ui/components/SlateIcon";
+import { SlateDropdown } from "../ui/components/SlateDropdown";
+import { alignLocalPopover, LocalPopoverOptions } from "../ui/popover";
 
 interface ComposerOptions {
   app: App;
@@ -111,32 +113,35 @@ export class AddTaskComposer {
     createIcon(priorityWrap, "priority");
     const priorityIndicator = priorityWrap.createSpan({ cls: "slate-priority-indicator" });
     const priorityDisplay = priorityWrap.createSpan({ cls: "slate-priority-display" });
-    const prioritySelect = priorityWrap.createEl("select", {
-      cls: "slate-chip-select",
-      attr: {
-        "aria-label": "Priority"
-      }
-    });
-    for (const priority of PRIORITIES.filter((priority) => priority !== "none")) {
-      prioritySelect.createEl("option", {
-        text: getPriorityDropdownLabel(priority),
-        value: priority
-      });
-    }
-    prioritySelect.value = "P4";
+    const priorityChoices = PRIORITIES.filter((priority) => priority !== "none");
+    let priorityValue: Priority = "P4";
     const updatePriorityStyle = () => {
-      const priority = prioritySelect.value as Priority;
-      const color = getPriorityColor(priority);
+      const color = getPriorityColor(priorityValue);
       priorityWrap.setCssProps({
         "--slate-priority-text": color.color,
         "--slate-priority-bg": color.light,
         "--slate-priority-border": color.color
       });
-      priorityWrap.toggleClass("has-priority", hasVisiblePriority(priority));
+      priorityWrap.toggleClass("has-priority", hasVisiblePriority(priorityValue));
       priorityIndicator.setCssStyles({ backgroundColor: color.color });
-      priorityDisplay.setText(getPriorityDisplayLabel(priority));
+      priorityDisplay.setText(getPriorityDisplayLabel(priorityValue));
     };
-    prioritySelect.addEventListener("change", updatePriorityStyle);
+    new SlateDropdown({
+      trigger: priorityWrap,
+      ariaLabel: "Priority",
+      getValue: () => priorityValue,
+      getOptions: () =>
+        priorityChoices.map((priority) => ({
+          value: priority,
+          label: getPriorityDropdownLabel(priority),
+          dotColor: getPriorityColor(priority).color
+        })),
+      onSelect: (value) => {
+        priorityValue = value as Priority;
+        updatePriorityStyle();
+      },
+      onRenderTrigger: () => updatePriorityStyle()
+    });
     updatePriorityStyle();
 
     const attachmentButton = createChipButton(chipRow, "Attachment", "paperclip");
@@ -702,7 +707,7 @@ export class AddTaskComposer {
             due: selectedDue,
             deadline: selectedDeadline,
             project: explicitProject || parsed.project || "",
-            priority: prioritySelect.value as Priority,
+            priority: priorityValue,
             labels: dedupeLabels([...selectedLabels, ...parsed.labels]),
             pendingAttachments,
             repeat: selectedRepeat
@@ -921,96 +926,6 @@ function createIcon(
   className = "slate-chip-icon"
 ): HTMLElement {
   return createSlateIcon(parent, iconName, { className });
-}
-
-interface LocalPopoverOptions {
-  preferredSide?: "above" | "below";
-  useFixed?: boolean;
-}
-
-function alignLocalPopover(
-  wrapper: HTMLElement,
-  popover: HTMLElement,
-  options: LocalPopoverOptions = {}
-): void {
-  const margin = 12;
-  const preferredSide = options.preferredSide || "below";
-
-  popover.removeClass("is-align-right");
-  popover.removeClass("is-open-up");
-  popover.removeClass("is-open-down");
-  popover.setCssProps({ "--slate-popover-shift-x": "0px" });
-
-  const wrapperRect = wrapper.getBoundingClientRect();
-
-  if (options.useFixed) {
-    // Fixed positioning — use viewport coordinates so containers with
-    // overflow:hidden or transforms cannot clip the popover.
-    popover.setCssStyles({
-      top: "",
-      bottom: "",
-      left: "",
-      right: ""
-    });
-
-    const popoverWidth = popover.offsetWidth || 240;
-    const popoverHeight = popover.offsetHeight || 220;
-
-    let left = wrapperRect.left;
-    if (left + popoverWidth > window.innerWidth - margin) {
-      left = wrapperRect.right - popoverWidth;
-    }
-    const fixedStyles: Partial<CSSStyleDeclaration> = {
-      left: `${Math.max(margin, left)}px`
-    };
-
-    const fitsBelow = wrapperRect.bottom + popoverHeight + margin <= window.innerHeight;
-    const fitsAbove = wrapperRect.top - popoverHeight - margin >= 0;
-    if ((preferredSide === "above" && fitsAbove) || (preferredSide === "above" && !fitsBelow)) {
-      fixedStyles.bottom = `${window.innerHeight - wrapperRect.top + 8}px`;
-      popover.addClass("is-open-up");
-    } else {
-      fixedStyles.top = `${wrapperRect.bottom + 8}px`;
-      popover.addClass("is-open-down");
-    }
-    popover.setCssStyles(fixedStyles);
-    return;
-  }
-
-  const popoverRect = popover.getBoundingClientRect();
-  const popoverWidth = popoverRect.width || 240;
-  const popoverHeight = popoverRect.height || 220;
-  const ownerWindow = wrapper.ownerDocument.defaultView || window;
-
-  let shiftX = 0;
-  const rightOverflow = wrapperRect.left + popoverWidth - (ownerWindow.innerWidth - margin);
-  if (rightOverflow > 0) {
-    shiftX -= rightOverflow;
-  }
-  const shiftedLeft = wrapperRect.left + shiftX;
-  if (shiftedLeft < margin) {
-    shiftX += margin - shiftedLeft;
-  }
-  if (shiftX !== 0) {
-    popover.setCssProps({ "--slate-popover-shift-x": `${Math.round(shiftX)}px` });
-  }
-
-  const fitsBelow = wrapperRect.bottom + popoverHeight + margin <= ownerWindow.innerHeight;
-  const fitsAbove = wrapperRect.top - popoverHeight - margin >= 0;
-  if (preferredSide === "above" && fitsAbove) {
-    popover.addClass("is-open-up");
-    return;
-  }
-  if (preferredSide === "above" && !fitsBelow) {
-    popover.addClass("is-open-up");
-    return;
-  }
-  if (preferredSide === "below" && !fitsBelow && fitsAbove) {
-    popover.addClass("is-open-up");
-    return;
-  }
-
-  popover.addClass("is-open-down");
 }
 
 function renderComposerCustomDatePicker(

@@ -43,6 +43,7 @@ import {
   uniqueRealProjects
 } from "../projects";
 import { createSlateIcon } from "../ui/components/SlateIcon";
+import { SlateDropdown } from "../ui/components/SlateDropdown";
 import { renderLinkedText, stripInlineMarkdownPreservingLinks } from "./linkedText";
 import { compareTasksByMode } from "../taskSorting";
 import { CreateProjectModal, DeleteProjectModal, RenameProjectModal } from "./projects/ProjectModals";
@@ -1552,28 +1553,20 @@ export class TaskBoardView extends ItemView {
   }
 
   private renderOverdueRangeSelect(parent: HTMLElement): void {
-    const select = parent.createEl("select", {
-      cls: "slate-overdue-range-select",
-      attr: {
-        "aria-label": "Overdue range"
+    new SlateDropdown({
+      triggerParent: parent,
+      triggerClassName: "slate-overdue-range-trigger",
+      ariaLabel: "Overdue range",
+      getOptions: () =>
+        OVERDUE_RANGES.map((range) => ({ value: range, label: overdueRangeLabel(range) })),
+      getValue: () => this.settings.defaultOverdueRange,
+      onSelect: (value) => {
+        this.settings.defaultOverdueRange = normalizeOverdueRange(value);
+        void (async () => {
+          await this.saveSettings();
+          this.renderPreservingMainScroll();
+        })();
       }
-    });
-
-    for (const range of OVERDUE_RANGES) {
-      select.createEl("option", {
-        text: overdueRangeLabel(range),
-        value: range
-      });
-    }
-
-    select.value = this.settings.defaultOverdueRange;
-    select.addEventListener("click", (event) => event.stopPropagation());
-    select.addEventListener("change", () => {
-      this.settings.defaultOverdueRange = normalizeOverdueRange(select.value);
-      void (async () => {
-        await this.saveSettings();
-        this.renderPreservingMainScroll();
-      })();
     });
   }
 

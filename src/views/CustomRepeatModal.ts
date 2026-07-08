@@ -3,6 +3,7 @@ import { RepeatFrequency, RepeatRule } from "../types";
 import { getRepeatLabel, getRepeatWeekdays, normalizeRepeatRule } from "../repeatUtils";
 import { createSlateActionRow, createSlateButton } from "../ui";
 import { createSlateIcon } from "../ui/components/SlateIcon";
+import { SlateDropdown } from "../ui/components/SlateDropdown";
 
 const FREQ_LABELS: Record<RepeatFrequency, string> = {
   daily: "Day",
@@ -80,18 +81,20 @@ export class CustomRepeatModal extends Modal {
       intervalInput.value = String(this.draft.interval);
     });
 
-    const freqSelect = everyRow.createEl("select", { cls: "slate-repeat-freq-select" });
     const freqs: RepeatFrequency[] = ["daily", "weekly", "weekdays", "monthly", "yearly"];
-    for (const f of freqs) {
-      freqSelect.createEl("option", { value: f, text: FREQ_LABELS[f] });
-    }
-    freqSelect.value = this.draft.frequency;
-    freqSelect.addEventListener("change", () => {
-      this.draft.frequency = freqSelect.value as RepeatFrequency;
-      if (this.draft.frequency !== "weekly") {
-        this.clearWeekdays();
+    new SlateDropdown({
+      triggerParent: everyRow,
+      triggerClassName: "slate-repeat-freq-trigger",
+      ariaLabel: "Frequency",
+      getOptions: () => freqs.map((f) => ({ value: f, label: FREQ_LABELS[f] })),
+      getValue: () => this.draft.frequency,
+      onSelect: (value) => {
+        this.draft.frequency = value as RepeatFrequency;
+        if (this.draft.frequency !== "weekly") {
+          this.clearWeekdays();
+        }
+        this.render();
       }
-      this.render();
     });
 
     // On (weekday selector) — only for weekly + scheduledDate

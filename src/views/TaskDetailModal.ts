@@ -17,6 +17,7 @@ import {
 } from "../priority";
 import { normalizeTaskProject, uniqueRealProjects } from "../projects";
 import { createSlateIcon } from "../ui/components/SlateIcon";
+import { SlateDropdown, SlateDropdownOption } from "../ui/components/SlateDropdown";
 import { attachWikilinkAutocomplete } from "./wikilinkAutocomplete";
 import { attachQuickAddAutocomplete, parseQuickAddTokens } from "./quickAddAutocomplete";
 import { createSlateActionRow, createSlateButton } from "../ui";
@@ -1247,10 +1248,40 @@ export class TaskDetailModal extends Modal {
       });
     };
 
+    const dropdown = new SlateDropdown({
+      trigger: projectPicker,
+      ariaLabel: "Project",
+      getValue: () => normalizeTaskProject(this.draft.project) || "",
+      getOptions: () => {
+        const options: SlateDropdownOption[] = [{ value: "", label: "No project" }];
+        for (const project of getProjects()) {
+          options.push({
+            value: project,
+            label: project,
+            dotColor: getProjectColor(project, this.options.settings.projectColors).regular,
+            section: "Projects"
+          });
+        }
+        options.push({ value: createValue, label: "Create project..." });
+        return options;
+      },
+      onSelect: (value) => {
+        if (value === createValue) {
+          createRow.removeClass("is-hidden");
+          createInput.focus();
+          return;
+        }
+
+        this.draft.project = normalizeTaskProject(value);
+        createRow.addClass("is-hidden");
+        updateProjectStyle();
+      },
+      onRenderTrigger: () => updateProjectStyle()
+    });
+
     const hideCreateRow = () => {
       createInput.value = "";
       createRow.addClass("is-hidden");
-      select.value = normalizeTaskProject(this.draft.project) || "";
     };
 
     const createProject = () => {
@@ -1560,9 +1591,21 @@ export class TaskDetailModal extends Modal {
       indicator.setCssStyles({ backgroundColor: color.color });
       display.setText(getPriorityDisplayLabel(this.draft.priority));
     };
-    select.addEventListener("change", () => {
-      this.draft.priority = select.value as Priority;
-      updatePriorityStyle();
+    new SlateDropdown({
+      trigger: priorityWrap,
+      ariaLabel: "Priority",
+      getValue: () => (isDefaultPriority(this.draft.priority) ? "P4" : this.draft.priority),
+      getOptions: () =>
+        priorities.map((priority) => ({
+          value: priority,
+          label: getPriorityDropdownLabel(priority),
+          dotColor: getPriorityColor(priority).color
+        })),
+      onSelect: (value) => {
+        this.draft.priority = value as Priority;
+        updatePriorityStyle();
+      },
+      onRenderTrigger: () => updatePriorityStyle()
     });
     updatePriorityStyle();
   }
