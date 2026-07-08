@@ -1910,6 +1910,7 @@ var TaskStore = class {
     this.listeners = /* @__PURE__ */ new Set();
     this.warnedStorageIssues = /* @__PURE__ */ new Set();
     this.writingPaths = /* @__PURE__ */ new Set();
+    this.writeChain = Promise.resolve();
   }
   get filePath() {
     return (0, import_obsidian6.normalizePath)(this.settings.tasksFilePath);
@@ -2313,8 +2314,15 @@ var TaskStore = class {
     return seedData.tasks.length;
   }
   async saveSources(sourcePaths) {
-    await this.writeSources(sourcePaths);
-    this.rebuildTasksFromDocuments();
+    await this.enqueueWrite(async () => {
+      await this.writeSources(sourcePaths);
+      this.rebuildTasksFromDocuments();
+    });
+  }
+  enqueueWrite(operation) {
+    const run = this.writeChain.then(operation, operation);
+    this.writeChain = run.catch(() => void 0);
+    return run;
   }
   rebuildTasksFromDocuments() {
     const nextTasks = [];

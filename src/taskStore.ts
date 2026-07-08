@@ -19,6 +19,7 @@ export class TaskStore {
   private listeners = new Set<Listener>();
   private warnedStorageIssues = new Set<string>();
   private writingPaths = new Set<string>();
+  private writeChain: Promise<void> = Promise.resolve();
 
   constructor(private app: App, private settings: SlateSettings) {}
 
@@ -534,8 +535,18 @@ export class TaskStore {
   }
 
   private async saveSources(sourcePaths: string[]): Promise<void> {
-    await this.writeSources(sourcePaths);
-    this.rebuildTasksFromDocuments();
+    await this.enqueueWrite(async () => {
+      await this.writeSources(sourcePaths);
+      this.rebuildTasksFromDocuments();
+    });
+  }
+
+  private enqueueWrite(operation: () => Promise<void>): Promise<void> {
+    // Run each write after the previous one settles (success or failure) so
+    // concurrent mutations can never interleave a write with another's rebuild.
+    const run = this.writeChain.then(operation, operation);
+    this.writeChain = run.catch(() => undefined);
+    return run;
   }
 
   private rebuildTasksFromDocuments(): void {
