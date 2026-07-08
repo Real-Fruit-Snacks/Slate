@@ -614,6 +614,10 @@ export class TaskStore {
       this.writingPaths.add(normalizePath(sourcePath));
       try {
         await this.app.vault.modify(file, content);
+      } catch (error) {
+        new Notice("Slate could not save task changes. Open the developer console for details.");
+        console.error("[slate] Failed to write task data.", error, { sourcePath });
+        throw error;
       } finally {
         this.writingPaths.delete(normalizePath(sourcePath));
       }
