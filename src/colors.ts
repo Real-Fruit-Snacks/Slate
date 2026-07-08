@@ -26,10 +26,14 @@ export interface SlateColorPair {
  * value. Needed for Obsidian's native color picker, which only accepts hex.
  * Returns the input unchanged if it is already hex.
  */
-export function resolveColorToHex(value: string): string {
+export function resolveColorToHex(value: string, cache?: Map<string, string>): string {
   const trimmed = value.trim();
   if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(trimmed)) {
     return trimmed;
+  }
+  const cached = cache?.get(trimmed);
+  if (cached !== undefined) {
+    return cached;
   }
   if (typeof document === "undefined") {
     return "#888888";
@@ -48,7 +52,9 @@ export function resolveColorToHex(value: string): string {
   }
 
   const toHex = (channel: string) => Number(channel).toString(16).padStart(2, "0");
-  return `#${toHex(match[1])}${toHex(match[2])}${toHex(match[3])}`;
+  const hex = `#${toHex(match[1])}${toHex(match[2])}${toHex(match[3])}`;
+  cache?.set(trimmed, hex);
+  return hex;
 }
 
 export function colorForName(value: string, override?: string): SlateColorPair {

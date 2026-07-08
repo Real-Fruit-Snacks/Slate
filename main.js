@@ -250,10 +250,14 @@ var SLATE_COLOR_PALETTE = [
   { name: "cyan", regular: "var(--color-cyan)", light: "rgba(var(--color-cyan-rgb), 0.14)" },
   { name: "blue", regular: "var(--color-blue)", light: "rgba(var(--color-blue-rgb), 0.14)" }
 ];
-function resolveColorToHex(value) {
+function resolveColorToHex(value, cache) {
   const trimmed = value.trim();
   if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(trimmed)) {
     return trimmed;
+  }
+  const cached = cache == null ? void 0 : cache.get(trimmed);
+  if (cached !== void 0) {
+    return cached;
   }
   if (typeof document === "undefined") {
     return "#888888";
@@ -269,7 +273,9 @@ function resolveColorToHex(value) {
     return "#888888";
   }
   const toHex = (channel) => Number(channel).toString(16).padStart(2, "0");
-  return `#${toHex(match[1])}${toHex(match[2])}${toHex(match[3])}`;
+  const hex = `#${toHex(match[1])}${toHex(match[2])}${toHex(match[3])}`;
+  cache == null ? void 0 : cache.set(trimmed, hex);
+  return hex;
 }
 function colorForName(value, override) {
   if (override) {
@@ -626,10 +632,12 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
+    this.colorHexCache = /* @__PURE__ */ new Map();
   }
   display() {
     const { containerEl } = this;
     containerEl.empty();
+    this.colorHexCache = /* @__PURE__ */ new Map();
     applySlateFontSettings(containerEl, this.plugin.settings);
     new import_obsidian3.Setting(containerEl).setName("Old task file").setDesc("Legacy Markdown file used by older slate versions.").addText((text) => {
       text.setPlaceholder("slate/tasks.md").setValue(this.plugin.settings.tasksFilePath).onChange(async (value) => {
@@ -782,7 +790,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
     const automaticColor = colorForName(project).regular;
     const override = this.plugin.settings.projectColors[project];
     new import_obsidian3.Setting(this.containerEl).setName(project).setDesc(override ? "Custom color override" : "Automatic palette color").addColorPicker((picker) => {
-      picker.setValue(resolveColorToHex(override || automaticColor)).onChange(async (value) => {
+      picker.setValue(resolveColorToHex(override || automaticColor, this.colorHexCache)).onChange(async (value) => {
         this.plugin.settings.projectColors[project] = value;
         await this.plugin.saveSettings();
         this.plugin.refreshSlateViews();
@@ -826,7 +834,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
     const automaticColor = colorForName(label).regular;
     const override = this.plugin.settings.labelColors[label];
     new import_obsidian3.Setting(this.containerEl).setName(displayLabel(label)).setDesc(override ? "Custom color override" : "Automatic palette color").addColorPicker((picker) => {
-      picker.setValue(resolveColorToHex(override || automaticColor)).onChange(async (value) => {
+      picker.setValue(resolveColorToHex(override || automaticColor, this.colorHexCache)).onChange(async (value) => {
         this.plugin.settings.labelColors[label] = value;
         await this.plugin.saveSettings();
         this.plugin.refreshSlateViews();

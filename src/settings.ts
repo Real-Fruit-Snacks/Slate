@@ -212,6 +212,8 @@ interface SlateSettingsPlugin extends Plugin {
 }
 
 export class SlateSettingTab extends PluginSettingTab {
+  private colorHexCache = new Map<string, string>();
+
   constructor(app: App, private plugin: SlateSettingsPlugin) {
     super(app, plugin);
   }
@@ -219,6 +221,7 @@ export class SlateSettingTab extends PluginSettingTab {
   display(): void {
     const { containerEl } = this;
     containerEl.empty();
+    this.colorHexCache = new Map();
     applySlateFontSettings(containerEl, this.plugin.settings);
 
     new Setting(containerEl)
@@ -448,7 +451,7 @@ export class SlateSettingTab extends PluginSettingTab {
       .setName(project)
       .setDesc(override ? "Custom color override" : "Automatic palette color")
       .addColorPicker((picker) => {
-        picker.setValue(resolveColorToHex(override || automaticColor)).onChange(async (value) => {
+        picker.setValue(resolveColorToHex(override || automaticColor, this.colorHexCache)).onChange(async (value) => {
           this.plugin.settings.projectColors[project] = value;
           await this.plugin.saveSettings();
           this.plugin.refreshSlateViews();
@@ -505,7 +508,7 @@ export class SlateSettingTab extends PluginSettingTab {
       .setName(displayLabel(label))
       .setDesc(override ? "Custom color override" : "Automatic palette color")
       .addColorPicker((picker) => {
-        picker.setValue(resolveColorToHex(override || automaticColor)).onChange(async (value) => {
+        picker.setValue(resolveColorToHex(override || automaticColor, this.colorHexCache)).onChange(async (value) => {
           this.plugin.settings.labelColors[label] = value;
           await this.plugin.saveSettings();
           this.plugin.refreshSlateViews();
