@@ -15,6 +15,7 @@ import {
   normalizeProjectRegistry
 } from "./settings";
 import { dedupeLabels, normalizeLabelName } from "./labels";
+import { DataFolderVisibility } from "./vaultVisibility";
 import { TaskStore } from "./taskStore";
 import { TaskBoardView, VIEW_TYPE_SLATE } from "./views/TaskBoardView";
 import { cleanProjectName, uniqueRealProjects } from "./projects";
@@ -28,11 +29,14 @@ export default class SlatePlugin extends Plugin {
   settings: SlateSettings;
   store: TaskStore;
   private reloadDebounceTimer: number | null = null;
+  private dataFolderVisibility: DataFolderVisibility | null = null;
 
   async onload(): Promise<void> {
     await this.loadSettings();
 
     this.store = new TaskStore(this.app, this.settings);
+    this.dataFolderVisibility = new DataFolderVisibility(this.app);
+    this.applyDataFolderVisibility();
 
     this.registerView(
       VIEW_TYPE_SLATE,
@@ -164,6 +168,8 @@ export default class SlatePlugin extends Plugin {
     if (this.reloadDebounceTimer !== null) {
       window.clearTimeout(this.reloadDebounceTimer);
     }
+    this.dataFolderVisibility?.destroy();
+    this.dataFolderVisibility = null;
   }
 
   async loadSettings(): Promise<void> {
@@ -211,6 +217,14 @@ export default class SlatePlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+    this.applyDataFolderVisibility();
+  }
+
+  applyDataFolderVisibility(): void {
+    this.dataFolderVisibility?.apply(
+      normalizeDataFolderPath(this.settings.dataFolderPath),
+      this.settings.hideDataFolderFromVault
+    );
   }
 
   async reloadTasks(): Promise<void> {

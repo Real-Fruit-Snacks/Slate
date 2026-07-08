@@ -35,6 +35,7 @@ export interface SlateSettings {
   taskDescriptionFont: SlateFontOption;
   labelFont: SlateFontOption;
   archivedProjects: string[];
+  hideDataFolderFromVault: boolean;
   dailyNotesIntegrationEnabled: boolean;
   dailyNotesAutoInsertCompletedBlock: boolean;
   dailyNoteDateFormat: string;
@@ -70,6 +71,7 @@ export const DEFAULT_SETTINGS: SlateSettings = {
   labelRegistry: [],
   projectRegistry: [],
   archivedProjects: [],
+  hideDataFolderFromVault: true,
   sortMode: "smart",
   groupBy: "none",
   defaultOverdueRange: "last7",
@@ -269,6 +271,20 @@ export class SlateSettingTab extends PluginSettingTab {
           event.preventDefault();
           text.inputEl.blur();
         });
+      });
+
+    new Setting(containerEl)
+      .setName("Hide data folder from the vault UI")
+      .setDesc(
+        "Hide the Slate data folder from the file explorer, search, and graph. Files stay on disk and Slate keeps using them."
+      )
+      .addToggle((toggle) => {
+        toggle
+          .setValue(this.plugin.settings.hideDataFolderFromVault)
+          .onChange(async (value) => {
+            this.plugin.settings.hideDataFolderFromVault = value;
+            await this.plugin.saveSettings();
+          });
       });
 
     new Setting(containerEl)
