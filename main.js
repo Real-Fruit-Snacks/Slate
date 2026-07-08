@@ -23,7 +23,7 @@ __export(main_exports, {
   default: () => SlatePlugin
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian16 = require("obsidian");
+var import_obsidian15 = require("obsidian");
 
 // src/dailyNotes.ts
 var import_obsidian = require("obsidian");
@@ -978,7 +978,7 @@ function arraysEqual(a, b) {
 }
 
 // src/taskStore.ts
-var import_obsidian6 = require("obsidian");
+var import_obsidian5 = require("obsidian");
 
 // src/repeatUtils.ts
 var WEEKDAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -1542,383 +1542,6 @@ function serializeDescriptionLines(description) {
   ];
 }
 
-// src/demoData.ts
-var import_obsidian5 = require("obsidian");
-var DEMO_MAIN_CONTENT = [
-  "# slate demo data",
-  "",
-  "This folder contains demo task data for the slate Obsidian plugin.",
-  "",
-  "Task data lives in `Data/YYYY-MM.md`.",
-  "Attachments live in `Attachments/task-id/`."
-].join("\n");
-function buildDemoSeedData(sourcePath, attachmentsDir) {
-  const dates = {
-    yesterday: yesterdayIso(),
-    today: todayIso(),
-    tomorrow: addDaysIso(1),
-    plus2: addDaysIso(2),
-    plus3: addDaysIso(3),
-    plus7: addDaysIso(7),
-    plus14: addDaysIso(14)
-  };
-  const attachmentPaths = {
-    moodboard: attachmentPath(attachmentsDir, "task-demo-hero", "moodboard.svg"),
-    logoOptions: attachmentPath(attachmentsDir, "task-demo-logo", "logo-options.svg"),
-    logoGrid: attachmentPath(attachmentsDir, "task-demo-logo", "logo-grid.svg"),
-    caseStudy: attachmentPath(
-      attachmentsDir,
-      "task-demo-portfolio",
-      "case-study-notes.txt"
-    ),
-    reelFrame: attachmentPath(attachmentsDir, "task-demo-reel", "reel-frame.svg")
-  };
-  const specs = [
-    {
-      id: "task-demo-hero",
-      title: "Finalize homepage hero layout",
-      project: "Client Work",
-      priority: "P1",
-      due: dates.today,
-      deadline: dates.plus2,
-      description: "Polish the typography, spacing, and image crop before sending the first preview to the client.",
-      labels: ["client", "visual", "urgent"],
-      attachments: [attachmentPaths.moodboard]
-    },
-    {
-      id: "task-demo-logo",
-      title: "Export three logo lockups",
-      project: "Client Work",
-      priority: "P2",
-      due: dates.today,
-      description: "Export horizontal, stacked, and icon-only versions as SVG and PNG.",
-      labels: ["client", "visual"],
-      attachments: [attachmentPaths.logoOptions, attachmentPaths.logoGrid]
-    },
-    {
-      id: "task-demo-portfolio",
-      title: "Write portfolio case study draft",
-      project: "Portfolio",
-      priority: "P2",
-      due: dates.today,
-      deadline: dates.plus7,
-      description: "Write the story behind the interactive poster project. Keep it short and visual.",
-      labels: ["writing", "visual"],
-      attachments: [attachmentPaths.caseStudy]
-    },
-    {
-      id: "task-demo-motion-references",
-      title: "Collect references for motion reel opener",
-      project: "Motion Reel",
-      priority: "P3",
-      due: dates.today,
-      description: "Find pacing, typography, and transition references for a 20-second opening sequence.",
-      labels: ["research", "visual"]
-    },
-    {
-      id: "task-demo-client-colors",
-      title: "Pick final color direction for campaign",
-      project: "Client Work",
-      priority: "P2",
-      due: dates.today,
-      description: "Compare the two muted palettes and choose the direction that feels calmer on mobile.",
-      labels: ["client", "visual", "review"]
-    },
-    {
-      id: "task-demo-coffee",
-      title: "Buy coffee beans",
-      project: "Personal",
-      priority: "P4",
-      due: dates.today,
-      labels: ["errand"]
-    },
-    {
-      id: "task-demo-water-plants",
-      title: "Water plants",
-      project: "Home",
-      priority: "P4",
-      due: dates.today,
-      labels: ["home"]
-    },
-    {
-      id: "task-demo-evening-walk",
-      title: "Evening walk",
-      project: "Health",
-      priority: "P4",
-      due: dates.today,
-      labels: ["health"]
-    },
-    {
-      id: "task-demo-invoice",
-      title: "Send invoice to studio",
-      project: "Studio Admin",
-      priority: "P1",
-      due: dates.yesterday,
-      deadline: dates.today,
-      description: "Prepare and send the invoice for last week's animation revisions.",
-      labels: ["admin", "urgent"]
-    },
-    {
-      id: "task-demo-clean-screenshots",
-      title: "Clean desktop screenshots folder",
-      project: "Personal",
-      priority: "P3",
-      due: dates.yesterday,
-      labels: ["admin"]
-    },
-    {
-      id: "task-demo-feedback",
-      title: "Review client feedback notes",
-      project: "Client Work",
-      priority: "P2",
-      due: dates.yesterday,
-      labels: ["client", "review"]
-    },
-    {
-      id: "task-demo-reel-notes",
-      title: "Trim rough reel notes",
-      project: "Motion Reel",
-      priority: "P3",
-      due: dates.yesterday,
-      description: "Cut the notes down to the strongest sequence ideas.",
-      labels: ["writing", "review"]
-    },
-    {
-      id: "task-demo-handoff",
-      title: "Prepare Figma handoff notes",
-      project: "Client Work",
-      priority: "P2",
-      due: dates.tomorrow,
-      deadline: dates.plus3,
-      labels: ["client", "admin"]
-    },
-    {
-      id: "task-demo-screen-capture",
-      title: "Record 10-second screen capture for portfolio",
-      project: "Portfolio",
-      priority: "P3",
-      due: dates.plus2,
-      labels: ["visual", "review"]
-    },
-    {
-      id: "task-demo-reel",
-      title: "Render motion reel typography test",
-      project: "Motion Reel",
-      priority: "P2",
-      due: dates.plus3,
-      description: "Export a rough pass with the new type rhythm and timing marks.",
-      labels: ["visual"],
-      attachments: [attachmentPaths.reelFrame]
-    },
-    {
-      id: "task-demo-contract",
-      title: "Review freelance contract notes",
-      project: "Studio Admin",
-      priority: "P2",
-      due: dates.plus2,
-      labels: ["admin", "review", "urgent"]
-    },
-    {
-      id: "task-demo-shelf",
-      title: "Fix loose shelf screw",
-      project: "Home",
-      priority: "P3",
-      due: dates.plus3,
-      labels: ["home"]
-    },
-    {
-      id: "task-demo-backup",
-      title: "Backup project archive",
-      project: "Studio Admin",
-      priority: "P3",
-      due: dates.plus7,
-      labels: ["admin"]
-    },
-    {
-      id: "task-demo-dentist",
-      title: "Book dentist appointment",
-      project: "Health",
-      priority: "P4",
-      due: dates.plus7,
-      labels: ["health"]
-    },
-    {
-      id: "task-demo-color-board",
-      title: "Make a small research board about Notion-like colors",
-      project: "Research",
-      priority: "P4",
-      due: dates.plus14,
-      labels: ["research", "idea"]
-    },
-    {
-      id: "task-demo-detail-layout",
-      title: "Try a new task detail layout idea",
-      project: "Inbox",
-      priority: "P4",
-      description: "Maybe split the detail modal into content and metadata sections.",
-      labels: ["idea"]
-    },
-    {
-      id: "task-demo-series-names",
-      title: "List possible names for the next visual series",
-      project: "Inbox",
-      priority: "P4",
-      labels: ["idea", "writing"]
-    },
-    {
-      id: "task-demo-asset-library",
-      title: "Organize asset library",
-      project: "Studio Admin",
-      priority: "P3",
-      description: "Move shared textures, brushes, and client exports into clearer folders.",
-      labels: ["admin"]
-    },
-    {
-      id: "task-demo-reading-list",
-      title: "Collect articles about creative tooling",
-      project: "Research",
-      priority: "P4",
-      labels: ["research", "idea"]
-    },
-    {
-      id: "task-demo-moodboard-link",
-      title: "Send moodboard link",
-      project: "Client Work",
-      priority: "P2",
-      due: dates.yesterday,
-      completed: true,
-      completedDate: dates.yesterday,
-      labels: ["client", "visual"]
-    },
-    {
-      id: "task-demo-readme-notes",
-      title: "Update plugin README screenshot notes",
-      project: "Research",
-      priority: "P3",
-      due: dates.today,
-      completed: true,
-      completedDate: dates.today,
-      labels: ["writing"]
-    },
-    {
-      id: "task-demo-rename-folder",
-      title: "Rename old export folder",
-      project: "Studio Admin",
-      priority: "P4",
-      completed: true,
-      completedDate: dates.today,
-      labels: ["admin"]
-    }
-  ];
-  return {
-    tasks: specs.map((spec, order) => taskFromSpec(spec, order, sourcePath, dates.today)),
-    attachments: [
-      {
-        path: attachmentPaths.moodboard,
-        content: moodboardSvg()
-      },
-      {
-        path: attachmentPaths.logoOptions,
-        content: logoOptionsSvg()
-      },
-      {
-        path: attachmentPaths.logoGrid,
-        content: logoGridSvg()
-      },
-      {
-        path: attachmentPaths.caseStudy,
-        content: [
-          "Portfolio case study notes",
-          "",
-          "- Focus on the concept before showing the output.",
-          "- Keep the writing compact and image-led.",
-          "- Add a short note about process sketches and final interaction."
-        ].join("\n")
-      },
-      {
-        path: attachmentPaths.reelFrame,
-        content: reelFrameSvg()
-      }
-    ]
-  };
-}
-function taskFromSpec(spec, order, sourcePath, created) {
-  return {
-    id: spec.id,
-    title: spec.title,
-    completed: Boolean(spec.completed),
-    completedDate: spec.completedDate,
-    created,
-    due: spec.due,
-    deadline: spec.deadline,
-    project: spec.project,
-    priority: spec.priority,
-    description: spec.description,
-    labels: spec.labels || [],
-    attachments: spec.attachments || [],
-    extraProperties: [],
-    order,
-    sourcePath
-  };
-}
-function attachmentPath(attachmentsDir, taskId, filename) {
-  return (0, import_obsidian5.normalizePath)(`${attachmentsDir}/${taskId}/${filename}`);
-}
-function moodboardSvg() {
-  return [
-    '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">',
-    '<rect width="960" height="600" fill="#f7f7f5"/>',
-    '<rect x="64" y="64" width="250" height="190" rx="24" fill="#DDEDEA"/>',
-    '<rect x="354" y="64" width="250" height="190" rx="24" fill="#EAE5F2"/>',
-    '<rect x="644" y="64" width="250" height="190" rx="24" fill="#FAEBDD"/>',
-    '<rect x="64" y="304" width="395" height="210" rx="24" fill="#DDEBF1"/>',
-    '<rect x="499" y="304" width="395" height="210" rx="24" fill="#FBF3DA"/>',
-    '<text x="72" y="560" font-family="Inter, Arial, sans-serif" font-size="34" fill="#37352f">Homepage moodboard</text>',
-    "</svg>"
-  ].join("");
-}
-function logoOptionsSvg() {
-  return [
-    '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">',
-    '<rect width="960" height="600" fill="#ffffff"/>',
-    '<circle cx="190" cy="180" r="72" fill="#0E7B6C"/>',
-    '<text x="310" y="196" font-family="Inter, Arial, sans-serif" font-size="54" fill="#37352f">north studio</text>',
-    '<rect x="124" y="330" width="132" height="132" rx="32" fill="#6940A5"/>',
-    '<text x="310" y="410" font-family="Inter, Arial, sans-serif" font-size="54" fill="#37352f">north studio</text>',
-    '<text x="72" y="548" font-family="Inter, Arial, sans-serif" font-size="28" fill="#787774">logo options</text>',
-    "</svg>"
-  ].join("");
-}
-function logoGridSvg() {
-  return [
-    '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">',
-    '<rect width="960" height="600" fill="#f7f7f5"/>',
-    '<g fill="#37352f">',
-    '<rect x="120" y="100" width="160" height="160" rx="42"/>',
-    '<circle cx="480" cy="180" r="82"/>',
-    '<path d="M720 92 L830 260 L610 260 Z"/>',
-    "</g>",
-    '<g fill="#878B82">',
-    '<rect x="120" y="340" width="160" height="160" rx="80"/>',
-    '<rect x="398" y="340" width="164" height="164" rx="28"/>',
-    '<circle cx="720" cy="422" r="84"/>',
-    "</g>",
-    "</svg>"
-  ].join("");
-}
-function reelFrameSvg() {
-  return [
-    '<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">',
-    '<rect width="960" height="540" fill="#111111"/>',
-    '<rect x="80" y="80" width="800" height="380" rx="28" fill="#1f1f1f" stroke="#878B82" stroke-width="2"/>',
-    '<text x="120" y="220" font-family="Inter, Arial, sans-serif" font-size="76" fill="#ffffff">motion reel</text>',
-    '<text x="124" y="292" font-family="Inter, Arial, sans-serif" font-size="34" fill="#a8a6a1">type rhythm test 01</text>',
-    '<circle cx="768" cy="270" r="54" fill="#DFAB00"/>',
-    '<circle cx="810" cy="270" r="54" fill="#0C6E99" opacity="0.72"/>',
-    "</svg>"
-  ].join("");
-}
-
 // src/taskStore.ts
 var MONTHLY_FILE_PATTERN = /^\d{4}-\d{2}\.md$/;
 var TaskStore = class {
@@ -1933,25 +1556,25 @@ var TaskStore = class {
     this.writeChain = Promise.resolve();
   }
   get filePath() {
-    return (0, import_obsidian6.normalizePath)(this.settings.tasksFilePath);
+    return (0, import_obsidian5.normalizePath)(this.settings.tasksFilePath);
   }
   get rootDir() {
     return normalizeDataFolderPath(this.settings.dataFolderPath);
   }
   get mainFilePath() {
-    return (0, import_obsidian6.normalizePath)(`${this.rootDir}/main.md`);
+    return (0, import_obsidian5.normalizePath)(`${this.rootDir}/main.md`);
   }
   get dataDir() {
-    return (0, import_obsidian6.normalizePath)(`${this.rootDir}/Data`);
+    return (0, import_obsidian5.normalizePath)(`${this.rootDir}/Data`);
   }
   get attachmentsDir() {
-    return (0, import_obsidian6.normalizePath)(`${this.rootDir}/Attachments`);
+    return (0, import_obsidian5.normalizePath)(`${this.rootDir}/Attachments`);
   }
   isCurrentlyWriting(path) {
-    return this.writingPaths.has((0, import_obsidian6.normalizePath)(path));
+    return this.writingPaths.has((0, import_obsidian5.normalizePath)(path));
   }
   isTaskStorageFile(path) {
-    const normalizedPath = (0, import_obsidian6.normalizePath)(path);
+    const normalizedPath = (0, import_obsidian5.normalizePath)(path);
     return normalizedPath === this.filePath || normalizedPath.startsWith(`${this.dataDir}/`) && MONTHLY_FILE_PATTERN.test(normalizedPath.split("/").pop() || "");
   }
   getTasks() {
@@ -2029,7 +1652,7 @@ var TaskStore = class {
     const sourcePath = this.monthlyPathForDate(created);
     const sourceReady = await this.ensureSourceDocument(sourcePath);
     if (!sourceReady) {
-      new import_obsidian6.Notice("slate could not create the task data file. Check the console for details.");
+      new import_obsidian5.Notice("slate could not create the task data file. Check the console for details.");
       return;
     }
     const attachments = normalizeAttachments(input.attachments || []);
@@ -2104,7 +1727,7 @@ var TaskStore = class {
           completedOccurrences: occurrences,
           due: nextDue
         });
-        new import_obsidian6.Notice(`Recurring task rescheduled to ${formatDueDateChip(nextDue)}`);
+        new import_obsidian5.Notice(`Recurring task rescheduled to ${formatDueDateChip(nextDue)}`);
       }
       return;
     }
@@ -2260,7 +1883,7 @@ var TaskStore = class {
     return targetPath;
   }
   async copyAttachmentFile(taskId, file) {
-    const folderPath = (0, import_obsidian6.normalizePath)(`${this.attachmentsDir}/${taskId}`);
+    const folderPath = (0, import_obsidian5.normalizePath)(`${this.attachmentsDir}/${taskId}`);
     const folderReady = await this.ensureFolder(folderPath);
     if (!folderReady) {
       throw new Error(`slate cannot use attachment folder: ${folderPath}`);
@@ -2311,26 +1934,6 @@ var TaskStore = class {
       await this.load();
     });
     return migratedCount;
-  }
-  async resetAndSeedDemoData() {
-    let seededCount = 0;
-    await this.enqueueWrite(async () => {
-      await this.ensureTaskStructure();
-      await this.clearDemoWritableData();
-      await this.ensureFolder(this.dataDir);
-      await this.ensureFolder(this.attachmentsDir);
-      await this.replaceFile(this.mainFilePath, DEMO_MAIN_CONTENT);
-      const sourcePath = this.monthlyPathForDate(todayIso());
-      const seedData = buildDemoSeedData(sourcePath, this.attachmentsDir);
-      for (const attachment of seedData.attachments) {
-        await this.replaceFile(attachment.path, attachment.content);
-      }
-      const content = serializeTaskDocument({ blocks: [], tasks: [] }, seedData.tasks);
-      await this.replaceFile(sourcePath, content);
-      await this.load();
-      seededCount = seedData.tasks.length;
-    });
-    return seededCount;
   }
   async saveSources(sourcePaths) {
     await this.enqueueWrite(async () => {
@@ -2391,15 +1994,15 @@ var TaskStore = class {
       if (!file) {
         continue;
       }
-      this.writingPaths.add((0, import_obsidian6.normalizePath)(sourcePath));
+      this.writingPaths.add((0, import_obsidian5.normalizePath)(sourcePath));
       try {
         await this.app.vault.modify(file, content);
       } catch (error) {
-        new import_obsidian6.Notice("Slate could not save task changes. Open the developer console for details.");
+        new import_obsidian5.Notice("Slate could not save task changes. Open the developer console for details.");
         console.error("[slate] Failed to write task data.", error, { sourcePath });
         throw error;
       } finally {
-        this.writingPaths.delete((0, import_obsidian6.normalizePath)(sourcePath));
+        this.writingPaths.delete((0, import_obsidian5.normalizePath)(sourcePath));
       }
       this.documents.set(sourcePath, parseTaskDocument(content, sourcePath));
       writtenPaths.push(sourcePath);
@@ -2441,20 +2044,9 @@ var TaskStore = class {
       ].join("\n")
     );
   }
-  async clearDemoWritableData() {
-    for (const file of this.getDataFiles()) {
-      await this.app.fileManager.trashFile(file);
-    }
-    const attachmentsRoot = this.app.vault.getAbstractFileByPath(this.attachmentsDir);
-    if (attachmentsRoot) {
-      await this.app.fileManager.trashFile(attachmentsRoot);
-    }
-    this.documents.clear();
-    this.tasks = [];
-  }
   getDataFiles() {
     return this.app.vault.getFiles().filter((file) => {
-      const path = (0, import_obsidian6.normalizePath)(file.path);
+      const path = (0, import_obsidian5.normalizePath)(file.path);
       return path.startsWith(`${this.dataDir}/`) && MONTHLY_FILE_PATTERN.test(file.name);
     }).sort((a, b) => a.path.localeCompare(b.path));
   }
@@ -2464,7 +2056,7 @@ var TaskStore = class {
       return null;
     }
     const existing = this.app.vault.getAbstractFileByPath(path);
-    return existing instanceof import_obsidian6.TFile ? existing : null;
+    return existing instanceof import_obsidian5.TFile ? existing : null;
   }
   async ensureSourceDocument(sourcePath) {
     if (this.documents.has(sourcePath)) {
@@ -2480,9 +2072,9 @@ var TaskStore = class {
     return true;
   }
   async ensureFile(path, content) {
-    const normalizedPath = (0, import_obsidian6.normalizePath)(path);
+    const normalizedPath = (0, import_obsidian5.normalizePath)(path);
     const existing = this.app.vault.getAbstractFileByPath(normalizedPath);
-    if (existing instanceof import_obsidian6.TFile) {
+    if (existing instanceof import_obsidian5.TFile) {
       return existing;
     }
     if (existing) {
@@ -2500,7 +2092,7 @@ var TaskStore = class {
         throw error;
       }
       const created = this.app.vault.getAbstractFileByPath(normalizedPath);
-      if (created instanceof import_obsidian6.TFile) {
+      if (created instanceof import_obsidian5.TFile) {
         return created;
       }
       if (created) {
@@ -2522,7 +2114,7 @@ var TaskStore = class {
     return file;
   }
   async ensureParentFolders(path) {
-    const parts = (0, import_obsidian6.normalizePath)(path).split("/");
+    const parts = (0, import_obsidian5.normalizePath)(path).split("/");
     parts.pop();
     let current = "";
     for (const part of parts) {
@@ -2535,9 +2127,9 @@ var TaskStore = class {
     return true;
   }
   async ensureFolder(path) {
-    const normalizedPath = (0, import_obsidian6.normalizePath)(path);
+    const normalizedPath = (0, import_obsidian5.normalizePath)(path);
     const existing = this.app.vault.getAbstractFileByPath(normalizedPath);
-    if (existing instanceof import_obsidian6.TFolder) {
+    if (existing instanceof import_obsidian5.TFolder) {
       return true;
     }
     if (existing) {
@@ -2556,7 +2148,7 @@ var TaskStore = class {
         throw error;
       }
       const created = this.app.vault.getAbstractFileByPath(normalizedPath);
-      if (created instanceof import_obsidian6.TFolder) {
+      if (created instanceof import_obsidian5.TFolder) {
         return true;
       }
       if (created) {
@@ -2594,9 +2186,9 @@ var TaskStore = class {
       return;
     }
     this.warnedStorageIssues.add(key);
-    const actualType = existing instanceof import_obsidian6.TFolder ? "folder" : "file";
+    const actualType = existing instanceof import_obsidian5.TFolder ? "folder" : "file";
     const message = `slate expected a ${expectedType} at "${path}", but found a ${actualType}.`;
-    new import_obsidian6.Notice(`${message} Please rename or move the conflicting vault item.`);
+    new import_obsidian5.Notice(`${message} Please rename or move the conflicting vault item.`);
     console.warn("[slate] Storage path type mismatch.", {
       path,
       expectedType,
@@ -2609,16 +2201,16 @@ var TaskStore = class {
     const extensionStart = safeName.lastIndexOf(".");
     const base = extensionStart > 0 ? safeName.slice(0, extensionStart) : safeName;
     const extension = extensionStart > 0 ? safeName.slice(extensionStart) : "";
-    let candidate = (0, import_obsidian6.normalizePath)(`${folderPath}/${safeName}`);
+    let candidate = (0, import_obsidian5.normalizePath)(`${folderPath}/${safeName}`);
     let index = 2;
     while (this.app.vault.getAbstractFileByPath(candidate)) {
-      candidate = (0, import_obsidian6.normalizePath)(`${folderPath}/${base}-${index}${extension}`);
+      candidate = (0, import_obsidian5.normalizePath)(`${folderPath}/${base}-${index}${extension}`);
       index += 1;
     }
     return candidate;
   }
   async nextBackupPath(path) {
-    const normalizedPath = (0, import_obsidian6.normalizePath)(path);
+    const normalizedPath = (0, import_obsidian5.normalizePath)(path);
     const extensionStart = normalizedPath.lastIndexOf(".md");
     const base = extensionStart > -1 ? normalizedPath.slice(0, extensionStart) : normalizedPath;
     let candidate = `${base}.migrated-backup.md`;
@@ -2642,7 +2234,7 @@ var TaskStore = class {
   }
   monthlyPathForDate(value) {
     const month = /^\d{4}-\d{2}/.test(value) ? value.slice(0, 7) : todayIso().slice(0, 7);
-    return (0, import_obsidian6.normalizePath)(`${this.dataDir}/${month}.md`);
+    return (0, import_obsidian5.normalizePath)(`${this.dataDir}/${month}.md`);
   }
 };
 function withLoadedDefaults(task, sourcePath) {
@@ -2700,7 +2292,7 @@ function cloneTask(task) {
 }
 
 // src/views/TaskBoardView.ts
-var import_obsidian13 = require("obsidian");
+var import_obsidian12 = require("obsidian");
 
 // src/activityData.ts
 function getActivityDataSignature(allTasks) {
@@ -2845,7 +2437,7 @@ function toLocalIsoDate(date) {
 }
 
 // src/views/AddTaskComposer.ts
-var import_obsidian9 = require("obsidian");
+var import_obsidian8 = require("obsidian");
 
 // src/priority.ts
 var PRIORITY_COLORS = {
@@ -2901,10 +2493,10 @@ function getPriorityClass(priority) {
 }
 
 // src/views/CustomRepeatModal.ts
-var import_obsidian8 = require("obsidian");
+var import_obsidian7 = require("obsidian");
 
 // src/ui/components/SlateIcon.ts
-var import_obsidian7 = require("obsidian");
+var import_obsidian6 = require("obsidian");
 
 // src/ui/icons/slateIcons.ts
 var SLATE_ICON_MAP = {
@@ -2950,7 +2542,7 @@ function createSlateIcon(parent, icon, options = {}) {
     cls: classNames("slate-icon", options.className),
     attr: options.ariaLabel ? { "aria-label": options.ariaLabel, role: "img" } : { "aria-hidden": "true" }
   });
-  (0, import_obsidian7.setIcon)(iconEl, resolveSlateIcon(icon));
+  (0, import_obsidian6.setIcon)(iconEl, resolveSlateIcon(icon));
   applyIconOptions(iconEl, options);
   return iconEl;
 }
@@ -3298,7 +2890,7 @@ var DISPLAY_DAYS = [
   { label: "Sat", value: 6 },
   { label: "Sun", value: 0 }
 ];
-var CustomRepeatModal = class extends import_obsidian8.Modal {
+var CustomRepeatModal = class extends import_obsidian7.Modal {
   constructor(app, current, onSave) {
     super(app);
     this.freqDropdown = null;
@@ -3434,7 +3026,7 @@ var CustomRepeatModal = class extends import_obsidian8.Modal {
     cancelBtn.addEventListener("click", () => this.close());
     saveBtn.addEventListener("click", () => {
       if (this.requiresWeekdays() && getRepeatWeekdays(this.draft).length === 0) {
-        new import_obsidian8.Notice("Choose at least one weekday.");
+        new import_obsidian7.Notice("Choose at least one weekday.");
         return;
       }
       const v = parseInt(intervalInput.value);
@@ -3912,7 +3504,7 @@ var AddTaskComposer = class {
       attachmentInput.value = "";
       renderPendingAttachments();
     });
-    const mobilePanelSide = import_obsidian9.Platform.isMobile ? "above" : "below";
+    const mobilePanelSide = import_obsidian8.Platform.isMobile ? "above" : "below";
     const labelsWrap = chipRow.createDiv({ cls: "slate-composer-labels-wrap" });
     const labelsButton = createChipButton(labelsWrap, "Labels", "tag");
     const deadlineWrap = chipRow.createDiv({ cls: "slate-composer-deadline-wrap" });
@@ -4010,7 +3602,7 @@ var AddTaskComposer = class {
         panel.addClass("is-hidden");
         panel.removeClass("is-calendar-open");
       };
-      let canSelectDeadline = !import_obsidian9.Platform.isMobile;
+      let canSelectDeadline = !import_obsidian8.Platform.isMobile;
       const selectDeadline = (value) => {
         if (!canSelectDeadline) {
           return;
@@ -4043,12 +3635,12 @@ var AddTaskComposer = class {
         const shouldOpen = panel.hasClass("is-hidden");
         closeComposerPopovers();
         if (shouldOpen) {
-          canSelectDeadline = !import_obsidian9.Platform.isMobile;
+          canSelectDeadline = !import_obsidian8.Platform.isMobile;
           const ownerWindow = btn.ownerDocument.defaultView || window;
           ownerWindow.setTimeout(() => {
             panel.removeClass("is-hidden");
             watchLocalPopover(deadlineWrap, panel, { preferredSide: mobilePanelSide });
-            if (import_obsidian9.Platform.isMobile) {
+            if (import_obsidian8.Platform.isMobile) {
               ownerWindow.setTimeout(() => {
                 canSelectDeadline = true;
               }, 250);
@@ -4396,7 +3988,7 @@ var AddTaskComposer = class {
         createSlateIcon(clearBtn, "close");
         clearBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          if (selectedRepeat) new import_obsidian9.Notice("Date and repeat rule removed.");
+          if (selectedRepeat) new import_obsidian8.Notice("Date and repeat rule removed.");
           selectedDue = "";
           selectedRepeat = void 0;
           closeDueDatePopover();
@@ -4681,11 +4273,11 @@ function isImageFile(file) {
 }
 
 // src/views/TaskDetailModal.ts
-var import_obsidian11 = require("obsidian");
+var import_obsidian10 = require("obsidian");
 
 // src/views/ImagePreviewModal.ts
-var import_obsidian10 = require("obsidian");
-var ImagePreviewModal = class extends import_obsidian10.Modal {
+var import_obsidian9 = require("obsidian");
+var ImagePreviewModal = class extends import_obsidian9.Modal {
   constructor(app, file, label) {
     super(app);
     this.file = file;
@@ -4757,7 +4349,7 @@ var DESCRIPTION_FORMAT_ACTIONS = [
   { id: "numbered-list", label: "1.", title: "Numbered list" },
   { id: "link", label: "\u2197", title: "Link" }
 ];
-var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
+var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
   constructor(app, options) {
     super(app);
     this.options = options;
@@ -4804,7 +4396,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     this.modalEl.addClass("slate-modal-detail");
     this.containerEl.addClass("slate-modal-detail-container");
     (_a = this.markdownRenderComponent) == null ? void 0 : _a.unload();
-    this.markdownRenderComponent = new import_obsidian11.Component();
+    this.markdownRenderComponent = new import_obsidian10.Component();
     this.markdownRenderComponent.load();
     applySlateFontSettings(contentEl, this.options.settings);
     this.modalEl.addEventListener("keydown", this.handleEscape, true);
@@ -4910,7 +4502,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       }
       const renderTarget = descRendered.createDiv({ cls: "slate-detail-description-content" });
       try {
-        await import_obsidian11.MarkdownRenderer.render(
+        await import_obsidian10.MarkdownRenderer.render(
           this.app,
           markdown,
           renderTarget,
@@ -5040,7 +4632,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     createSlateButton(footerActions, { text: "Save", variant: "primary" }).addEventListener("click", () => {
       void this.save();
     });
-    if (!import_obsidian11.Platform.isMobile) {
+    if (!import_obsidian10.Platform.isMobile) {
       titleInput.focus();
     }
   }
@@ -5150,7 +4742,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     const toolbarWidth = toolbar.offsetWidth;
     const toolbarHeight = toolbar.offsetHeight;
     const textareaRect = textarea.getBoundingClientRect();
-    const anchor = import_obsidian11.Platform.isMobile ? {
+    const anchor = import_obsidian10.Platform.isMobile ? {
       left: textareaRect.left + 8,
       top: textareaRect.top,
       bottom: textareaRect.bottom
@@ -5220,7 +4812,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       list.empty();
       const imagePaths = this.draft.attachments.filter((path) => {
         const file = this.app.vault.getAbstractFileByPath(path);
-        return isImagePath(path) && file instanceof import_obsidian11.TFile;
+        return isImagePath(path) && file instanceof import_obsidian10.TFile;
       });
       if (this.draft.attachments.length === 0) {
         list.createDiv({
@@ -5239,7 +4831,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         item.setAttr("tabindex", "0");
         const openAttachment = () => {
           const file = this.app.vault.getAbstractFileByPath(path);
-          if (isImagePath(path) && file instanceof import_obsidian11.TFile) {
+          if (isImagePath(path) && file instanceof import_obsidian10.TFile) {
             new ImagePreviewModal(this.app, file, attachmentName(path)).open();
             return;
           }
@@ -5328,7 +4920,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     });
     for (const path of imagePaths) {
       const file = this.app.vault.getAbstractFileByPath(path);
-      if (!(file instanceof import_obsidian11.TFile)) {
+      if (!(file instanceof import_obsidian10.TFile)) {
         continue;
       }
       const preview = gallery.createDiv({ cls: "slate-image-attachment-card" });
@@ -5394,7 +4986,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
   }
   async downloadAttachment(path) {
     const file = this.app.vault.getAbstractFileByPath(path);
-    if (!(file instanceof import_obsidian11.TFile)) {
+    if (!(file instanceof import_obsidian10.TFile)) {
       await this.app.workspace.openLinkText(path, "", false);
       return;
     }
@@ -5885,7 +5477,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         createSlateIcon(clearBtn, "close");
         clearBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          if (this.draft.repeat) new import_obsidian11.Notice("Date and repeat rule removed.");
+          if (this.draft.repeat) new import_obsidian10.Notice("Date and repeat rule removed.");
           this.draft.due = void 0;
           this.draft.repeat = void 0;
           closePopover();
@@ -6650,8 +6242,8 @@ function compareOptionalDateDesc(a, b) {
 }
 
 // src/views/projects/ProjectModals.ts
-var import_obsidian12 = require("obsidian");
-var RenameProjectModal = class extends import_obsidian12.Modal {
+var import_obsidian11 = require("obsidian");
+var RenameProjectModal = class extends import_obsidian11.Modal {
   constructor(app, currentName, existingProjects, onSubmit) {
     super(app);
     this.currentName = currentName;
@@ -6709,7 +6301,7 @@ var RenameProjectModal = class extends import_obsidian12.Modal {
     input.focus();
   }
 };
-var DeleteProjectModal = class extends import_obsidian12.Modal {
+var DeleteProjectModal = class extends import_obsidian11.Modal {
   constructor(app, projectName, taskCount, onConfirm) {
     super(app);
     this.projectName = projectName;
@@ -6734,7 +6326,7 @@ var DeleteProjectModal = class extends import_obsidian12.Modal {
     });
   }
 };
-var CreateProjectModal = class extends import_obsidian12.Modal {
+var CreateProjectModal = class extends import_obsidian11.Modal {
   constructor(app, existingProjects, onSubmit) {
     super(app);
     this.existingProjects = existingProjects;
@@ -6971,7 +6563,7 @@ var SORT_OPTIONS = [
   { mode: "project", label: "Project" },
   { mode: "alphabetical", label: "Alphabetical" }
 ];
-var TaskBoardView = class extends import_obsidian13.ItemView {
+var TaskBoardView = class extends import_obsidian12.ItemView {
   constructor(leaf, store, settings, saveSettings) {
     super(leaf);
     this.store = store;
@@ -7212,7 +6804,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     containerEl.empty();
     containerEl.addClass("slate-root");
     containerEl.addClass("slate-view");
-    containerEl.toggleClass("is-mobile", import_obsidian13.Platform.isMobile);
+    containerEl.toggleClass("is-mobile", import_obsidian12.Platform.isMobile);
     applySlateFontSettings(containerEl, this.settings);
     containerEl.addEventListener("keydown", this.handleRootKeyDown, true);
     containerEl.addEventListener("click", this.handleRootClick, true);
@@ -7457,7 +7049,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     this.projectActionsOpen = null;
     this.searchOpen = false;
     this.searchQuery = "";
-    if (import_obsidian13.Platform.isMobile) {
+    if (import_obsidian12.Platform.isMobile) {
       this.mobileComposerReturnScroll = this.getMainScrollSnapshot();
       this.mobileComposerOpen = true;
       this.composerOpen = false;
@@ -7495,11 +7087,11 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         await this.createTaskFromComposer(input);
         onClose();
       },
-      presentation: import_obsidian13.Platform.isMobile ? "mobile-screen" : "default"
+      presentation: import_obsidian12.Platform.isMobile ? "mobile-screen" : "default"
     });
     const ownerWindow = parent.ownerDocument.defaultView || window;
     ownerWindow.requestAnimationFrame(() => {
-      if (import_obsidian13.Platform.isMobile) {
+      if (import_obsidian12.Platform.isMobile) {
         composer.focusTitleForMobileCapture();
       } else {
         composer.focus();
@@ -9277,7 +8869,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     event.stopImmediatePropagation();
   }
 };
-var LabelPromptModal = class extends import_obsidian13.Modal {
+var LabelPromptModal = class extends import_obsidian12.Modal {
   constructor(app, onSubmit) {
     super(app);
     this.onSubmit = onSubmit;
@@ -9418,8 +9010,8 @@ function searchableText(task) {
 }
 
 // src/views/QuickAddModal.ts
-var import_obsidian14 = require("obsidian");
-var QuickAddModal = class extends import_obsidian14.Modal {
+var import_obsidian13 = require("obsidian");
+var QuickAddModal = class extends import_obsidian13.Modal {
   constructor(app, onSubmit) {
     super(app);
     this.onSubmit = onSubmit;
@@ -9486,10 +9078,10 @@ var QuickAddModal = class extends import_obsidian14.Modal {
 };
 
 // src/views/DailyNoteCompletedBlock.ts
-var import_obsidian15 = require("obsidian");
+var import_obsidian14 = require("obsidian");
 var DATE_OPTION_RE = /(?:^|\n)\s*date\s*:\s*(\d{4}-\d{2}-\d{2})\s*(?:\n|$)/i;
 var DATE_LINE_RE = /^\s*(\d{4}-\d{2}-\d{2})\s*$/m;
-var DailyNoteCompletedBlock = class extends import_obsidian15.MarkdownRenderChild {
+var DailyNoteCompletedBlock = class extends import_obsidian14.MarkdownRenderChild {
   constructor(options) {
     super(options.containerEl);
     this.source = options.source;
@@ -9623,7 +9215,7 @@ function formatDailyBlockTitle(date) {
 // src/main.ts
 var SLATE_COMPLETED_CODE_BLOCK = "```slate-completed\n```";
 var SLATE_COMPLETED_CODE_BLOCK_RE = /```slate-completed\b[\s\S]*?```/i;
-var SlatePlugin = class extends import_obsidian16.Plugin {
+var SlatePlugin = class extends import_obsidian15.Plugin {
   constructor() {
     super(...arguments);
     this.reloadDebounceTimer = null;
@@ -9660,7 +9252,7 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
       callback: () => {
         new QuickAddModal(this.app, async (title) => {
           await this.store.createTask({ title });
-          new import_obsidian16.Notice("Task added to Inbox");
+          new import_obsidian15.Notice("Task added to Inbox");
         }).open();
       }
     });
@@ -9689,7 +9281,7 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
           ...Object.keys(this.settings.labelColors)
         ]);
         await this.saveSettings();
-        new import_obsidian16.Notice("slate labels normalized.");
+        new import_obsidian15.Notice("slate labels normalized.");
       }
     });
     this.addCommand({
@@ -9698,10 +9290,10 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
       callback: async () => {
         const migratedCount = await this.store.migrateOldTaskFile();
         if (migratedCount === 0) {
-          new import_obsidian16.Notice("slate found no old tasks to migrate.");
+          new import_obsidian15.Notice("slate found no old tasks to migrate.");
           return;
         }
-        new import_obsidian16.Notice(`slate migrated ${migratedCount} task${migratedCount === 1 ? "" : "s"}.`);
+        new import_obsidian15.Notice(`slate migrated ${migratedCount} task${migratedCount === 1 ? "" : "s"}.`);
       }
     });
     this.addSettingTab(new SlateSettingTab(this.app, this));
@@ -9802,7 +9394,7 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
     try {
       await this.store.reloadFromDisk();
     } catch (error) {
-      new import_obsidian16.Notice("slate could not reload task data.");
+      new import_obsidian15.Notice("slate could not reload task data.");
       console.error(error);
     }
   }
@@ -9908,40 +9500,40 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
   }
   async openActiveDailyNoteCompletedTasks() {
     if (!this.settings.dailyNotesIntegrationEnabled) {
-      new import_obsidian16.Notice("slate Daily Notes integration is disabled in settings.");
+      new import_obsidian15.Notice("slate Daily Notes integration is disabled in settings.");
       return;
     }
     const file = this.app.workspace.getActiveFile();
     if (!file) {
-      new import_obsidian16.Notice("Open a daily note first.");
+      new import_obsidian15.Notice("Open a daily note first.");
       return;
     }
     const date = this.dateFromDailyNoteFile(file);
     if (!date) {
-      new import_obsidian16.Notice("slate could not detect a date from the active note.");
+      new import_obsidian15.Notice("slate could not detect a date from the active note.");
       return;
     }
     await this.activateDailyNoteView(date, file.path);
   }
   async insertActiveDailyNoteCompletedBlock() {
     if (!this.settings.dailyNotesIntegrationEnabled) {
-      new import_obsidian16.Notice("slate Daily Notes integration is disabled in settings.");
+      new import_obsidian15.Notice("slate Daily Notes integration is disabled in settings.");
       return;
     }
     const file = this.app.workspace.getActiveFile();
     if (!file) {
-      new import_obsidian16.Notice("Open a daily note first.");
+      new import_obsidian15.Notice("Open a daily note first.");
       return;
     }
     if (!this.dateFromDailyNoteFile(file)) {
-      new import_obsidian16.Notice("slate could not detect a date from the active note.");
+      new import_obsidian15.Notice("slate could not detect a date from the active note.");
       return;
     }
     const result = await this.ensureDailyNoteCompletedBlock(file);
     if (result === "inserted") {
-      new import_obsidian16.Notice("slate completed tasks block added.");
+      new import_obsidian15.Notice("slate completed tasks block added.");
     } else if (result === "exists") {
-      new import_obsidian16.Notice("This note already has a slate completed tasks block.");
+      new import_obsidian15.Notice("This note already has a slate completed tasks block.");
     }
   }
   async handleDailyNoteFileOpen(file) {
@@ -10017,7 +9609,7 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
     try {
       await this.store.load();
     } catch (error) {
-      new import_obsidian16.Notice("slate could not initialize task storage. Open the developer console for details.");
+      new import_obsidian15.Notice("slate could not initialize task storage. Open the developer console for details.");
       console.error("[slate] Failed to initialize task storage.", error, {
         dataFolderPath: this.settings.dataFolderPath,
         tasksFilePath: this.settings.tasksFilePath

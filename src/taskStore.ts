@@ -6,7 +6,6 @@ import { isRepeatEnded, nextOccurrence } from "./repeatUtils";
 import { SlateSettings, normalizeDataFolderPath } from "./settings";
 import { SlateTask, CreateTaskInput, ParsedTaskDocument, TaskPatch } from "./types";
 import { dedupeLabels, normalizeLabelName } from "./labels";
-import { DEMO_MAIN_CONTENT, buildDemoSeedData } from "./demoData";
 import { normalizeTaskProject } from "./projects";
 
 type Listener = () => void;
@@ -510,34 +509,6 @@ export class TaskStore {
     return migratedCount;
   }
 
-  async resetAndSeedDemoData(): Promise<number> {
-    let seededCount = 0;
-    // Serialize the destructive reset + reseed + reload with the autosave queue
-    // so a concurrent task write cannot interleave with it.
-    await this.enqueueWrite(async () => {
-      await this.ensureTaskStructure();
-      await this.clearDemoWritableData();
-      await this.ensureFolder(this.dataDir);
-      await this.ensureFolder(this.attachmentsDir);
-      await this.replaceFile(this.mainFilePath, DEMO_MAIN_CONTENT);
-
-      const sourcePath = this.monthlyPathForDate(todayIso());
-      const seedData = buildDemoSeedData(sourcePath, this.attachmentsDir);
-
-      for (const attachment of seedData.attachments) {
-        await this.replaceFile(attachment.path, attachment.content);
-      }
-
-      const content = serializeTaskDocument({ blocks: [], tasks: [] }, seedData.tasks);
-      await this.replaceFile(sourcePath, content);
-      await this.load();
-
-      seededCount = seedData.tasks.length;
-    });
-
-    return seededCount;
-  }
-
   private async saveSources(sourcePaths: string[]): Promise<void> {
     await this.enqueueWrite(async () => {
       const writtenPaths: string[] = [];
@@ -677,20 +648,6 @@ export class TaskStore {
         `Attachments are stored in \`${this.attachmentsDir}/<task-id>/\`.`
       ].join("\n")
     );
-  }
-
-  private async clearDemoWritableData(): Promise<void> {
-    for (const file of this.getDataFiles()) {
-      await this.app.fileManager.trashFile(file);
-    }
-
-    const attachmentsRoot = this.app.vault.getAbstractFileByPath(this.attachmentsDir);
-    if (attachmentsRoot) {
-      await this.app.fileManager.trashFile(attachmentsRoot);
-    }
-
-    this.documents.clear();
-    this.tasks = [];
   }
 
   private getDataFiles(): TFile[] {
