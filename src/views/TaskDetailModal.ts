@@ -18,6 +18,7 @@ import {
 import { normalizeTaskProject, uniqueRealProjects } from "../projects";
 import { createSlateIcon } from "../ui/components/SlateIcon";
 import { SlateDropdown, SlateDropdownOption } from "../ui/components/SlateDropdown";
+import { ConfirmModal } from "./ConfirmModal";
 import { attachWikilinkAutocomplete } from "./wikilinkAutocomplete";
 import { attachQuickAddAutocomplete, parseQuickAddTokens } from "./quickAddAutocomplete";
 import { createSlateActionRow, createSlateButton } from "../ui";
@@ -353,11 +354,16 @@ export class TaskDetailModal extends Modal {
       variant: "destructive"
     })
       .addEventListener("click", () => {
-        void (async () => {
-          await this.options.store.deleteTask(this.draft.id);
-          this.options.onChange();
-          this.close();
-        })();
+        new ConfirmModal(this.app, {
+          title: "Delete task?",
+          message: "This task will be permanently deleted.",
+          confirmText: "Delete task",
+          onConfirm: async () => {
+            await this.options.store.deleteTask(this.draft.id);
+            this.options.onChange();
+            this.close();
+          }
+        }).open();
       });
 
     if (this.draft.repeat && !this.draft.completed) {
@@ -974,11 +980,17 @@ export class TaskDetailModal extends Modal {
         createSlateIcon(deleteBtn, "delete");
         deleteBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          void this.options.store.deleteTask(sub.id).then(() => {
-            renderList();
-            updateHeader();
-            this.options.onChange();
-          });
+          new ConfirmModal(this.app, {
+            title: "Delete sub-task?",
+            message: "This sub-task will be permanently deleted.",
+            confirmText: "Delete sub-task",
+            onConfirm: async () => {
+              await this.options.store.deleteTask(sub.id);
+              renderList();
+              updateHeader();
+              this.options.onChange();
+            }
+          }).open();
         });
 
         const meta = info.createDiv({ cls: "slate-subtask-meta" });

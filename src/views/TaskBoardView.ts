@@ -44,6 +44,7 @@ import {
 } from "../projects";
 import { createSlateIcon } from "../ui/components/SlateIcon";
 import { SlateDropdown } from "../ui/components/SlateDropdown";
+import { ConfirmModal } from "./ConfirmModal";
 import { renderLinkedText, stripInlineMarkdownPreservingLinks } from "./linkedText";
 import { compareTasksByMode } from "../taskSorting";
 import { CreateProjectModal, DeleteProjectModal, RenameProjectModal } from "./projects/ProjectModals";
@@ -2003,7 +2004,12 @@ export class TaskBoardView extends ItemView {
     createSlateIcon(deleteButton, "delete");
     deleteButton.addEventListener("click", (event) => {
       event.stopPropagation();
-      void this.store.deleteTask(task.id);
+      new ConfirmModal(this.app, {
+        title: "Delete task?",
+        message: "This task will be permanently deleted.",
+        confirmText: "Delete task",
+        onConfirm: () => this.store.deleteTask(task.id)
+      }).open();
     });
   }
 
@@ -2166,7 +2172,12 @@ export class TaskBoardView extends ItemView {
 
     this.createTaskActionMenuButton(menu, "Delete task", () => {
       this.removeTaskActionMenu();
-      void this.store.deleteTask(task.id);
+      new ConfirmModal(this.app, {
+        title: "Delete task?",
+        message: "This task will be permanently deleted.",
+        confirmText: "Delete task",
+        onConfirm: () => this.store.deleteTask(task.id)
+      }).open();
     });
     this.positionTaskActionMenu(menu, trigger);
     return menu;

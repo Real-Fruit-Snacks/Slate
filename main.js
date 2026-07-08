@@ -23,7 +23,7 @@ __export(main_exports, {
   default: () => SlatePlugin
 });
 module.exports = __toCommonJS(main_exports);
-var import_obsidian15 = require("obsidian");
+var import_obsidian16 = require("obsidian");
 
 // src/dailyNotes.ts
 var import_obsidian = require("obsidian");
@@ -2292,7 +2292,7 @@ function cloneTask(task) {
 }
 
 // src/views/TaskBoardView.ts
-var import_obsidian12 = require("obsidian");
+var import_obsidian13 = require("obsidian");
 
 // src/activityData.ts
 function getActivityDataSignature(allTasks) {
@@ -4273,7 +4273,7 @@ function isImageFile(file) {
 }
 
 // src/views/TaskDetailModal.ts
-var import_obsidian10 = require("obsidian");
+var import_obsidian11 = require("obsidian");
 
 // src/views/ImagePreviewModal.ts
 var import_obsidian9 = require("obsidian");
@@ -4337,6 +4337,35 @@ var ImagePreviewModal = class extends import_obsidian9.Modal {
   }
 };
 
+// src/views/ConfirmModal.ts
+var import_obsidian10 = require("obsidian");
+var ConfirmModal = class extends import_obsidian10.Modal {
+  constructor(app, options) {
+    super(app);
+    this.options = options;
+  }
+  onOpen() {
+    const { contentEl } = this;
+    contentEl.empty();
+    contentEl.addClass("slate-confirm-modal");
+    contentEl.createEl("h2", { text: this.options.title });
+    if (this.options.message) {
+      contentEl.createEl("p", { text: this.options.message, cls: "slate-modal-desc" });
+    }
+    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
+    createSlateButton(actions, { text: "Cancel" }).addEventListener("click", () => this.close());
+    createSlateButton(actions, {
+      text: this.options.confirmText,
+      variant: "destructive"
+    }).addEventListener("click", () => {
+      void Promise.resolve(this.options.onConfirm()).then(() => this.close());
+    });
+  }
+  onClose() {
+    this.contentEl.empty();
+  }
+};
+
 // src/views/TaskDetailModal.ts
 var DESCRIPTION_FORMAT_ACTIONS = [
   { id: "bold", label: "B", title: "Bold" },
@@ -4349,7 +4378,7 @@ var DESCRIPTION_FORMAT_ACTIONS = [
   { id: "numbered-list", label: "1.", title: "Numbered list" },
   { id: "link", label: "\u2197", title: "Link" }
 ];
-var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
+var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
   constructor(app, options) {
     super(app);
     this.options = options;
@@ -4396,7 +4425,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
     this.modalEl.addClass("slate-modal-detail");
     this.containerEl.addClass("slate-modal-detail-container");
     (_a = this.markdownRenderComponent) == null ? void 0 : _a.unload();
-    this.markdownRenderComponent = new import_obsidian10.Component();
+    this.markdownRenderComponent = new import_obsidian11.Component();
     this.markdownRenderComponent.load();
     applySlateFontSettings(contentEl, this.options.settings);
     this.modalEl.addEventListener("keydown", this.handleEscape, true);
@@ -4502,7 +4531,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
       }
       const renderTarget = descRendered.createDiv({ cls: "slate-detail-description-content" });
       try {
-        await import_obsidian10.MarkdownRenderer.render(
+        await import_obsidian11.MarkdownRenderer.render(
           this.app,
           markdown,
           renderTarget,
@@ -4603,11 +4632,16 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
       text: "Delete task",
       variant: "destructive"
     }).addEventListener("click", () => {
-      void (async () => {
-        await this.options.store.deleteTask(this.draft.id);
-        this.options.onChange();
-        this.close();
-      })();
+      new ConfirmModal(this.app, {
+        title: "Delete task?",
+        message: "This task will be permanently deleted.",
+        confirmText: "Delete task",
+        onConfirm: async () => {
+          await this.options.store.deleteTask(this.draft.id);
+          this.options.onChange();
+          this.close();
+        }
+      }).open();
     });
     if (this.draft.repeat && !this.draft.completed) {
       createSlateButton(footer, {
@@ -4632,7 +4666,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
     createSlateButton(footerActions, { text: "Save", variant: "primary" }).addEventListener("click", () => {
       void this.save();
     });
-    if (!import_obsidian10.Platform.isMobile) {
+    if (!import_obsidian11.Platform.isMobile) {
       titleInput.focus();
     }
   }
@@ -4742,7 +4776,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
     const toolbarWidth = toolbar.offsetWidth;
     const toolbarHeight = toolbar.offsetHeight;
     const textareaRect = textarea.getBoundingClientRect();
-    const anchor = import_obsidian10.Platform.isMobile ? {
+    const anchor = import_obsidian11.Platform.isMobile ? {
       left: textareaRect.left + 8,
       top: textareaRect.top,
       bottom: textareaRect.bottom
@@ -4812,7 +4846,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
       list.empty();
       const imagePaths = this.draft.attachments.filter((path) => {
         const file = this.app.vault.getAbstractFileByPath(path);
-        return isImagePath(path) && file instanceof import_obsidian10.TFile;
+        return isImagePath(path) && file instanceof import_obsidian11.TFile;
       });
       if (this.draft.attachments.length === 0) {
         list.createDiv({
@@ -4831,7 +4865,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
         item.setAttr("tabindex", "0");
         const openAttachment = () => {
           const file = this.app.vault.getAbstractFileByPath(path);
-          if (isImagePath(path) && file instanceof import_obsidian10.TFile) {
+          if (isImagePath(path) && file instanceof import_obsidian11.TFile) {
             new ImagePreviewModal(this.app, file, attachmentName(path)).open();
             return;
           }
@@ -4920,7 +4954,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
     });
     for (const path of imagePaths) {
       const file = this.app.vault.getAbstractFileByPath(path);
-      if (!(file instanceof import_obsidian10.TFile)) {
+      if (!(file instanceof import_obsidian11.TFile)) {
         continue;
       }
       const preview = gallery.createDiv({ cls: "slate-image-attachment-card" });
@@ -4986,7 +5020,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
   }
   async downloadAttachment(path) {
     const file = this.app.vault.getAbstractFileByPath(path);
-    if (!(file instanceof import_obsidian10.TFile)) {
+    if (!(file instanceof import_obsidian11.TFile)) {
       await this.app.workspace.openLinkText(path, "", false);
       return;
     }
@@ -5139,11 +5173,17 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
         createSlateIcon(deleteBtn, "delete");
         deleteBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          void this.options.store.deleteTask(sub.id).then(() => {
-            renderList();
-            updateHeader();
-            this.options.onChange();
-          });
+          new ConfirmModal(this.app, {
+            title: "Delete sub-task?",
+            message: "This sub-task will be permanently deleted.",
+            confirmText: "Delete sub-task",
+            onConfirm: async () => {
+              await this.options.store.deleteTask(sub.id);
+              renderList();
+              updateHeader();
+              this.options.onChange();
+            }
+          }).open();
         });
         const meta = info.createDiv({ cls: "slate-subtask-meta" });
         if (sub.due) {
@@ -5477,7 +5517,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian10.Modal {
         createSlateIcon(clearBtn, "close");
         clearBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          if (this.draft.repeat) new import_obsidian10.Notice("Date and repeat rule removed.");
+          if (this.draft.repeat) new import_obsidian11.Notice("Date and repeat rule removed.");
           this.draft.due = void 0;
           this.draft.repeat = void 0;
           closePopover();
@@ -6242,8 +6282,8 @@ function compareOptionalDateDesc(a, b) {
 }
 
 // src/views/projects/ProjectModals.ts
-var import_obsidian11 = require("obsidian");
-var RenameProjectModal = class extends import_obsidian11.Modal {
+var import_obsidian12 = require("obsidian");
+var RenameProjectModal = class extends import_obsidian12.Modal {
   constructor(app, currentName, existingProjects, onSubmit) {
     super(app);
     this.currentName = currentName;
@@ -6301,7 +6341,7 @@ var RenameProjectModal = class extends import_obsidian11.Modal {
     input.focus();
   }
 };
-var DeleteProjectModal = class extends import_obsidian11.Modal {
+var DeleteProjectModal = class extends import_obsidian12.Modal {
   constructor(app, projectName, taskCount, onConfirm) {
     super(app);
     this.projectName = projectName;
@@ -6326,7 +6366,7 @@ var DeleteProjectModal = class extends import_obsidian11.Modal {
     });
   }
 };
-var CreateProjectModal = class extends import_obsidian11.Modal {
+var CreateProjectModal = class extends import_obsidian12.Modal {
   constructor(app, existingProjects, onSubmit) {
     super(app);
     this.existingProjects = existingProjects;
@@ -6563,7 +6603,7 @@ var SORT_OPTIONS = [
   { mode: "project", label: "Project" },
   { mode: "alphabetical", label: "Alphabetical" }
 ];
-var TaskBoardView = class extends import_obsidian12.ItemView {
+var TaskBoardView = class extends import_obsidian13.ItemView {
   constructor(leaf, store, settings, saveSettings) {
     super(leaf);
     this.store = store;
@@ -6804,7 +6844,7 @@ var TaskBoardView = class extends import_obsidian12.ItemView {
     containerEl.empty();
     containerEl.addClass("slate-root");
     containerEl.addClass("slate-view");
-    containerEl.toggleClass("is-mobile", import_obsidian12.Platform.isMobile);
+    containerEl.toggleClass("is-mobile", import_obsidian13.Platform.isMobile);
     applySlateFontSettings(containerEl, this.settings);
     containerEl.addEventListener("keydown", this.handleRootKeyDown, true);
     containerEl.addEventListener("click", this.handleRootClick, true);
@@ -7049,7 +7089,7 @@ var TaskBoardView = class extends import_obsidian12.ItemView {
     this.projectActionsOpen = null;
     this.searchOpen = false;
     this.searchQuery = "";
-    if (import_obsidian12.Platform.isMobile) {
+    if (import_obsidian13.Platform.isMobile) {
       this.mobileComposerReturnScroll = this.getMainScrollSnapshot();
       this.mobileComposerOpen = true;
       this.composerOpen = false;
@@ -7087,11 +7127,11 @@ var TaskBoardView = class extends import_obsidian12.ItemView {
         await this.createTaskFromComposer(input);
         onClose();
       },
-      presentation: import_obsidian12.Platform.isMobile ? "mobile-screen" : "default"
+      presentation: import_obsidian13.Platform.isMobile ? "mobile-screen" : "default"
     });
     const ownerWindow = parent.ownerDocument.defaultView || window;
     ownerWindow.requestAnimationFrame(() => {
-      if (import_obsidian12.Platform.isMobile) {
+      if (import_obsidian13.Platform.isMobile) {
         composer.focusTitleForMobileCapture();
       } else {
         composer.focus();
@@ -8216,7 +8256,12 @@ var TaskBoardView = class extends import_obsidian12.ItemView {
     createSlateIcon(deleteButton, "delete");
     deleteButton.addEventListener("click", (event) => {
       event.stopPropagation();
-      void this.store.deleteTask(task.id);
+      new ConfirmModal(this.app, {
+        title: "Delete task?",
+        message: "This task will be permanently deleted.",
+        confirmText: "Delete task",
+        onConfirm: () => this.store.deleteTask(task.id)
+      }).open();
     });
   }
   toggleSubtaskPreview(taskId, item, subTasks) {
@@ -8361,7 +8406,12 @@ var TaskBoardView = class extends import_obsidian12.ItemView {
     }
     this.createTaskActionMenuButton(menu, "Delete task", () => {
       this.removeTaskActionMenu();
-      void this.store.deleteTask(task.id);
+      new ConfirmModal(this.app, {
+        title: "Delete task?",
+        message: "This task will be permanently deleted.",
+        confirmText: "Delete task",
+        onConfirm: () => this.store.deleteTask(task.id)
+      }).open();
     });
     this.positionTaskActionMenu(menu, trigger);
     return menu;
@@ -8869,7 +8919,7 @@ var TaskBoardView = class extends import_obsidian12.ItemView {
     event.stopImmediatePropagation();
   }
 };
-var LabelPromptModal = class extends import_obsidian12.Modal {
+var LabelPromptModal = class extends import_obsidian13.Modal {
   constructor(app, onSubmit) {
     super(app);
     this.onSubmit = onSubmit;
@@ -9010,8 +9060,8 @@ function searchableText(task) {
 }
 
 // src/views/QuickAddModal.ts
-var import_obsidian13 = require("obsidian");
-var QuickAddModal = class extends import_obsidian13.Modal {
+var import_obsidian14 = require("obsidian");
+var QuickAddModal = class extends import_obsidian14.Modal {
   constructor(app, onSubmit) {
     super(app);
     this.onSubmit = onSubmit;
@@ -9078,10 +9128,10 @@ var QuickAddModal = class extends import_obsidian13.Modal {
 };
 
 // src/views/DailyNoteCompletedBlock.ts
-var import_obsidian14 = require("obsidian");
+var import_obsidian15 = require("obsidian");
 var DATE_OPTION_RE = /(?:^|\n)\s*date\s*:\s*(\d{4}-\d{2}-\d{2})\s*(?:\n|$)/i;
 var DATE_LINE_RE = /^\s*(\d{4}-\d{2}-\d{2})\s*$/m;
-var DailyNoteCompletedBlock = class extends import_obsidian14.MarkdownRenderChild {
+var DailyNoteCompletedBlock = class extends import_obsidian15.MarkdownRenderChild {
   constructor(options) {
     super(options.containerEl);
     this.source = options.source;
@@ -9215,7 +9265,7 @@ function formatDailyBlockTitle(date) {
 // src/main.ts
 var SLATE_COMPLETED_CODE_BLOCK = "```slate-completed\n```";
 var SLATE_COMPLETED_CODE_BLOCK_RE = /```slate-completed\b[\s\S]*?```/i;
-var SlatePlugin = class extends import_obsidian15.Plugin {
+var SlatePlugin = class extends import_obsidian16.Plugin {
   constructor() {
     super(...arguments);
     this.reloadDebounceTimer = null;
@@ -9252,7 +9302,7 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
       callback: () => {
         new QuickAddModal(this.app, async (title) => {
           await this.store.createTask({ title });
-          new import_obsidian15.Notice("Task added to Inbox");
+          new import_obsidian16.Notice("Task added to Inbox");
         }).open();
       }
     });
@@ -9281,7 +9331,7 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
           ...Object.keys(this.settings.labelColors)
         ]);
         await this.saveSettings();
-        new import_obsidian15.Notice("slate labels normalized.");
+        new import_obsidian16.Notice("slate labels normalized.");
       }
     });
     this.addCommand({
@@ -9290,10 +9340,10 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
       callback: async () => {
         const migratedCount = await this.store.migrateOldTaskFile();
         if (migratedCount === 0) {
-          new import_obsidian15.Notice("slate found no old tasks to migrate.");
+          new import_obsidian16.Notice("slate found no old tasks to migrate.");
           return;
         }
-        new import_obsidian15.Notice(`slate migrated ${migratedCount} task${migratedCount === 1 ? "" : "s"}.`);
+        new import_obsidian16.Notice(`slate migrated ${migratedCount} task${migratedCount === 1 ? "" : "s"}.`);
       }
     });
     this.addSettingTab(new SlateSettingTab(this.app, this));
@@ -9394,7 +9444,7 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
     try {
       await this.store.reloadFromDisk();
     } catch (error) {
-      new import_obsidian15.Notice("slate could not reload task data.");
+      new import_obsidian16.Notice("slate could not reload task data.");
       console.error(error);
     }
   }
@@ -9500,40 +9550,40 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
   }
   async openActiveDailyNoteCompletedTasks() {
     if (!this.settings.dailyNotesIntegrationEnabled) {
-      new import_obsidian15.Notice("slate Daily Notes integration is disabled in settings.");
+      new import_obsidian16.Notice("slate Daily Notes integration is disabled in settings.");
       return;
     }
     const file = this.app.workspace.getActiveFile();
     if (!file) {
-      new import_obsidian15.Notice("Open a daily note first.");
+      new import_obsidian16.Notice("Open a daily note first.");
       return;
     }
     const date = this.dateFromDailyNoteFile(file);
     if (!date) {
-      new import_obsidian15.Notice("slate could not detect a date from the active note.");
+      new import_obsidian16.Notice("slate could not detect a date from the active note.");
       return;
     }
     await this.activateDailyNoteView(date, file.path);
   }
   async insertActiveDailyNoteCompletedBlock() {
     if (!this.settings.dailyNotesIntegrationEnabled) {
-      new import_obsidian15.Notice("slate Daily Notes integration is disabled in settings.");
+      new import_obsidian16.Notice("slate Daily Notes integration is disabled in settings.");
       return;
     }
     const file = this.app.workspace.getActiveFile();
     if (!file) {
-      new import_obsidian15.Notice("Open a daily note first.");
+      new import_obsidian16.Notice("Open a daily note first.");
       return;
     }
     if (!this.dateFromDailyNoteFile(file)) {
-      new import_obsidian15.Notice("slate could not detect a date from the active note.");
+      new import_obsidian16.Notice("slate could not detect a date from the active note.");
       return;
     }
     const result = await this.ensureDailyNoteCompletedBlock(file);
     if (result === "inserted") {
-      new import_obsidian15.Notice("slate completed tasks block added.");
+      new import_obsidian16.Notice("slate completed tasks block added.");
     } else if (result === "exists") {
-      new import_obsidian15.Notice("This note already has a slate completed tasks block.");
+      new import_obsidian16.Notice("This note already has a slate completed tasks block.");
     }
   }
   async handleDailyNoteFileOpen(file) {
@@ -9609,7 +9659,7 @@ var SlatePlugin = class extends import_obsidian15.Plugin {
     try {
       await this.store.load();
     } catch (error) {
-      new import_obsidian15.Notice("slate could not initialize task storage. Open the developer console for details.");
+      new import_obsidian16.Notice("slate could not initialize task storage. Open the developer console for details.");
       console.error("[slate] Failed to initialize task storage.", error, {
         dataFolderPath: this.settings.dataFolderPath,
         tasksFilePath: this.settings.tasksFilePath
