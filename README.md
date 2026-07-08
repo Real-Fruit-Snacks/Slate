@@ -1,132 +1,104 @@
-<p align="center">
-  <img src="assets/brand/slate-logo.png" width="96" alt="Slate logo">
-</p>
+<div align="center">
 
-<h1 align="center">Slate</h1>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner-dark.svg" />
+  <img alt="Slate" src="docs/assets/banner-light.svg" width="760" />
+</picture>
 
-<p align="center">
-  A calm Todoist-like task manager for Obsidian.<br>
-  Tasks stay inside your vault as local Markdown files.
-</p>
+<br/>
 
-<p align="center">
-  <a href="https://github.com/Real-Fruit-Snacks/obsidian-slate-tasks/releases">Releases</a>
-  ·
-  <a href="docs/README.md">Docs</a>
-</p>
+A calm, Todoist-like task manager for Obsidian — every task is a line in a plain Markdown file you own. No account, no external service, no database. Just your notes.
 
----
+<br/>
 
-Slate is a Todoist-inspired task manager that lives entirely inside your Obsidian vault. There is no account, no external service, and no sync layer. Your tasks are stored as plain Markdown files you own.
+[![License: MIT](https://img.shields.io/badge/License-MIT-f0c674?style=flat-square)](LICENSE)
+&nbsp;![Version](https://img.shields.io/badge/version-0.1.0-6bdcff?style=flat-square)
+&nbsp;![Obsidian](https://img.shields.io/badge/Obsidian-1.6.6%2B-63f2ab?style=flat-square)
 
-Slate aims to sit between lightweight checkbox-based task plugins and heavier task-note systems: structured enough to work as a real task manager, but small enough to stay calm and easy to use.
+[Documentation](docs/README.md) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/Real-Fruit-Snacks/Slate/issues)
 
-> Slate is **not** a Todoist integration. It does not connect to Todoist or any external service.
+</div>
 
 ---
 
-## Screenshots
+## Overview
 
-<p align="center">
-  <img src="assets/screenshots/today.png" alt="Slate Today view" width="49%">
-  <img src="assets/screenshots/upcoming.png" alt="Slate Upcoming view" width="49%">
-</p>
+Slate sits between lightweight checkbox plugins and heavy task-note systems: structured enough to run your day, small enough to stay quiet. Tasks live entirely inside your vault as human-readable Markdown, organized into one file per month — so your task history is greppable, portable, and yours forever.
 
-<p align="center">
-  <img src="assets/screenshots/task-detail.png" alt="Slate task detail" width="49%">
-  <img src="assets/screenshots/activity.png" alt="Slate Activity view" width="49%">
-</p>
-
-<p align="center">
-  <img src="assets/screenshots/inbox.png" alt="Slate Inbox view" width="49%">
-  <img src="assets/screenshots/project-view.png" alt="Slate Project view" width="49%">
-</p>
-
-<p align="center">
-  <img src="assets/screenshots/filters-labels.png" alt="Slate Filters and Labels view" width="72%">
-</p>
+> Slate is **not** a Todoist integration. It never connects to Todoist or any external service.
 
 ---
 
 ## Features
 
-### Views
-
-- **Inbox** — tasks without a project.
-- **Today** — today's tasks plus an Overdue section.
-- **Upcoming** — future tasks grouped by date.
-- **Projects** — all projects or one focused project.
-- **Filters & Labels** — browse by priority, date, label, or saved smart filters.
-- **Activity** — completed-task stats and a 26-week activity heatmap.
-- **Completed** — completed tasks grouped by completion date.
-- **Search** — quick overlay search across task title, description, project, and labels.
-- **Daily Notes** — show completed tasks for a daily note in a Slate panel or `slate-completed` code block, with optional auto-insert.
-
-### Task Management
-
-- Add tasks from the board, mobile composer, or command palette with `Slate: Add task`.
-- Edit title, description, project, priority, due date, deadline, labels, repeat rule, and attachments.
-- Complete, uncomplete, reschedule, move, and delete tasks.
-- Use `#label` and `//project` in the title field while adding a task.
-- Use wikilinks such as `[[Project brief]]` in task titles and descriptions.
-- Sort by Smart, Due date, Priority, Deadline, Created date, Project, or Alphabetical.
-
-### Sub-tasks
-
-- Add sub-tasks from the parent task detail view.
-- Parent task rows show a sub-task completion counter.
-- Click the counter to expand an inline sub-task preview in the main task list.
-- Complete sub-tasks directly from the preview.
-- Reorder sub-tasks in the task detail view on desktop.
-- Sub-tasks stay hidden from top-level views to avoid duplication.
-
-### Recurring Tasks
-
-- Daily, weekly, monthly, yearly, and custom repeat rules.
-- Calendar-based or completion-based repeats.
-- Weekly repeats can target multiple weekdays.
-- Recurring tasks advance to the next occurrence when completed.
-- Use **Complete permanently** to finish a recurring task.
-
-### Projects, Labels, and Priority
-
-- Create, rename, archive, delete, and color projects.
-- Choose a project color while creating a project, or use Auto.
-- Rename or delete labels without deleting tasks.
-- Customize project and label colors in settings.
-- Priority levels use a Todoist-like model: Priority 1, Priority 2, Priority 3, and default Priority 4.
-- Priority is shown subtly on the completion circle.
-
-### Attachments
-
-- Attach files to tasks.
-- Image attachments show inline previews and a lightbox.
-- Other files show as compact file rows.
-- Attachments are stored inside your vault.
-
-### Mobile
-
-- Responsive single-column mobile layout.
-- Full-screen mobile task composer.
-- Mobile task detail screen with back navigation.
-- Mobile-friendly date picker and repeat controls.
-- Task action menu includes Move to Today, Move to Tomorrow, Pick date, and Clear date.
+- **Views** — Inbox, Today (with an Overdue section), Upcoming, Projects, Filters & Labels, Activity (with a 26-week heatmap), Completed, and Search.
+- **Tasks** — titles, descriptions, projects, priorities (P1–P4), due dates, deadlines, labels, and file attachments with inline image previews.
+- **Sub-tasks** — nested under any task, with an inline completion counter and quick complete.
+- **Recurring tasks** — daily, weekly (multi-weekday), weekdays, monthly, yearly, and custom rules; calendar- or completion-based.
+- **Quick capture** — add from the board, a full-screen mobile composer, or the command palette (with `#label` and `//project` inline tokens).
+- **Daily Notes** — surface a day's completed tasks in a panel or a `slate-completed` code block.
+- **Confirm before delete** — task and sub-task deletions always ask first.
+- **Theme-driven** — colors, surfaces, and accents inherit from your active Obsidian theme; the UI speaks the [Terminal Workbench](https://github.com/Real-Fruit-Snacks/terminal-workbench-design-system) design language.
+- **Private** — no telemetry, no network calls, no account.
 
 ---
 
-## How It Stores Tasks
+## Installation
 
-Slate creates a data folder in your vault. The default location is:
+### Community plugins
+
+> Not yet listed in the Obsidian community catalog. Use BRAT or a manual install for now.
+
+### BRAT (beta)
+
+1. Install the **BRAT** plugin from Community plugins.
+2. Run **BRAT: Add a beta plugin** and enter `Real-Fruit-Snacks/Slate`.
+3. Enable **Slate** in Settings → Community plugins.
+
+### Manual
+
+1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/Real-Fruit-Snacks/Slate/releases).
+2. Copy them into `<your-vault>/.obsidian/plugins/slate/`.
+3. Reload Obsidian and enable **Slate** in Settings → Community plugins.
+
+---
+
+## Getting started
+
+1. Run **`Slate: Open`** from the command palette (or click the ribbon icon).
+2. Click **+ Add task**, or press the Quick Add hotkey, and give it a title.
+3. Add a date, project, label, priority, or repeat rule. Tasks with no project land in **Inbox**.
+
+### Commands
+
+| Command | Default hotkey |
+|---|---|
+| `Slate: Open` | — |
+| `Slate: Quick Add Task` | `Ctrl`/`Cmd` + `Shift` + `A` |
+| `Slate: Show Completed Tasks for Active Daily Note` | — |
+| `Slate: Insert Completed Tasks Block in Active Daily Note` | — |
+| `Slate: Normalize Labels` | — |
+| `Slate: Migrate old task file` | — |
+
+### Inline tokens
+
+While typing a task title, use `#label` to attach a label and `//project` to set the project.
+
+---
+
+## How a task is stored
+
+Slate keeps task data in a configurable folder (default `_slate_files/`), one Markdown file per month, with attachments beside them:
 
 ```text
 _slate_files/
 ├─ Data/
-│  └─ YYYY-MM.md
+│  └─ 2026-07.md
 └─ Attachments/
    └─ <task-id>/
 ```
 
-Each task is a Markdown list item with metadata:
+Each task is a Markdown list item with `key:: value` metadata:
 
 ```markdown
 - [ ] Write portfolio case study draft
@@ -140,68 +112,28 @@ Each task is a Markdown list item with metadata:
   labels:: writing, portfolio
 ```
 
-Tasks without a real project simply omit `project::` and appear in Inbox. Completed tasks use `[x]` and include a `completed::` date. The data folder path is configurable in settings.
-
-See [Markdown storage](docs/markdown-storage.md) for full details.
+Tasks without a project omit `project::` and appear in Inbox. Completed tasks use `[x]` with a `completed::` date. Slate reads and writes **only** its own data folder, and preserves any lines or properties it doesn't recognize — so hand-editing is safe. See [Markdown storage](docs/markdown-storage.md).
 
 ---
 
-## Obsidian Search and Excluded Files
+## Architecture
 
-Slate stores task data as local Markdown files in the configurable data folder, `_slate_files/` by default. Since these are real vault files, users who do not want Slate task data to appear in Obsidian search, graph, or unlinked mentions should add `_slate_files/` to:
+```text
+src/
+├─ main.ts          Plugin lifecycle, commands, events, Daily Notes
+├─ taskStore.ts     In-memory task state + queued Markdown persistence
+├─ parser.ts        Markdown → tasks (preserves unknown content)
+├─ serializer.ts    Tasks → Markdown (non-destructive round-trip)
+├─ repeatUtils.ts   Recurring-task scheduling
+├─ views/           Board view, detail modal, composer, project/label modals
+└─ ui/              Shared components (themed dropdown, buttons, icons, popover)
+```
 
-> Obsidian Settings → Files and links → Excluded files
+- **Non-destructive storage** — the parser keeps a document of raw + task blocks, so edits never clobber surrounding content or unknown metadata.
+- **Serialized writes** — task writes run through a queue and reconcile only the files they touch, so rapid, cross-file edits can't race or drop data.
+- **Theme-driven styling** — namespaced `.slate-*` CSS with tokens mapped to Obsidian's theme variables; monospace "manifest" labels for structural chrome.
 
-Slate itself only reads its configured data folder and does not scan the whole vault.
-
----
-
-## Installation
-
-### Manual Installation
-
-1. Download `manifest.json`, `main.js`, and `styles.css` from a [GitHub release](https://github.com/Real-Fruit-Snacks/obsidian-slate-tasks/releases).
-2. Create this folder inside your vault:
-   ```text
-   .obsidian/plugins/slate/
-   ```
-3. Copy the three files into that folder.
-4. Reload Obsidian.
-5. Enable **Slate** in Settings → Community plugins.
-6. Run the command `Slate: Open`.
-
----
-
-## Quick Start
-
-1. Install and enable Slate.
-2. Run `Slate: Open` from the command palette.
-3. Click **+ Add task** or run `Slate: Add task`.
-4. Add a title, date, project, label, priority, or repeat rule.
-5. Tasks with no project land in **Inbox**.
-
-See [Getting started](docs/getting-started.md) for a walkthrough.
-
----
-
-## Documentation
-
-| Page | Description |
-|---|---|
-| [Getting started](docs/getting-started.md) | Install and take your first steps |
-| [Tasks](docs/tasks.md) | Creating, editing, and completing tasks |
-| [Projects and Inbox](docs/projects-and-inbox.md) | How projects and Inbox work |
-| [Sub-tasks](docs/subtasks.md) | Adding and managing sub-tasks |
-| [Recurring tasks](docs/recurring-tasks.md) | Repeat rules and behavior |
-| [Labels and priorities](docs/labels-and-priorities.md) | Labeling tasks and setting priority |
-| [Sorting and filtering](docs/sorting-and-filtering.md) | Sorting, grouping, and filtering |
-| [Attachments](docs/attachments.md) | Adding files and images to tasks |
-| [Activity](docs/activity.md) | Completed task history and stats |
-| [Daily Notes](docs/daily-notes.md) | Show completed tasks for a daily note date |
-| [Mobile](docs/mobile.md) | Using Slate on mobile |
-| [Settings](docs/settings.md) | Configuration options |
-| [Markdown storage](docs/markdown-storage.md) | How Slate stores task data |
-| [FAQ](docs/faq.md) | Common questions |
+The pure data layer (parser, serializer, recurring math, sorting, store) is covered by a [Vitest](https://vitest.dev) suite.
 
 ---
 
@@ -209,43 +141,18 @@ See [Getting started](docs/getting-started.md) for a walkthrough.
 
 ```bash
 npm install
-npm run build
-```
-
-During development:
-
-```bash
 npm run dev      # watch build
-npm run test     # run the data-layer test suite (Vitest)
+npm run test     # data-layer test suite
 npm run verify   # tests + typecheck + production build (pre-commit gate)
 ```
 
-Build output is written to:
-
-- `main.js`
-- `styles.css`
-- `manifest.json`
-
-### Auto-deploy to a vault
-
-To have each build copy `main.js`, `manifest.json`, and `styles.css` straight
-into a vault's plugin folder, set a deploy target — either the `SLATE_PLUGIN_DIR`
-environment variable, or a local `.plugin-target` file (gitignored) containing
-the path, for example:
-
-```text
-/path/to/YourVault/.obsidian/plugins/slate
-```
-
-Both `npm run build` and `npm run dev` (watch) then copy the files there after
-each successful build. If no target is set, deployment is skipped. Reload
-Obsidian (or toggle the plugin) to pick up a new `main.js`.
+To auto-copy each build into a vault's plugin folder, set the `SLATE_PLUGIN_DIR` environment variable or a gitignored `.plugin-target` file to that folder's path.
 
 ---
 
-## Privacy and Network Usage
+## Contributing
 
-Slate does not add telemetry, does not call external APIs, and does not require an account. It reads and writes task data only inside its configured vault data folder.
+Bug reports and feature requests are welcome in [Issues](https://github.com/Real-Fruit-Snacks/Slate/issues). If you're opening a pull request, run `npm run verify` first.
 
 ---
 
@@ -255,4 +162,4 @@ Slate is a fork of the [belki](https://github.com/aribuga/obsidian-belki-tasks) 
 
 ## License
 
-MIT. See [LICENSE](LICENSE). Copyright © Yasin Aribuga (original belki project) and Real-Fruit-Snacks (Slate fork).
+MIT — see [LICENSE](LICENSE). Copyright © Yasin Aribuga (original belki project) and Real-Fruit-Snacks (Slate fork).
