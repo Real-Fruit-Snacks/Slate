@@ -68,6 +68,7 @@ export class TaskDetailModal extends Modal {
   private hideDescriptionToolbar: (() => void) | null = null;
   private descriptionToolbarVisible = false;
   private markdownRenderComponent: Component | null = null;
+  private dropdowns: SlateDropdown[] = [];
   private handleEscape = (event: KeyboardEvent): void => {
     if (event.key !== "Escape") {
       return;
@@ -394,6 +395,10 @@ export class TaskDetailModal extends Modal {
   }
 
   onClose(): void {
+    for (const dropdown of this.dropdowns) {
+      dropdown.destroy();
+    }
+    this.dropdowns = [];
     this.closeQuickAddDropdown?.();
     this.closeWikilinkDropdown?.();
     this.closeDescriptionToolbar?.();
@@ -1256,6 +1261,7 @@ export class TaskDetailModal extends Modal {
       },
       onRenderTrigger: () => updateProjectStyle()
     });
+    this.dropdowns.push(dropdown);
 
     const hideCreateRow = () => {
       createInput.value = "";
@@ -1549,7 +1555,7 @@ export class TaskDetailModal extends Modal {
       indicator.setCssStyles({ backgroundColor: color.color });
       display.setText(getPriorityDisplayLabel(this.draft.priority));
     };
-    new SlateDropdown({
+    const priorityDropdown = new SlateDropdown({
       trigger: priorityWrap,
       ariaLabel: "Priority",
       getValue: () => (isDefaultPriority(this.draft.priority) ? "P4" : this.draft.priority),
@@ -1565,6 +1571,7 @@ export class TaskDetailModal extends Modal {
       },
       onRenderTrigger: () => updatePriorityStyle()
     });
+    this.dropdowns.push(priorityDropdown);
     updatePriorityStyle();
   }
 

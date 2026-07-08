@@ -110,6 +110,7 @@ export class TaskBoardView extends ItemView {
   private mobileComposerReturnScroll: { top: number; left: number } | null = null;
   private composerCleanup: (() => void) | null = null;
   private renderScheduled = false;
+  private dropdowns: SlateDropdown[] = [];
   private handleRootClick = (event: MouseEvent): void => {
     const target = event.target;
     if (
@@ -256,9 +257,17 @@ export class TaskBoardView extends ItemView {
     this.removeProjectMenu();
     this.removeLabelMenu();
     this.removeTaskActionMenu();
+    this.destroyDropdowns();
     this.containerEl.removeEventListener("keydown", this.handleRootKeyDown, true);
     this.containerEl.removeEventListener("click", this.handleRootClick, true);
     this.unsubscribe?.();
+  }
+
+  private destroyDropdowns(): void {
+    for (const dropdown of this.dropdowns) {
+      dropdown.destroy();
+    }
+    this.dropdowns = [];
   }
 
   private removeProjectMenu(): void {
@@ -337,6 +346,7 @@ export class TaskBoardView extends ItemView {
   }
 
   private render(): void {
+    this.destroyDropdowns();
     this.composerCleanup?.();
     this.composerCleanup = null;
     this.removeProjectMenu();
@@ -1553,7 +1563,7 @@ export class TaskBoardView extends ItemView {
   }
 
   private renderOverdueRangeSelect(parent: HTMLElement): void {
-    new SlateDropdown({
+    const overdueDropdown = new SlateDropdown({
       triggerParent: parent,
       triggerClassName: "slate-overdue-range-trigger",
       ariaLabel: "Overdue range",
@@ -1568,6 +1578,7 @@ export class TaskBoardView extends ItemView {
         })();
       }
     });
+    this.dropdowns.push(overdueDropdown);
   }
 
   private enableTodayDrop(section: HTMLElement): void {

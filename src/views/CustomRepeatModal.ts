@@ -26,6 +26,7 @@ const DISPLAY_DAYS = [
 export class CustomRepeatModal extends Modal {
   private draft: RepeatRule;
   private onSave: (rule: RepeatRule) => void;
+  private freqDropdown: SlateDropdown | null = null;
 
   constructor(app: App, current: RepeatRule | undefined, onSave: (rule: RepeatRule) => void) {
     super(app);
@@ -42,6 +43,8 @@ export class CustomRepeatModal extends Modal {
   }
 
   onClose(): void {
+    this.freqDropdown?.destroy();
+    this.freqDropdown = null;
     this.contentEl.empty();
   }
 
@@ -82,7 +85,8 @@ export class CustomRepeatModal extends Modal {
     });
 
     const freqs: RepeatFrequency[] = ["daily", "weekly", "weekdays", "monthly", "yearly"];
-    new SlateDropdown({
+    this.freqDropdown?.destroy();
+    this.freqDropdown = new SlateDropdown({
       triggerParent: everyRow,
       triggerClassName: "slate-repeat-freq-trigger",
       ariaLabel: "Frequency",

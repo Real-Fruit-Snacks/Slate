@@ -126,7 +126,7 @@ export class AddTaskComposer {
       priorityIndicator.setCssStyles({ backgroundColor: color.color });
       priorityDisplay.setText(getPriorityDisplayLabel(priorityValue));
     };
-    new SlateDropdown({
+    const priorityDropdown = new SlateDropdown({
       trigger: priorityWrap,
       ariaLabel: "Priority",
       getValue: () => priorityValue,
@@ -684,7 +684,7 @@ export class AddTaskComposer {
       }
     });
 
-    const cleanup = () => { projectMenu.remove(); closeWikilinkDropdown(); closeQuickAddDropdown(); };
+    const cleanup = () => { priorityDropdown.destroy(); projectMenu.remove(); closeWikilinkDropdown(); closeQuickAddDropdown(); };
     cancelButton.addEventListener("click", () => { cleanup(); options.onCancel(); });
     form.addEventListener("submit", () => cleanup());
     form.addEventListener("submit", (event) => {

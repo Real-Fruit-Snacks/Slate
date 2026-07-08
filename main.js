@@ -3275,6 +3275,7 @@ var DISPLAY_DAYS = [
 var CustomRepeatModal = class extends import_obsidian8.Modal {
   constructor(app, current, onSave) {
     super(app);
+    this.freqDropdown = null;
     this.onSave = onSave;
     this.draft = current ? normalizeRepeatRule(current) : { frequency: "weekly", interval: 1, mode: "scheduledDate", ends: "never" };
   }
@@ -3284,9 +3285,13 @@ var CustomRepeatModal = class extends import_obsidian8.Modal {
     this.render();
   }
   onClose() {
+    var _a;
+    (_a = this.freqDropdown) == null ? void 0 : _a.destroy();
+    this.freqDropdown = null;
     this.contentEl.empty();
   }
   render() {
+    var _a;
     const { contentEl } = this;
     contentEl.empty();
     this.renderSection(contentEl, "Based on");
@@ -3318,7 +3323,8 @@ var CustomRepeatModal = class extends import_obsidian8.Modal {
       intervalInput.value = String(this.draft.interval);
     });
     const freqs = ["daily", "weekly", "weekdays", "monthly", "yearly"];
-    new SlateDropdown({
+    (_a = this.freqDropdown) == null ? void 0 : _a.destroy();
+    this.freqDropdown = new SlateDropdown({
       triggerParent: everyRow,
       triggerClassName: "slate-repeat-freq-trigger",
       ariaLabel: "Frequency",
@@ -3819,7 +3825,7 @@ var AddTaskComposer = class {
       priorityIndicator.setCssStyles({ backgroundColor: color.color });
       priorityDisplay.setText(getPriorityDisplayLabel(priorityValue));
     };
-    new SlateDropdown({
+    const priorityDropdown = new SlateDropdown({
       trigger: priorityWrap,
       ariaLabel: "Priority",
       getValue: () => priorityValue,
@@ -4308,6 +4314,7 @@ var AddTaskComposer = class {
       }
     });
     const cleanup = () => {
+      priorityDropdown.destroy();
       projectMenu.remove();
       closeWikilinkDropdown();
       closeQuickAddDropdown();
@@ -4735,6 +4742,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     this.hideDescriptionToolbar = null;
     this.descriptionToolbarVisible = false;
     this.markdownRenderComponent = null;
+    this.dropdowns = [];
     this.handleEscape = (event) => {
       if (event.key !== "Escape") {
         return;
@@ -5012,6 +5020,10 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
   }
   onClose() {
     var _a, _b, _c, _d;
+    for (const dropdown of this.dropdowns) {
+      dropdown.destroy();
+    }
+    this.dropdowns = [];
     (_a = this.closeQuickAddDropdown) == null ? void 0 : _a.call(this);
     (_b = this.closeWikilinkDropdown) == null ? void 0 : _b.call(this);
     (_c = this.closeDescriptionToolbar) == null ? void 0 : _c.call(this);
@@ -5788,6 +5800,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       },
       onRenderTrigger: () => updateProjectStyle()
     });
+    this.dropdowns.push(dropdown);
     const hideCreateRow = () => {
       createInput.value = "";
       createRow.addClass("is-hidden");
@@ -6047,7 +6060,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       indicator.setCssStyles({ backgroundColor: color.color });
       display.setText(getPriorityDisplayLabel(this.draft.priority));
     };
-    new SlateDropdown({
+    const priorityDropdown = new SlateDropdown({
       trigger: priorityWrap,
       ariaLabel: "Priority",
       getValue: () => isDefaultPriority(this.draft.priority) ? "P4" : this.draft.priority,
@@ -6062,6 +6075,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       },
       onRenderTrigger: () => updatePriorityStyle()
     });
+    this.dropdowns.push(priorityDropdown);
     updatePriorityStyle();
   }
   renderLabels(parent) {
@@ -6966,6 +6980,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     this.mobileComposerReturnScroll = null;
     this.composerCleanup = null;
     this.renderScheduled = false;
+    this.dropdowns = [];
     this.handleRootClick = (event) => {
       const target = event.target;
       if (this.taskActionsOpenId && target instanceof HTMLElement && target.closest(".slate-task-actions, .slate-task-action-menu")) {
@@ -7078,9 +7093,16 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     this.removeProjectMenu();
     this.removeLabelMenu();
     this.removeTaskActionMenu();
+    this.destroyDropdowns();
     this.containerEl.removeEventListener("keydown", this.handleRootKeyDown, true);
     this.containerEl.removeEventListener("click", this.handleRootClick, true);
     (_b = this.unsubscribe) == null ? void 0 : _b.call(this);
+  }
+  destroyDropdowns() {
+    for (const dropdown of this.dropdowns) {
+      dropdown.destroy();
+    }
+    this.dropdowns = [];
   }
   removeProjectMenu() {
     var _a;
@@ -7153,6 +7175,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
   }
   render() {
     var _a, _b, _c;
+    this.destroyDropdowns();
     (_a = this.composerCleanup) == null ? void 0 : _a.call(this);
     this.composerCleanup = null;
     this.removeProjectMenu();
@@ -8194,7 +8217,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     }
   }
   renderOverdueRangeSelect(parent) {
-    new SlateDropdown({
+    const overdueDropdown = new SlateDropdown({
       triggerParent: parent,
       triggerClassName: "slate-overdue-range-trigger",
       ariaLabel: "Overdue range",
@@ -8208,6 +8231,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         })();
       }
     });
+    this.dropdowns.push(overdueDropdown);
   }
   enableTodayDrop(section) {
     section.addClass("slate-drop-zone");
