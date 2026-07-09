@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 460" width="1200" height="460" role="img" aria-label="Graphite — a task manager for Obsidian, with a preview of the task board">
+  <title>Graphite</title>
+  <rect x="0.75" y="0.75" width="1198.5" height="458.5" rx="24" fill="#0b0f11" stroke="#223039" stroke-width="1.5"/>
+
+  <!-- left column -->
+  <text x="68" y="150" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="15" font-weight="600" letter-spacing="2.2" fill="#63736f">TASK MANAGER · OBSIDIAN</text>
+  <text x="66" y="228" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="66" font-weight="700" letter-spacing="0.5" fill="#dce4df">graphite</text>
+  <rect x="370" y="180" width="13" height="50" rx="2" fill="#63f2ab"/>
+  <text x="68" y="286" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif" font-size="21" fill="#8b978f">Your tasks, as plain <tspan fill="#63f2ab" font-weight="600">Markdown</tspan> you own.</text>
+  <text x="68" y="346" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="12.5" letter-spacing="1.6" fill="#63736f">INBOX · TODAY · PROJECTS · RECURRING · LABELS</text>
+
+  <!-- right column: mock task window -->
+  <rect x="624" y="64" width="512" height="332" rx="14" fill="#10171a" stroke="#223039" stroke-width="1.5"/>
+  <path d="M638 64 h484 a14 14 0 0 1 14 14 v30 h-512 v-30 a14 14 0 0 1 14 -14 z" fill="#141d21"/>
+  <line x1="624" y1="108" x2="1136" y2="108" stroke="#223039" stroke-width="1"/>
+  <circle cx="648" cy="86" r="5.5" fill="#ff6e7a"/>
+  <circle cx="668" cy="86" r="5.5" fill="#f0c674"/>
+  <circle cx="688" cy="86" r="5.5" fill="#63f2ab"/>
+  <text x="714" y="90" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="12" fill="#63736f">_graphite_files / Data / 2026-07.md</text>
+
+  <!-- row 1 -->
+  <rect x="648" y="134" width="22" height="22" rx="6" fill="none" stroke="#ff6e7a" stroke-width="2.5"/>
+  <text x="686" y="150" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif" font-size="16" fill="#dce4df">Write portfolio case study</text>
+  <rect x="942" y="133" width="100" height="24" rx="12" fill="none" stroke="#f0c674" stroke-opacity="0.5" stroke-width="1.2"/>
+  <text x="992" y="149" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="11" fill="#f0c674" text-anchor="middle">Client Work</text>
+  <rect x="1052" y="133" width="60" height="24" rx="12" fill="none" stroke="#6bdcff" stroke-opacity="0.5" stroke-width="1.2"/>
+  <text x="1082" y="149" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="11" fill="#6bdcff" text-anchor="middle">Today</text>
+
+  <!-- row 2 -->
+  <rect x="648" y="198" width="22" height="22" rx="6" fill="none" stroke="#6bdcff" stroke-width="2.5"/>
+  <text x="686" y="214" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif" font-size="16" fill="#dce4df">Review pull requests</text>
+  <rect x="1032" y="197" width="80" height="24" rx="12" fill="none" stroke="#6bdcff" stroke-opacity="0.5" stroke-width="1.2"/>
+  <text x="1072" y="213" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="11" fill="#6bdcff" text-anchor="middle">Tomorrow</text>
+
+  <!-- row 3 done -->
+  <rect x="648" y="262" width="22" height="22" rx="6" fill="#63f2ab" stroke="#63f2ab" stroke-width="2.5"/>
+  <path d="M653.5 273 l4.8 5 l9 -10.2" fill="none" stroke="#06110c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="686" y="278" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif" font-size="16" fill="#63736f" text-decoration="line-through">Send weekly update</text>
+  <rect x="988" y="261" width="124" height="24" rx="12" fill="none" stroke="#223039" stroke-width="1.2"/>
+  <text x="1050" y="277" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="11" fill="#8b978f" text-anchor="middle">Repeat · weekly</text>
+
+  <!-- row 4 -->
+  <rect x="648" y="326" width="22" height="22" rx="6" fill="none" stroke="#f0c674" stroke-width="2.5"/>
+  <text x="686" y="342" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif" font-size="16" fill="#dce4df">Plan Q3 roadmap</text>
+  <rect x="1030" y="325" width="82" height="24" rx="12" fill="none" stroke="#f0c674" stroke-opacity="0.5" stroke-width="1.2"/>
+  <text x="1071" y="341" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="11" fill="#f0c674" text-anchor="middle">Planning</text>
+</svg>

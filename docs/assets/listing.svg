@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" role="img" aria-label="Graphite — a calm task manager for Obsidian">
+  <title>Graphite</title>
+  <rect x="0" y="0" width="1280" height="640" fill="#0b0f11"/>
+  <rect x="40.75" y="40.75" width="1198.5" height="558.5" rx="20" fill="none" stroke="#223039" stroke-width="1.5"/>
+
+  <text x="640" y="128" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="15" font-weight="600" letter-spacing="4" fill="#63736f" text-anchor="middle">OBSIDIAN PLUGIN</text>
+
+  <!-- checkbox motif -->
+  <rect x="592" y="168" width="96" height="96" rx="22" fill="none" stroke="#63f2ab" stroke-width="6"/>
+  <path d="M616 218 l20 21 l44 -47" fill="none" stroke="#63f2ab" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- wordmark + cursor, group-centered around x=640 -->
+  <text x="335" y="410" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="128" font-weight="700" letter-spacing="1" fill="#dce4df">graphite</text>
+  <rect x="922" y="324" width="24" height="92" rx="3" fill="#63f2ab"/>
+
+  <text x="640" y="476" font-family="ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif" font-size="30" fill="#8b978f" text-anchor="middle">A calm task manager for Obsidian</text>
+  <text x="640" y="538" font-family="ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace" font-size="15" letter-spacing="3" fill="#63736f" text-anchor="middle">INBOX · TODAY · PROJECTS · RECURRING · LABELS · ACTIVITY</text>
+</svg>

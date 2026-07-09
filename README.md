@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner-dark.svg" />
-  <img alt="Graphite" src="docs/assets/banner-light.svg" width="760" />
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/cover-dark.svg" />
+  <img alt="Graphite" src="docs/assets/cover-light.svg" width="820" />
 </picture>
 
 <br/>
