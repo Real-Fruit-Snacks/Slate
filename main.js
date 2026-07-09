@@ -5806,6 +5806,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     return field;
   }
   ensureLabelColor(label) {
+    void label;
   }
   getLabelColor(label) {
     return getLabelColor(label, this.options.settings.labelColors);
