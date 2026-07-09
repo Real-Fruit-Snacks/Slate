@@ -3,7 +3,7 @@
   "name": "graphite",
   "version": "0.1.1",
   "minAppVersion": "1.6.6",
-  "description": "A minimal Todoist-like task manager using local Markdown files.",
+  "description": "Todoist-style projects, priorities, due dates, and recurring tasks — stored as plain Markdown you own.",
   "author": "Real-Fruit-Snacks",
   "isDesktopOnly": false
 }
