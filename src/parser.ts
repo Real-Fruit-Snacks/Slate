@@ -1,4 +1,4 @@
-import { SlateTask, ParsedTaskDocument, Priority, PRIORITIES, TaskProperty } from "./types";
+import { GraphiteTask, ParsedTaskDocument, Priority, PRIORITIES, TaskProperty } from "./types";
 import { dedupeLabels } from "./labels";
 import { normalizeTaskProject } from "./projects";
 import { parseRepeat } from "./repeatUtils";
@@ -22,14 +22,14 @@ const KNOWN_PROPERTIES = new Set([
   "parentid"
 ]);
 
-export function parseTasks(markdown: string): SlateTask[] {
+export function parseTasks(markdown: string): GraphiteTask[] {
   return parseTaskDocument(markdown).tasks;
 }
 
 export function parseTaskDocument(markdown: string, sourcePath?: string): ParsedTaskDocument {
   const lines = markdown === "" ? [] : markdown.split(/\r?\n/);
   const blocks: ParsedTaskDocument["blocks"] = [];
-  const tasks: SlateTask[] = [];
+  const tasks: GraphiteTask[] = [];
   let rawLines: string[] = [];
 
   const flushRawLines = () => {

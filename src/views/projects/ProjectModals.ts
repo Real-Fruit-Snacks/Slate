@@ -1,8 +1,8 @@
 import type { App } from "obsidian";
 import { Modal } from "obsidian";
-import { SLATE_COLOR_PALETTE, getProjectColor } from "../../colors";
+import { GRAPHITE_COLOR_PALETTE, getProjectColor } from "../../colors";
 import { isReservedInboxProject, normalizeTaskProject } from "../../projects";
-import { createSlateIcon } from "../../ui/components/SlateIcon";
+import { createGraphiteIcon } from "../../ui/components/GraphiteIcon";
 
 export interface CreateProjectResult {
   name: string;
@@ -22,11 +22,11 @@ export class RenameProjectModal extends Modal {
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-project-rename-modal");
+    contentEl.addClass("graphite-project-rename-modal");
     contentEl.createEl("h2", { text: "Rename project" });
 
     const input = contentEl.createEl("input", {
-      cls: "slate-label-prompt-input",
+      cls: "graphite-label-prompt-input",
       attr: { type: "text", value: this.currentName }
     });
     input.select();
@@ -35,18 +35,18 @@ export class RenameProjectModal extends Modal {
 
     const showError = (msg: string) => {
       if (!errorEl) {
-        errorEl = contentEl.createDiv({ cls: "slate-modal-error" });
+        errorEl = contentEl.createDiv({ cls: "graphite-modal-error" });
         actions.before(errorEl);
       }
       errorEl.setText(msg);
     };
 
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
-    actions.createEl("button", { cls: "slate-button", text: "Cancel", attr: { type: "button" } })
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
+    actions.createEl("button", { cls: "graphite-button", text: "Cancel", attr: { type: "button" } })
       .addEventListener("click", () => this.close());
 
     const submitButton = actions.createEl("button", {
-      cls: "slate-button slate-button-primary",
+      cls: "graphite-button graphite-button-primary",
       text: "Rename",
       attr: { type: "button" }
     });
@@ -83,19 +83,19 @@ export class DeleteProjectModal extends Modal {
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-project-delete-modal");
+    contentEl.addClass("graphite-project-delete-modal");
     contentEl.createEl("h2", { text: `Delete "${this.projectName}"?` });
 
     const desc = this.taskCount > 0
       ? `This will delete the project only. ${this.taskCount} task${this.taskCount === 1 ? "" : "s"} will be moved to Inbox. Tasks will not be deleted.`
       : "This will delete the project. It has no tasks.";
-    contentEl.createEl("p", { text: desc, cls: "slate-modal-desc" });
+    contentEl.createEl("p", { text: desc, cls: "graphite-modal-desc" });
 
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
-    actions.createEl("button", { cls: "slate-button", text: "Cancel", attr: { type: "button" } })
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
+    actions.createEl("button", { cls: "graphite-button", text: "Cancel", attr: { type: "button" } })
       .addEventListener("click", () => this.close());
     actions.createEl("button", {
-      cls: "slate-button slate-button-destructive",
+      cls: "graphite-button graphite-button-destructive",
       text: "Delete project",
       attr: { type: "button" }
     }).addEventListener("click", () => {
@@ -119,38 +119,38 @@ export class CreateProjectModal extends Modal {
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-project-rename-modal");
-    contentEl.addClass("slate-project-create-modal");
+    contentEl.addClass("graphite-project-rename-modal");
+    contentEl.addClass("graphite-project-create-modal");
     contentEl.createEl("h2", { text: "New project" });
 
     const input = contentEl.createEl("input", {
-      cls: "slate-label-prompt-input",
+      cls: "graphite-label-prompt-input",
       attr: { type: "text", placeholder: "Project name" }
     });
 
-    const appearance = contentEl.createDiv({ cls: "slate-project-create-appearance" });
-    const preview = appearance.createDiv({ cls: "slate-project-create-preview" });
-    const previewChip = preview.createDiv({ cls: "slate-project-create-preview-chip" });
-    const previewDot = previewChip.createSpan({ cls: "slate-project-dot" });
-    const previewName = previewChip.createSpan({ cls: "slate-project-create-preview-name" });
+    const appearance = contentEl.createDiv({ cls: "graphite-project-create-appearance" });
+    const preview = appearance.createDiv({ cls: "graphite-project-create-preview" });
+    const previewChip = preview.createDiv({ cls: "graphite-project-create-preview-chip" });
+    const previewDot = previewChip.createSpan({ cls: "graphite-project-dot" });
+    const previewName = previewChip.createSpan({ cls: "graphite-project-create-preview-name" });
 
-    const colorControl = appearance.createDiv({ cls: "slate-project-create-color-control" });
+    const colorControl = appearance.createDiv({ cls: "graphite-project-create-color-control" });
 
     const autoButton = colorControl.createEl("button", {
-      cls: "slate-project-color-auto is-selected",
+      cls: "graphite-project-color-auto is-selected",
       attr: { type: "button", "aria-label": "Automatic project color", "aria-pressed": "true" }
     });
-    const autoDot = autoButton.createSpan({ cls: "slate-project-color-dot" });
-    const autoText = autoButton.createSpan({ cls: "slate-project-color-auto-text", text: "✓ Auto" });
+    const autoDot = autoButton.createSpan({ cls: "graphite-project-color-dot" });
+    const autoText = autoButton.createSpan({ cls: "graphite-project-color-auto-text", text: "✓ Auto" });
 
     const randomButton = colorControl.createEl("button", {
-      cls: "slate-project-color-random",
+      cls: "graphite-project-color-random",
       attr: { type: "button", "aria-label": "Choose another project color" }
     });
-    createSlateIcon(randomButton, "randomize");
+    createGraphiteIcon(randomButton, "randomize");
 
-    const customColor = colorControl.createEl("label", { cls: "slate-project-color-custom" });
-    const customDot = customColor.createSpan({ cls: "slate-project-color-custom-dot" });
+    const customColor = colorControl.createEl("label", { cls: "graphite-project-color-custom" });
+    const customDot = customColor.createSpan({ cls: "graphite-project-color-custom-dot" });
     const colorInput = customColor.createEl("input", {
       attr: { type: "color", "aria-label": "Custom project color" }
     });
@@ -171,10 +171,10 @@ export class CreateProjectModal extends Modal {
     });
     randomButton.addEventListener("click", () => {
       const currentColor = (this.selectedColor || getProjectColor(this.autoPreviewName, {}).regular).toLowerCase();
-      const candidates = SLATE_COLOR_PALETTE
+      const candidates = GRAPHITE_COLOR_PALETTE
         .map((color) => color.regular)
         .filter((color) => color.toLowerCase() !== currentColor);
-      const nextColor = candidates[Math.floor(Math.random() * candidates.length)] || SLATE_COLOR_PALETTE[0].regular;
+      const nextColor = candidates[Math.floor(Math.random() * candidates.length)] || GRAPHITE_COLOR_PALETTE[0].regular;
       selectColor(nextColor);
     });
     colorInput.addEventListener("input", () => selectColor(colorInput.value));
@@ -187,12 +187,12 @@ export class CreateProjectModal extends Modal {
         ? getProjectColor(previewProjectName, { [previewProjectName]: this.selectedColor })
         : generatedColor;
       previewChip.setCssProps({
-        "--slate-project-bg": previewColor.light,
-        "--slate-project-color": previewColor.regular
+        "--graphite-project-bg": previewColor.light,
+        "--graphite-project-color": previewColor.regular
       });
       previewDot.setCssStyles({ backgroundColor: previewColor.regular });
       autoDot.setCssStyles({ backgroundColor: generatedColor.regular });
-      customColor.setCssProps({ "--slate-custom-color": previewColor.regular });
+      customColor.setCssProps({ "--graphite-custom-color": previewColor.regular });
       customDot.setCssStyles({ backgroundColor: previewColor.regular });
       colorInput.value = this.selectedColor || generatedColor.regular;
       previewName.setText(previewProjectName);
@@ -201,18 +201,18 @@ export class CreateProjectModal extends Modal {
     let errorEl: HTMLElement | null = null;
     const showError = (msg: string) => {
       if (!errorEl) {
-        errorEl = contentEl.createDiv({ cls: "slate-modal-error" });
+        errorEl = contentEl.createDiv({ cls: "graphite-modal-error" });
         actions.before(errorEl);
       }
       errorEl.setText(msg);
     };
 
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
-    actions.createEl("button", { cls: "slate-button", text: "Cancel", attr: { type: "button" } })
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
+    actions.createEl("button", { cls: "graphite-button", text: "Cancel", attr: { type: "button" } })
       .addEventListener("click", () => this.close());
 
     const submitButton = actions.createEl("button", {
-      cls: "slate-button slate-button-primary",
+      cls: "graphite-button graphite-button-primary",
       text: "Create",
       attr: { type: "button" }
     });

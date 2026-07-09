@@ -113,7 +113,7 @@ export function attachQuickAddAutocomplete(
 
     const rect = input.getBoundingClientRect();
     dropdown = activeDocument.createElement("div");
-    dropdown.className = "slate-wikilink-dropdown";
+    dropdown.className = "graphite-wikilink-dropdown";
     dropdown.setCssStyles({
       left: `${rect.left}px`,
       top: `${rect.bottom + 2}px`,
@@ -125,7 +125,7 @@ export function attachQuickAddAutocomplete(
       dropdown.innerHTML = "";
       matches.forEach((m, i) => {
         const item = activeDocument.createElement("div");
-        item.className = "slate-wikilink-item" + (i === activeIndex ? " is-active" : "");
+        item.className = "graphite-wikilink-item" + (i === activeIndex ? " is-active" : "");
         const prefix = token.type === "label" ? "#" : "//";
         item.textContent = prefix + m;
         item.addEventListener("mousedown", (e) => {

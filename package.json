@@ -1,5 +1,5 @@
 {
-  "name": "obsidian-slate-tasks",
+  "name": "obsidian-graphite-tasks",
   "version": "0.1.0",
   "description": "A minimal Todoist-like task manager using local Markdown files.",
   "main": "main.js",

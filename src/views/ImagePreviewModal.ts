@@ -1,5 +1,5 @@
 import { App, Modal, TFile } from "obsidian";
-import { createSlateIcon } from "../ui/components/SlateIcon";
+import { createGraphiteIcon } from "../ui/components/GraphiteIcon";
 
 export class ImagePreviewModal extends Modal {
   private openedBody: Element | null = null;
@@ -24,12 +24,12 @@ export class ImagePreviewModal extends Modal {
 
   onOpen(): void {
     this.openedBody = activeDocument.body;
-    this.openedBody.classList.add("slate-image-preview-open");
-    this.containerEl.addClass("slate-image-lightbox-backdrop");
-    this.modalEl.addClass("slate-image-lightbox-modal");
+    this.openedBody.classList.add("graphite-image-preview-open");
+    this.containerEl.addClass("graphite-image-lightbox-backdrop");
+    this.modalEl.addClass("graphite-image-lightbox-modal");
     this.modalEl.addEventListener("keydown", this.handleEscape, true);
     this.contentEl.empty();
-    this.contentEl.addClass("slate-image-lightbox-content");
+    this.contentEl.addClass("graphite-image-lightbox-content");
 
     this.modalEl.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -42,10 +42,10 @@ export class ImagePreviewModal extends Modal {
       }
     });
 
-    const shell = this.contentEl.createDiv({ cls: "slate-image-lightbox-shell" });
+    const shell = this.contentEl.createDiv({ cls: "graphite-image-lightbox-shell" });
 
     shell.createEl("img", {
-      cls: "slate-image-lightbox-img",
+      cls: "graphite-image-lightbox-img",
       attr: {
         src: this.app.vault.getResourcePath(this.file),
         alt: this.label
@@ -53,18 +53,18 @@ export class ImagePreviewModal extends Modal {
     });
 
     const closeButton = shell.createEl("button", {
-      cls: "slate-image-lightbox-close",
+      cls: "graphite-image-lightbox-close",
       attr: {
         type: "button",
         "aria-label": "Close image preview"
       }
     });
-    createSlateIcon(closeButton, "close");
+    createGraphiteIcon(closeButton, "close");
     closeButton.addEventListener("click", () => this.close());
   }
 
   onClose(): void {
-    this.openedBody?.classList.remove("slate-image-preview-open");
+    this.openedBody?.classList.remove("graphite-image-preview-open");
     this.openedBody = null;
     this.modalEl.removeEventListener("keydown", this.handleEscape, true);
   }

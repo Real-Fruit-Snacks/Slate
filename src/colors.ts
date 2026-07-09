@@ -4,7 +4,7 @@ import { normalizeLabelName } from "./labels";
 // and label swatches adapt to any theme. Overrides picked from this palette are
 // stored as these `var(...)` strings and stay theme-adaptive; tints resolve via
 // the palette match in lightColorForOverride().
-export const SLATE_COLOR_PALETTE = [
+export const GRAPHITE_COLOR_PALETTE = [
   { name: "yellow", regular: "var(--color-yellow)", light: "rgba(var(--color-yellow-rgb), 0.14)" },
   { name: "red", regular: "var(--color-red)", light: "rgba(var(--color-red-rgb), 0.14)" },
   { name: "purple", regular: "var(--color-purple)", light: "rgba(var(--color-purple-rgb), 0.14)" },
@@ -16,7 +16,7 @@ export const SLATE_COLOR_PALETTE = [
   { name: "blue", regular: "var(--color-blue)", light: "rgba(var(--color-blue-rgb), 0.14)" }
 ] as const;
 
-export interface SlateColorPair {
+export interface GraphiteColorPair {
   regular: string;
   light: string;
 }
@@ -57,7 +57,7 @@ export function resolveColorToHex(value: string, cache?: Map<string, string>): s
   return hex;
 }
 
-export function colorForName(value: string, override?: string): SlateColorPair {
+export function colorForName(value: string, override?: string): GraphiteColorPair {
   if (override) {
     return {
       regular: override,
@@ -65,7 +65,7 @@ export function colorForName(value: string, override?: string): SlateColorPair {
     };
   }
 
-  const color = SLATE_COLOR_PALETTE[hashString(value) % SLATE_COLOR_PALETTE.length];
+  const color = GRAPHITE_COLOR_PALETTE[hashString(value) % GRAPHITE_COLOR_PALETTE.length];
   return {
     regular: color.regular,
     light: color.light
@@ -75,9 +75,9 @@ export function colorForName(value: string, override?: string): SlateColorPair {
 export function getProjectColor(
   projectName: string,
   projectColors: Record<string, string>
-): SlateColorPair {
+): GraphiteColorPair {
   const override = projectColors[projectName];
-  const generated = SLATE_COLOR_PALETTE[hashString(projectName) % SLATE_COLOR_PALETTE.length];
+  const generated = GRAPHITE_COLOR_PALETTE[hashString(projectName) % GRAPHITE_COLOR_PALETTE.length];
   const regular = override || generated.regular;
   return {
     regular,
@@ -88,7 +88,7 @@ export function getProjectColor(
 export function getLabelColor(
   labelName: string,
   labelColors: Record<string, string>
-): SlateColorPair {
+): GraphiteColorPair {
   const normalized = normalizeLabelName(labelName);
   const direct = labelColors[normalized];
   if (direct) {
@@ -111,7 +111,7 @@ function hashString(value: string): number {
 }
 
 function lightColorForOverride(value: string): string {
-  const matchingPaletteColor = SLATE_COLOR_PALETTE.find(
+  const matchingPaletteColor = GRAPHITE_COLOR_PALETTE.find(
     (color) => color.regular.toLowerCase() === value.toLowerCase()
   );
   if (matchingPaletteColor) {
@@ -130,7 +130,7 @@ function tintColorForProject(value: string): string {
   return themeSafeTintForColor(value);
 }
 
-function colorWithThemeSafeTint(value: string, override?: string): SlateColorPair {
+function colorWithThemeSafeTint(value: string, override?: string): GraphiteColorPair {
   const color = colorForName(value, override);
   return {
     regular: color.regular,

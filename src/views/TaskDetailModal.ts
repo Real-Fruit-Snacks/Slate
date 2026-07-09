@@ -4,9 +4,9 @@ import { addDaysIso, formatDueDateChip, nextWeekdayIso, todayIso } from "../date
 import { getRepeatChipLabel, getRepeatLabel, getRepeatPresets, repeatRulesEqual } from "../repeatUtils";
 import { CustomRepeatModal } from "./CustomRepeatModal";
 import { dedupeLabels, displayLabel, normalizeLabelName } from "../labels";
-import { applySlateFontSettings, SlateSettings } from "../settings";
+import { applyGraphiteFontSettings, GraphiteSettings } from "../settings";
 import { TaskStore } from "../taskStore";
-import { SlateTask, PRIORITIES, Priority } from "../types";
+import { GraphiteTask, PRIORITIES, Priority } from "../types";
 import { ImagePreviewModal } from "./ImagePreviewModal";
 import {
   getPriorityColor,
@@ -16,18 +16,18 @@ import {
   isDefaultPriority
 } from "../priority";
 import { normalizeTaskProject, uniqueRealProjects } from "../projects";
-import { createSlateIcon } from "../ui/components/SlateIcon";
-import { SlateDropdown, SlateDropdownOption } from "../ui/components/SlateDropdown";
+import { createGraphiteIcon } from "../ui/components/GraphiteIcon";
+import { GraphiteDropdown, GraphiteDropdownOption } from "../ui/components/GraphiteDropdown";
 import { ConfirmModal } from "./ConfirmModal";
 import { attachWikilinkAutocomplete } from "./wikilinkAutocomplete";
 import { attachQuickAddAutocomplete, parseQuickAddTokens } from "./quickAddAutocomplete";
-import { createSlateActionRow, createSlateButton } from "../ui";
+import { createGraphiteActionRow, createGraphiteButton } from "../ui";
 
 interface TaskDetailModalOptions {
-  task: SlateTask;
+  task: GraphiteTask;
   projects: string[];
   labels: string[];
-  settings: SlateSettings;
+  settings: GraphiteSettings;
   store: TaskStore;
   onChange: () => void;
   onProjectUsed?: (project: string) => void;
@@ -61,7 +61,7 @@ const DESCRIPTION_FORMAT_ACTIONS: Array<{
 ];
 
 export class TaskDetailModal extends Modal {
-  private draft: SlateTask;
+  private draft: GraphiteTask;
   private sideEl: HTMLElement | null = null;
   private closeWikilinkDropdown: (() => void) | null = null;
   private closeQuickAddDropdown: (() => void) | null = null;
@@ -69,7 +69,7 @@ export class TaskDetailModal extends Modal {
   private hideDescriptionToolbar: (() => void) | null = null;
   private descriptionToolbarVisible = false;
   private markdownRenderComponent: Component | null = null;
-  private dropdowns: SlateDropdown[] = [];
+  private dropdowns: GraphiteDropdown[] = [];
   private handleEscape = (event: KeyboardEvent): void => {
     if (event.key !== "Escape") {
       return;
@@ -85,7 +85,7 @@ export class TaskDetailModal extends Modal {
 
     if (
       event.target instanceof HTMLElement &&
-      event.target.closest(".slate-detail-project-create")
+      event.target.closest(".graphite-detail-project-create")
     ) {
       return;
     }
@@ -109,14 +109,14 @@ export class TaskDetailModal extends Modal {
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-root");
-    contentEl.addClass("slate-detail-modal");
-    this.modalEl.addClass("slate-modal-detail");
-    this.containerEl.addClass("slate-modal-detail-container");
+    contentEl.addClass("graphite-root");
+    contentEl.addClass("graphite-detail-modal");
+    this.modalEl.addClass("graphite-modal-detail");
+    this.containerEl.addClass("graphite-modal-detail-container");
     this.markdownRenderComponent?.unload();
     this.markdownRenderComponent = new Component();
     this.markdownRenderComponent.load();
-    applySlateFontSettings(contentEl, this.options.settings);
+    applyGraphiteFontSettings(contentEl, this.options.settings);
     this.modalEl.addEventListener("keydown", this.handleEscape, true);
 
     const isSubTask = Boolean(this.draft.parentId);
@@ -124,36 +124,36 @@ export class TaskDetailModal extends Modal {
       ? this.options.store.getTasks().find((t) => t.id === this.draft.parentId)
       : undefined;
 
-    const mobileHeader = contentEl.createDiv({ cls: "slate-detail-mobile-header" });
+    const mobileHeader = contentEl.createDiv({ cls: "graphite-detail-mobile-header" });
     const mobileBackButton = mobileHeader.createEl("button", {
-      cls: "slate-detail-mobile-back",
+      cls: "graphite-detail-mobile-back",
       attr: { type: "button", "aria-label": "Back to task list" }
     });
-    createSlateIcon(mobileBackButton, "back");
+    createGraphiteIcon(mobileBackButton, "back");
     mobileBackButton.addEventListener("click", () => this.close());
     mobileHeader.createDiv({
-      cls: "slate-detail-mobile-title",
+      cls: "graphite-detail-mobile-title",
       text: isSubTask ? "Sub-task" : "Task details"
     });
 
-    const shell = contentEl.createDiv({ cls: "slate-detail-shell" });
-    const main = shell.createDiv({ cls: "slate-detail-main" });
-    const side = shell.createDiv({ cls: "slate-detail-side" });
+    const shell = contentEl.createDiv({ cls: "graphite-detail-shell" });
+    const main = shell.createDiv({ cls: "graphite-detail-main" });
+    const side = shell.createDiv({ cls: "graphite-detail-side" });
     this.sideEl = side;
 
     const closeButton = shell.createEl("button", {
-      cls: "slate-detail-close",
+      cls: "graphite-detail-close",
       attr: { type: "button", "aria-label": "Close task details" }
     });
-    createSlateIcon(closeButton, "close");
+    createGraphiteIcon(closeButton, "close");
     closeButton.addEventListener("click", () => this.close());
 
     if (isSubTask && parentTask) {
-      const contextBar = main.createDiv({ cls: "slate-subtask-context-bar" });
-      createSlateIcon(contextBar, "collapse", { className: "slate-subtask-context-arrow" });
-      contextBar.createSpan({ cls: "slate-subtask-context-label", text: "Sub-task of " });
+      const contextBar = main.createDiv({ cls: "graphite-subtask-context-bar" });
+      createGraphiteIcon(contextBar, "collapse", { className: "graphite-subtask-context-arrow" });
+      contextBar.createSpan({ cls: "graphite-subtask-context-label", text: "Sub-task of " });
       const parentLink = contextBar.createEl("button", {
-        cls: "slate-subtask-context-parent",
+        cls: "graphite-subtask-context-parent",
         text: `"${parentTask.title}"`,
         attr: { type: "button" }
       });
@@ -170,9 +170,9 @@ export class TaskDetailModal extends Modal {
       });
     }
 
-    const titleRow = main.createDiv({ cls: "slate-detail-title-row" });
+    const titleRow = main.createDiv({ cls: "graphite-detail-title-row" });
     const checkbox = titleRow.createEl("button", {
-      cls: "slate-task-checkbox slate-detail-checkbox",
+      cls: "graphite-task-checkbox graphite-detail-checkbox",
       attr: { type: "button" }
     });
     checkbox.toggleClass("is-checked", this.draft.completed);
@@ -183,7 +183,7 @@ export class TaskDetailModal extends Modal {
     });
 
     const titleInput = titleRow.createEl("input", {
-      cls: "slate-detail-title",
+      cls: "graphite-detail-title",
       attr: { type: "text", value: this.draft.title }
     });
     titleInput.addEventListener("input", () => {
@@ -214,7 +214,7 @@ export class TaskDetailModal extends Modal {
       }
     });
 
-    const descRendered = main.createDiv({ cls: "slate-detail-description-rendered markdown-rendered" });
+    const descRendered = main.createDiv({ cls: "graphite-detail-description-rendered markdown-rendered" });
     let renderRequest = 0;
     const refreshRendered = async (): Promise<void> => {
       const request = ++renderRequest;
@@ -232,7 +232,7 @@ export class TaskDetailModal extends Modal {
         return;
       }
 
-      const renderTarget = descRendered.createDiv({ cls: "slate-detail-description-content" });
+      const renderTarget = descRendered.createDiv({ cls: "graphite-detail-description-content" });
       try {
         await MarkdownRenderer.render(
           this.app,
@@ -243,11 +243,11 @@ export class TaskDetailModal extends Modal {
         );
       } catch (error) {
         renderTarget.remove();
-        console.warn("slate: failed to render task description markdown", error);
+        console.warn("graphite: failed to render task description markdown", error);
         if (request === renderRequest) {
           descRendered.empty();
           descRendered.createEl("pre", {
-            cls: "slate-detail-description-fallback",
+            cls: "graphite-detail-description-fallback",
             text: markdown
           });
         }
@@ -262,7 +262,7 @@ export class TaskDetailModal extends Modal {
     void refreshRendered();
 
     const descriptionInput = main.createEl("textarea", {
-      cls: "slate-detail-description",
+      cls: "graphite-detail-description",
       attr: { placeholder: "Description" }
     });
     descriptionInput.value = this.draft.description || "";
@@ -348,8 +348,8 @@ export class TaskDetailModal extends Modal {
     this.renderAttachments(main);
     this.renderSidePanel(side);
 
-    const footer = contentEl.createDiv({ cls: "slate-detail-footer" });
-    createSlateButton(footer, {
+    const footer = contentEl.createDiv({ cls: "graphite-detail-footer" });
+    createGraphiteButton(footer, {
       text: "Delete task",
       variant: "destructive"
     })
@@ -367,10 +367,10 @@ export class TaskDetailModal extends Modal {
       });
 
     if (this.draft.repeat && !this.draft.completed) {
-      createSlateButton(footer, {
+      createGraphiteButton(footer, {
           text: "Complete permanently",
           variant: "danger",
-          className: "slate-detail-complete-perm"
+          className: "graphite-detail-complete-perm"
         })
         .addEventListener("click", () => {
           void (async () => {
@@ -386,11 +386,11 @@ export class TaskDetailModal extends Modal {
         });
     }
 
-    const footerActions = createSlateActionRow(footer, { className: "slate-detail-actions" });
+    const footerActions = createGraphiteActionRow(footer, { className: "graphite-detail-actions" });
 
-    createSlateButton(footerActions, { text: "Cancel" })
+    createGraphiteButton(footerActions, { text: "Cancel" })
       .addEventListener("click", () => this.close());
-    createSlateButton(footerActions, { text: "Save", variant: "primary" })
+    createGraphiteButton(footerActions, { text: "Save", variant: "primary" })
       .addEventListener("click", () => {
         void this.save();
       });
@@ -424,7 +424,7 @@ export class TaskDetailModal extends Modal {
     }
 
     const toolbar = doc.body.createDiv({
-      cls: "slate-description-toolbar is-hidden",
+      cls: "graphite-description-toolbar is-hidden",
       attr: { role: "toolbar", "aria-label": "Description formatting" }
     });
 
@@ -574,7 +574,7 @@ export class TaskDetailModal extends Modal {
     if (isSubTask && parentTask) {
       const field = this.createField(parent, "Parent");
       const parentBtn = field.createEl("button", {
-        cls: "slate-subtask-parent-field",
+        cls: "graphite-subtask-parent-field",
         text: parentTask.title,
         attr: { type: "button" }
       });
@@ -599,11 +599,11 @@ export class TaskDetailModal extends Modal {
   }
 
   private renderAttachments(parent: HTMLElement): void {
-    const section = parent.createDiv({ cls: "slate-attachments-section" });
-    const header = section.createDiv({ cls: "slate-attachments-header" });
+    const section = parent.createDiv({ cls: "graphite-attachments-section" });
+    const header = section.createDiv({ cls: "graphite-attachments-header" });
     header.createEl("h3", { text: "Attachments" });
 
-    const list = section.createDiv({ cls: "slate-attachments-list" });
+    const list = section.createDiv({ cls: "graphite-attachments-list" });
     const renderList = () => {
       list.empty();
       const imagePaths = this.draft.attachments.filter((path) => {
@@ -613,7 +613,7 @@ export class TaskDetailModal extends Modal {
 
       if (this.draft.attachments.length === 0) {
         list.createDiv({
-          cls: "slate-attachments-empty",
+          cls: "graphite-attachments-empty",
           text: "No attachments yet."
         });
       }
@@ -625,7 +625,7 @@ export class TaskDetailModal extends Modal {
       for (const path of this.draft.attachments.filter(
         (attachment) => !isImagePath(attachment)
       )) {
-        const item = list.createDiv({ cls: "slate-attachment-item" });
+        const item = list.createDiv({ cls: "graphite-attachment-item" });
         item.setAttr("role", "button");
         item.setAttr("tabindex", "0");
         const openAttachment = () => {
@@ -649,20 +649,20 @@ export class TaskDetailModal extends Modal {
           }
         });
 
-        createSlateIcon(item, "file", { className: "slate-attachment-file-icon" });
+        createGraphiteIcon(item, "file", { className: "graphite-attachment-file-icon" });
 
-        const text = item.createDiv({ cls: "slate-attachment-text" });
-        text.createDiv({ cls: "slate-attachment-name", text: attachmentName(path) });
+        const text = item.createDiv({ cls: "graphite-attachment-text" });
+        text.createDiv({ cls: "graphite-attachment-name", text: attachmentName(path) });
 
-        const actions = item.createDiv({ cls: "slate-attachment-actions" });
+        const actions = item.createDiv({ cls: "graphite-attachment-actions" });
         const downloadButton = actions.createEl("button", {
-          cls: "slate-attachment-action slate-attachment-download",
+          cls: "graphite-attachment-action graphite-attachment-download",
           attr: {
             type: "button",
             "aria-label": `Download ${attachmentName(path)}`
           }
         });
-        createSlateIcon(downloadButton, "download");
+        createGraphiteIcon(downloadButton, "download");
         downloadButton.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -670,13 +670,13 @@ export class TaskDetailModal extends Modal {
         });
 
         const removeButton = actions.createEl("button", {
-          cls: "slate-attachment-action slate-attachment-remove",
+          cls: "graphite-attachment-action graphite-attachment-remove",
           attr: {
             type: "button",
             "aria-label": `Remove ${attachmentName(path)}`
           }
         });
-        createSlateIcon(removeButton, "close");
+        createGraphiteIcon(removeButton, "close");
         removeButton.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -712,10 +712,10 @@ export class TaskDetailModal extends Modal {
     });
 
     const addAttachmentButton = section.createEl("button", {
-      cls: "slate-add-attachment-inline",
+      cls: "graphite-add-attachment-inline",
       attr: { type: "button" }
     });
-    createSlateIcon(addAttachmentButton, "add");
+    createGraphiteIcon(addAttachmentButton, "add");
     addAttachmentButton.createSpan({ text: "Add attachment" });
     addAttachmentButton.addEventListener("click", () => {
       fileInput.click();
@@ -731,8 +731,8 @@ export class TaskDetailModal extends Modal {
   ): void {
     const gallery = parent.createDiv({
       cls: imagePaths.length === 1
-        ? "slate-attachment-image-grid is-single"
-        : "slate-attachment-image-grid is-grid"
+        ? "graphite-attachment-image-grid is-single"
+        : "graphite-attachment-image-grid is-grid"
     });
 
     for (const path of imagePaths) {
@@ -741,30 +741,30 @@ export class TaskDetailModal extends Modal {
         continue;
       }
 
-      const preview = gallery.createDiv({ cls: "slate-image-attachment-card" });
+      const preview = gallery.createDiv({ cls: "graphite-image-attachment-card" });
       preview.setAttr("role", "button");
       preview.setAttr("tabindex", "0");
       preview.setAttr("aria-label", `Preview ${attachmentName(path)}`);
       preview.setAttr("title", attachmentName(path));
       preview
         .createEl("img", {
-          cls: "slate-image-attachment-img",
+          cls: "graphite-image-attachment-img",
           attr: {
             src: this.app.vault.getResourcePath(file),
             alt: attachmentName(path)
           }
         });
       const actions = preview.createDiv({
-        cls: "slate-image-attachment-actions slate-attachment-card-actions"
+        cls: "graphite-image-attachment-actions graphite-attachment-card-actions"
       });
       const downloadButton = actions.createEl("button", {
-        cls: "slate-image-attachment-action slate-attachment-download",
+        cls: "graphite-image-attachment-action graphite-attachment-download",
         attr: {
           type: "button",
           "aria-label": `Download ${attachmentName(path)}`
         }
       });
-      createSlateIcon(downloadButton, "download");
+      createGraphiteIcon(downloadButton, "download");
       downloadButton.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -772,13 +772,13 @@ export class TaskDetailModal extends Modal {
       });
 
       const removeButton = actions.createEl("button", {
-        cls: "slate-image-attachment-action slate-attachment-remove",
+        cls: "graphite-image-attachment-action graphite-attachment-remove",
         attr: {
           type: "button",
           "aria-label": `Remove ${attachmentName(path)}`
         }
       });
-      createSlateIcon(removeButton, "close");
+      createGraphiteIcon(removeButton, "close");
       removeButton.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -787,7 +787,7 @@ export class TaskDetailModal extends Modal {
         );
         onChange();
       });
-      preview.createDiv({ cls: "slate-image-attachment-name", text: attachmentName(path) });
+      preview.createDiv({ cls: "graphite-image-attachment-name", text: attachmentName(path) });
       preview.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -834,16 +834,16 @@ export class TaskDetailModal extends Modal {
     const subTasks = allTasks.filter((t) => t.parentId === this.draft.id);
     const doneCount = subTasks.filter((t) => t.completed).length;
 
-    const section = parent.createDiv({ cls: "slate-subtasks-section" });
-    const header = section.createDiv({ cls: "slate-attachments-header" });
-    const titleEl = header.createEl("h3", { cls: "slate-subtasks-title" });
+    const section = parent.createDiv({ cls: "graphite-subtasks-section" });
+    const header = section.createDiv({ cls: "graphite-attachments-header" });
+    const titleEl = header.createEl("h3", { cls: "graphite-subtasks-title" });
     titleEl.createSpan({ text: "Sub-tasks" });
     const countEl = titleEl.createSpan({
-      cls: "slate-subtasks-count",
+      cls: "graphite-subtasks-count",
       text: subTasks.length > 0 ? ` ${doneCount}/${subTasks.length}` : ""
     });
 
-    const list = section.createDiv({ cls: "slate-subtasks-list" });
+    const list = section.createDiv({ cls: "graphite-subtasks-list" });
     let draggedSubTaskId: string | null = null;
 
     const clearDropState = () => {
@@ -869,18 +869,18 @@ export class TaskDetailModal extends Modal {
       const all = this.options.store.getTasks().filter((t) => t.parentId === this.draft.id);
       const current = [...all].sort((a, b) => a.order - b.order);
       current.forEach((sub) => {
-        const row = list.createDiv({ cls: "slate-subtask-row" });
+        const row = list.createDiv({ cls: "graphite-subtask-row" });
         row.dataset.subtaskId = sub.id;
 
         const dragHandle = row.createEl("button", {
-          cls: "slate-subtask-drag-handle",
+          cls: "graphite-subtask-drag-handle",
           attr: {
             type: "button",
             draggable: "true",
             "aria-label": `Reorder ${sub.title}`
           }
         });
-        createSlateIcon(dragHandle, "dragHandle");
+        createGraphiteIcon(dragHandle, "dragHandle");
         dragHandle.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -890,7 +890,7 @@ export class TaskDetailModal extends Modal {
           draggedSubTaskId = sub.id;
           row.addClass("is-dragging");
           const dragImage = this.createSubTaskDragImage(row);
-          event.dataTransfer?.setData("application/x-slate-subtask-id", sub.id);
+          event.dataTransfer?.setData("application/x-graphite-subtask-id", sub.id);
           event.dataTransfer?.setData("text/plain", sub.id);
           if (event.dataTransfer) {
             event.dataTransfer.effectAllowed = "move";
@@ -927,7 +927,7 @@ export class TaskDetailModal extends Modal {
         row.addEventListener("drop", (event) => {
           const taskId =
             draggedSubTaskId ||
-            event.dataTransfer?.getData("application/x-slate-subtask-id") ||
+            event.dataTransfer?.getData("application/x-graphite-subtask-id") ||
             event.dataTransfer?.getData("text/plain");
           if (!taskId || taskId === sub.id) {
             return;
@@ -945,7 +945,7 @@ export class TaskDetailModal extends Modal {
         });
 
         const checkbox = row.createEl("button", {
-          cls: "slate-task-checkbox slate-subtask-checkbox",
+          cls: "graphite-task-checkbox graphite-subtask-checkbox",
           attr: { type: "button" }
         });
         checkbox.toggleClass("is-checked", sub.completed);
@@ -958,10 +958,10 @@ export class TaskDetailModal extends Modal {
           });
         });
 
-        const info = row.createDiv({ cls: "slate-subtask-info" });
+        const info = row.createDiv({ cls: "graphite-subtask-info" });
 
-        const titleLine = info.createDiv({ cls: "slate-subtask-title-line" });
-        const titleEl2 = titleLine.createSpan({ cls: `slate-subtask-title${sub.completed ? " is-completed" : ""}`, text: sub.title });
+        const titleLine = info.createDiv({ cls: "graphite-subtask-title-line" });
+        const titleEl2 = titleLine.createSpan({ cls: `graphite-subtask-title${sub.completed ? " is-completed" : ""}`, text: sub.title });
         titleEl2.addEventListener("click", () => {
           new TaskDetailModal(this.app, {
             task: sub,
@@ -974,10 +974,10 @@ export class TaskDetailModal extends Modal {
         });
 
         const deleteBtn = titleLine.createSpan({
-          cls: "slate-subtask-delete",
+          cls: "graphite-subtask-delete",
           attr: { role: "button", tabindex: "0", "aria-label": "Delete sub-task" }
         });
-        createSlateIcon(deleteBtn, "delete");
+        createGraphiteIcon(deleteBtn, "delete");
         deleteBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           new ConfirmModal(this.app, {
@@ -993,13 +993,13 @@ export class TaskDetailModal extends Modal {
           }).open();
         });
 
-        const meta = info.createDiv({ cls: "slate-subtask-meta" });
+        const meta = info.createDiv({ cls: "graphite-subtask-meta" });
         if (sub.due) {
-          meta.createSpan({ cls: "slate-subtask-due", text: formatDueDateChip(sub.due) });
+          meta.createSpan({ cls: "graphite-subtask-due", text: formatDueDateChip(sub.due) });
         }
         if (hasVisiblePriority(sub.priority)) {
           const pc = getPriorityColor(sub.priority);
-          const badge = meta.createSpan({ cls: "slate-subtask-priority", text: getPriorityDisplayLabel(sub.priority) });
+          const badge = meta.createSpan({ cls: "graphite-subtask-priority", text: getPriorityDisplayLabel(sub.priority) });
           badge.setCssStyles({ color: pc.color });
         }
       });
@@ -1007,7 +1007,7 @@ export class TaskDetailModal extends Modal {
 
     renderList();
 
-    const addRow = section.createDiv({ cls: "slate-subtask-add-row" });
+    const addRow = section.createDiv({ cls: "graphite-subtask-add-row" });
 
     const updateHeader = () => {
       const current = this.options.store.getTasks().filter((t) => t.parentId === this.draft.id);
@@ -1024,15 +1024,15 @@ export class TaskDetailModal extends Modal {
       let expandedPanel: ExpandedPanel = null;
 
       const input = addRow.createEl("input", {
-        cls: "slate-subtask-input",
+        cls: "graphite-subtask-input",
         attr: { type: "text", placeholder: "Sub-task title" }
       });
 
       // ── chips row ─────────────────────────────────────────────
-      const chipsRow = addRow.createDiv({ cls: "slate-subtask-chips" });
+      const chipsRow = addRow.createDiv({ cls: "graphite-subtask-chips" });
 
       // inline expand panel (shared, shown below chips row)
-      const expandPanel = addRow.createDiv({ cls: "slate-subtask-expand-panel is-hidden" });
+      const expandPanel = addRow.createDiv({ cls: "graphite-subtask-expand-panel is-hidden" });
 
       const closePanel = () => {
         expandPanel.addClass("is-hidden");
@@ -1054,7 +1054,7 @@ export class TaskDetailModal extends Modal {
         ];
         for (const [label, value] of presets) {
           const btn = expandPanel.createEl("button", {
-            cls: "slate-subtask-preset" + (value === composerDue ? " is-active" : ""),
+            cls: "graphite-subtask-preset" + (value === composerDue ? " is-active" : ""),
             text: label,
             attr: { type: "button" }
           });
@@ -1063,7 +1063,7 @@ export class TaskDetailModal extends Modal {
 
         // native date input as compact last option
         const customInput = expandPanel.createEl("input", {
-          cls: "slate-subtask-preset-date",
+          cls: "graphite-subtask-preset-date",
           attr: { type: "date", title: "Custom date" }
         });
         if (composerDue) customInput.value = composerDue;
@@ -1077,7 +1077,7 @@ export class TaskDetailModal extends Modal {
 
         for (const p of PRIORITIES.filter((priority) => priority !== "none")) {
           const btn = expandPanel.createEl("button", {
-            cls: "slate-subtask-preset" + (p === composerPriority ? " is-active" : ""),
+            cls: "graphite-subtask-preset" + (p === composerPriority ? " is-active" : ""),
             text: getPriorityDropdownLabel(p),
             attr: { type: "button" }
           });
@@ -1092,13 +1092,13 @@ export class TaskDetailModal extends Modal {
 
         // date chip
         const dateChip = chipsRow.createEl("button", {
-          cls: "slate-subtask-chip" + (composerDue ? " is-active" : "") + (expandedPanel === "date" ? " is-open" : ""),
+          cls: "graphite-subtask-chip" + (composerDue ? " is-active" : "") + (expandedPanel === "date" ? " is-open" : ""),
           attr: { type: "button" }
         });
-        createSlateIcon(dateChip, "calendar", { className: "slate-chip-icon" });
+        createGraphiteIcon(dateChip, "calendar", { className: "graphite-chip-icon" });
         dateChip.createSpan({ text: composerDue ? formatDueDateChip(composerDue) : "Date" });
         if (composerDue) {
-          const clr = createSlateIcon(dateChip, "close", { className: "slate-subtask-chip-clear" });
+          const clr = createGraphiteIcon(dateChip, "close", { className: "graphite-subtask-chip-clear" });
           clr.addEventListener("click", (e) => { e.stopPropagation(); composerDue = ""; closePanel(); renderChips(); });
         }
         dateChip.addEventListener("click", () => {
@@ -1107,13 +1107,13 @@ export class TaskDetailModal extends Modal {
 
         // priority chip
         const priChip = chipsRow.createEl("button", {
-          cls: "slate-subtask-chip" + (hasVisiblePriority(composerPriority) ? " is-active" : "") + (expandedPanel === "priority" ? " is-open" : ""),
+          cls: "graphite-subtask-chip" + (hasVisiblePriority(composerPriority) ? " is-active" : "") + (expandedPanel === "priority" ? " is-open" : ""),
           attr: { type: "button" }
         });
         if (hasVisiblePriority(composerPriority)) {
           priChip.setCssStyles({ color: getPriorityColor(composerPriority).color });
         }
-        createSlateIcon(priChip, "priority", { className: "slate-chip-icon" });
+        createGraphiteIcon(priChip, "priority", { className: "graphite-chip-icon" });
         priChip.createSpan({ text: getPriorityDisplayLabel(composerPriority) });
         priChip.addEventListener("click", () => {
           if (expandedPanel === "priority") { closePanel(); } else { openPriorityPanel(); renderChips(); }
@@ -1123,9 +1123,9 @@ export class TaskDetailModal extends Modal {
       renderChips();
 
       // ── Action buttons ─────────────────────────────────────────
-      const btnRow = addRow.createDiv({ cls: "slate-subtask-btn-row" });
-      const addBtn = createSlateButton(btnRow, { text: "Add task", variant: "primary" });
-      const cancelBtn = createSlateButton(btnRow, { text: "Cancel" });
+      const btnRow = addRow.createDiv({ cls: "graphite-subtask-btn-row" });
+      const addBtn = createGraphiteButton(btnRow, { text: "Add task", variant: "primary" });
+      const cancelBtn = createGraphiteButton(btnRow, { text: "Cancel" });
 
       const submit = () => {
         const title = input.value.trim();
@@ -1148,7 +1148,7 @@ export class TaskDetailModal extends Modal {
           renderChips();
           input.focus();
         }).catch((err: unknown) => {
-          console.error("[slate] Failed to create sub-task", err);
+          console.error("[graphite] Failed to create sub-task", err);
         });
       };
 
@@ -1164,10 +1164,10 @@ export class TaskDetailModal extends Modal {
     const showAddButton = () => {
       addRow.empty();
       const btn = addRow.createEl("button", {
-        cls: "slate-subtask-add-btn",
+        cls: "graphite-subtask-add-btn",
         attr: { type: "button" }
       });
-      createSlateIcon(btn, "add");
+      createGraphiteIcon(btn, "add");
       btn.createSpan({ text: "Add sub-task" });
       btn.addEventListener("click", showComposer);
     };
@@ -1177,7 +1177,7 @@ export class TaskDetailModal extends Modal {
 
   private createSubTaskDragImage(row: HTMLElement): HTMLElement {
     const dragImage = row.cloneNode(true) as HTMLElement;
-    dragImage.addClass("slate-subtask-drag-preview");
+    dragImage.addClass("graphite-subtask-drag-preview");
     dragImage.setCssStyles({
       position: "absolute",
       top: "-9999px",
@@ -1190,30 +1190,30 @@ export class TaskDetailModal extends Modal {
 
   private renderProject(parent: HTMLElement): void {
     const field = this.createField(parent, "Project");
-    const projectPicker = field.createDiv({ cls: "slate-project-picker slate-detail-project-picker" });
+    const projectPicker = field.createDiv({ cls: "graphite-project-picker graphite-detail-project-picker" });
     const projectDot = projectPicker.createSpan({
-      cls: "slate-project-dot slate-detail-project-dot"
+      cls: "graphite-project-dot graphite-detail-project-dot"
     });
-    const projectLabel = projectPicker.createSpan({ cls: "slate-detail-project-label" });
-    const createRow = field.createDiv({ cls: "slate-detail-project-create is-hidden" });
+    const projectLabel = projectPicker.createSpan({ cls: "graphite-detail-project-label" });
+    const createRow = field.createDiv({ cls: "graphite-detail-project-create is-hidden" });
     const createInput = createRow.createEl("input", {
-      cls: "slate-detail-project-create-input",
+      cls: "graphite-detail-project-create-input",
       attr: {
         type: "text",
         placeholder: "Project name"
       }
     });
     const createButton = createRow.createEl("button", {
-      cls: "slate-detail-project-create-button",
+      cls: "graphite-detail-project-create-button",
       text: "Create",
       attr: { type: "button" }
     });
     const cancelCreateButton = createRow.createEl("button", {
-      cls: "slate-detail-project-cancel-button",
+      cls: "graphite-detail-project-cancel-button",
       text: "Cancel",
       attr: { type: "button" }
     });
-    const createValue = "__slate_create_project__";
+    const createValue = "__graphite_create_project__";
 
     const getProjects = () =>
       uniqueRealProjects([
@@ -1227,10 +1227,10 @@ export class TaskDetailModal extends Modal {
       const project = normalizeTaskProject(this.draft.project);
       projectLabel.setText(project || "No project");
       if (!project) {
-        projectDot.setCssStyles({ backgroundColor: "var(--slate-faint)" });
+        projectDot.setCssStyles({ backgroundColor: "var(--graphite-faint)" });
         projectPicker.setCssStyles({
-          backgroundColor: "var(--slate-hover)",
-          borderColor: "var(--slate-border)"
+          backgroundColor: "var(--graphite-hover)",
+          borderColor: "var(--graphite-border)"
         });
         return;
       }
@@ -1243,12 +1243,12 @@ export class TaskDetailModal extends Modal {
       });
     };
 
-    const dropdown = new SlateDropdown({
+    const dropdown = new GraphiteDropdown({
       trigger: projectPicker,
       ariaLabel: "Project",
       getValue: () => normalizeTaskProject(this.draft.project) || "",
       getOptions: () => {
-        const options: SlateDropdownOption[] = [{ value: "", label: "No project" }];
+        const options: GraphiteDropdownOption[] = [{ value: "", label: "No project" }];
         for (const project of getProjects()) {
           options.push({
             value: project,
@@ -1312,12 +1312,12 @@ export class TaskDetailModal extends Modal {
 
   private renderDueDatePicker(parent: HTMLElement): void {
     const field = this.createField(parent, "Date");
-    const wrap = field.createDiv({ cls: "slate-date-picker-wrap slate-date-picker-inline" });
+    const wrap = field.createDiv({ cls: "graphite-date-picker-wrap graphite-date-picker-inline" });
 
     let detachOutside: (() => void) | undefined;
 
     const closePopover = () => {
-      wrap.querySelector(".slate-date-popover-inline")?.addClass("is-hidden");
+      wrap.querySelector(".graphite-date-popover-inline")?.addClass("is-hidden");
       detachOutside?.();
       detachOutside = undefined;
     };
@@ -1326,20 +1326,20 @@ export class TaskDetailModal extends Modal {
       wrap.empty();
       const hasDate = Boolean(this.draft.due);
 
-      const btnRow = wrap.createDiv({ cls: "slate-date-btn-row" });
+      const btnRow = wrap.createDiv({ cls: "graphite-date-btn-row" });
       const btn = btnRow.createEl("button", {
-        cls: `slate-detail-date-btn${hasDate ? " is-active" : ""}`,
+        cls: `graphite-detail-date-btn${hasDate ? " is-active" : ""}`,
         attr: { type: "button" }
       });
-      createSlateIcon(btn, "calendar", { className: "slate-chip-icon" });
+      createGraphiteIcon(btn, "calendar", { className: "graphite-chip-icon" });
       btn.createSpan({ text: formatDueDateChip(this.draft.due) });
 
       if (hasDate) {
         const clearBtn = btnRow.createEl("button", {
-          cls: "slate-date-chip-clear",
+          cls: "graphite-date-chip-clear",
           attr: { type: "button", "aria-label": "Clear date" }
         });
-        createSlateIcon(clearBtn, "close");
+        createGraphiteIcon(clearBtn, "close");
         clearBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           if (this.draft.repeat) new Notice("Date and repeat rule removed.");
@@ -1350,7 +1350,7 @@ export class TaskDetailModal extends Modal {
         });
       }
 
-      const popover = wrap.createDiv({ cls: "slate-date-popover slate-date-popover-inline is-hidden" });
+      const popover = wrap.createDiv({ cls: "graphite-date-popover graphite-date-popover-inline is-hidden" });
 
       const selectDate = (value: string) => {
         this.draft.due = value || undefined;
@@ -1360,7 +1360,7 @@ export class TaskDetailModal extends Modal {
 
       const addPreset = (label: string, value: string) => {
         const presetBtn = popover.createEl("button", {
-          cls: "slate-date-preset",
+          cls: "graphite-date-preset",
           text: label,
           attr: { type: "button" }
         });
@@ -1376,23 +1376,23 @@ export class TaskDetailModal extends Modal {
       addPreset("Next week", addDaysIso(7));
       addPreset("Next weekend", nextWeekdayIso(6));
 
-      popover.createDiv({ cls: "slate-date-divider" });
+      popover.createDiv({ cls: "graphite-date-divider" });
 
       renderCustomDatePicker(popover, this.draft.due, "calendar", selectDate);
 
-      popover.createDiv({ cls: "slate-date-divider" });
-      const repeatHeader = popover.createDiv({ cls: "slate-repeat-header" });
-      createSlateIcon(repeatHeader, "recurring", { className: "slate-chip-icon" });
+      popover.createDiv({ cls: "graphite-date-divider" });
+      const repeatHeader = popover.createDiv({ cls: "graphite-repeat-header" });
+      createGraphiteIcon(repeatHeader, "recurring", { className: "graphite-chip-icon" });
       repeatHeader.createSpan({ text: "Repeat" });
 
       const presetDue = this.draft.due || todayIso();
       const presets = getRepeatPresets(presetDue);
       for (const preset of presets) {
         const presetBtn = popover.createEl("button", {
-          cls: "slate-date-preset",
+          cls: "graphite-date-preset",
           attr: { type: "button" }
         });
-        createSlateIcon(presetBtn, "recurring", { className: "slate-chip-icon" });
+        createGraphiteIcon(presetBtn, "recurring", { className: "graphite-chip-icon" });
         presetBtn.createSpan({ text: preset.label });
         presetBtn.toggleClass("is-active", repeatRulesEqual(preset.rule, this.draft.repeat));
         presetBtn.addEventListener("click", (e) => {
@@ -1404,7 +1404,7 @@ export class TaskDetailModal extends Modal {
         });
       }
       const customRepeatBtn = popover.createEl("button", {
-        cls: "slate-date-preset",
+        cls: "graphite-date-preset",
         text: "Custom...",
         attr: { type: "button" }
       });
@@ -1435,13 +1435,13 @@ export class TaskDetailModal extends Modal {
 
       if (this.draft.repeat) {
         const fullRepeatLabel = getRepeatLabel(this.draft.repeat);
-        const repeatRow = wrap.createDiv({ cls: "slate-date-btn-row slate-detail-repeat-row" });
+        const repeatRow = wrap.createDiv({ cls: "graphite-date-btn-row graphite-detail-repeat-row" });
         const repeatChip = repeatRow.createEl("button", {
-          cls: "slate-detail-date-btn is-active slate-repeat-active-btn",
+          cls: "graphite-detail-date-btn is-active graphite-repeat-active-btn",
           attr: { type: "button", title: fullRepeatLabel, "aria-label": fullRepeatLabel }
         });
-        createSlateIcon(repeatChip, "recurring", { className: "slate-chip-icon" });
-        repeatChip.createSpan({ cls: "slate-repeat-chip-label", text: getRepeatChipLabel(this.draft.repeat) });
+        createGraphiteIcon(repeatChip, "recurring", { className: "graphite-chip-icon" });
+        repeatChip.createSpan({ cls: "graphite-repeat-chip-label", text: getRepeatChipLabel(this.draft.repeat) });
         repeatChip.addEventListener("click", (e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -1453,10 +1453,10 @@ export class TaskDetailModal extends Modal {
           }).open();
         });
         const clearRepeat = repeatRow.createEl("button", {
-          cls: "slate-date-chip-clear",
+          cls: "graphite-date-chip-clear",
           attr: { type: "button", "aria-label": "Clear repeat" }
         });
-        createSlateIcon(clearRepeat, "close");
+        createGraphiteIcon(clearRepeat, "close");
         clearRepeat.addEventListener("click", (e) => {
           e.stopPropagation();
           this.draft.repeat = undefined;
@@ -1470,12 +1470,12 @@ export class TaskDetailModal extends Modal {
 
   private renderDeadlinePicker(parent: HTMLElement): void {
     const field = this.createField(parent, "Deadline");
-    const wrap = field.createDiv({ cls: "slate-date-picker-wrap slate-date-picker-inline" });
+    const wrap = field.createDiv({ cls: "graphite-date-picker-wrap graphite-date-picker-inline" });
 
     let detachOutside: (() => void) | undefined;
 
     const closePopover = () => {
-      wrap.querySelector(".slate-date-popover-inline")?.addClass("is-hidden");
+      wrap.querySelector(".graphite-date-popover-inline")?.addClass("is-hidden");
       detachOutside?.();
       detachOutside = undefined;
     };
@@ -1484,20 +1484,20 @@ export class TaskDetailModal extends Modal {
       wrap.empty();
       const hasDate = Boolean(this.draft.deadline);
 
-      const btnRow = wrap.createDiv({ cls: "slate-date-btn-row" });
+      const btnRow = wrap.createDiv({ cls: "graphite-date-btn-row" });
       const btn = btnRow.createEl("button", {
-        cls: `slate-detail-date-btn${hasDate ? " is-active" : ""}`,
+        cls: `graphite-detail-date-btn${hasDate ? " is-active" : ""}`,
         attr: { type: "button" }
       });
-      createSlateIcon(btn, "deadline", { className: "slate-chip-icon" });
+      createGraphiteIcon(btn, "deadline", { className: "graphite-chip-icon" });
       btn.createSpan({ text: hasDate ? formatDueDateChip(this.draft.deadline) : "No deadline" });
 
       if (hasDate) {
         const clearBtn = btnRow.createEl("button", {
-          cls: "slate-date-chip-clear",
+          cls: "graphite-date-chip-clear",
           attr: { type: "button", "aria-label": "Clear deadline" }
         });
-        createSlateIcon(clearBtn, "close");
+        createGraphiteIcon(clearBtn, "close");
         clearBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           this.draft.deadline = undefined;
@@ -1506,7 +1506,7 @@ export class TaskDetailModal extends Modal {
         });
       }
 
-      const popover = wrap.createDiv({ cls: "slate-date-popover slate-date-popover-inline is-hidden" });
+      const popover = wrap.createDiv({ cls: "graphite-date-popover graphite-date-popover-inline is-hidden" });
 
       const selectDate = (value: string) => {
         this.draft.deadline = value || undefined;
@@ -1516,7 +1516,7 @@ export class TaskDetailModal extends Modal {
 
       const addPreset = (label: string, value: string) => {
         const presetBtn = popover.createEl("button", {
-          cls: "slate-date-preset",
+          cls: "graphite-date-preset",
           text: label,
           attr: { type: "button" }
         });
@@ -1552,22 +1552,22 @@ export class TaskDetailModal extends Modal {
 
   private renderPriority(parent: HTMLElement): void {
     const field = this.createField(parent, "Priority");
-    const priorityWrap = field.createDiv({ cls: "slate-priority-select-wrap slate-detail-priority-wrap" });
-    const indicator = priorityWrap.createSpan({ cls: "slate-priority-indicator" });
-    const display = priorityWrap.createSpan({ cls: "slate-priority-display" });
+    const priorityWrap = field.createDiv({ cls: "graphite-priority-select-wrap graphite-detail-priority-wrap" });
+    const indicator = priorityWrap.createSpan({ cls: "graphite-priority-indicator" });
+    const display = priorityWrap.createSpan({ cls: "graphite-priority-display" });
     const priorities = PRIORITIES.filter((priority) => priority !== "none");
     const updatePriorityStyle = () => {
       const color = getPriorityColor(this.draft.priority);
       priorityWrap.setCssProps({
-        "--slate-priority-text": color.color,
-        "--slate-priority-bg": color.light,
-        "--slate-priority-border": color.color
+        "--graphite-priority-text": color.color,
+        "--graphite-priority-bg": color.light,
+        "--graphite-priority-border": color.color
       });
       priorityWrap.toggleClass("has-priority", hasVisiblePriority(this.draft.priority));
       indicator.setCssStyles({ backgroundColor: color.color });
       display.setText(getPriorityDisplayLabel(this.draft.priority));
     };
-    const priorityDropdown = new SlateDropdown({
+    const priorityDropdown = new GraphiteDropdown({
       trigger: priorityWrap,
       ariaLabel: "Priority",
       getValue: () => (isDefaultPriority(this.draft.priority) ? "P4" : this.draft.priority),
@@ -1589,15 +1589,15 @@ export class TaskDetailModal extends Modal {
 
   private renderLabels(parent: HTMLElement): void {
     const field = this.createField(parent, "Labels");
-    const chips = field.createDiv({ cls: "slate-detail-labels" });
+    const chips = field.createDiv({ cls: "graphite-detail-labels" });
     const input = field.createEl("input", {
-      cls: "slate-detail-input",
+      cls: "graphite-detail-input",
       attr: {
         type: "text",
         placeholder: "#label"
       }
     });
-    const suggestions = field.createDiv({ cls: "slate-label-suggestions" });
+    const suggestions = field.createDiv({ cls: "graphite-label-suggestions" });
 
     const addLabel = (value: string) => {
       const label = normalizeLabelName(value);
@@ -1617,7 +1617,7 @@ export class TaskDetailModal extends Modal {
       chips.empty();
       for (const label of this.draft.labels) {
         const chip = chips.createEl("button", {
-          cls: "slate-selected-label slate-detail-label-chip",
+          cls: "graphite-selected-label graphite-detail-label-chip",
           attr: { type: "button" }
         });
         const color = this.getLabelColor(label);
@@ -1626,7 +1626,7 @@ export class TaskDetailModal extends Modal {
           borderColor: color.light
         });
         chip
-          .createSpan({ cls: "slate-label-dot" })
+          .createSpan({ cls: "graphite-label-dot" })
           .setCssStyles({ backgroundColor: color.regular });
         chip.createSpan({ text: displayLabel(label) });
         chip.addEventListener("click", (event) => {
@@ -1634,10 +1634,10 @@ export class TaskDetailModal extends Modal {
           event.stopPropagation();
         });
         const removeLabel = chip.createSpan({
-          cls: "slate-label-chip-remove",
+          cls: "graphite-label-chip-remove",
           attr: { "aria-hidden": "true" }
         });
-        createSlateIcon(removeLabel, "close");
+        createGraphiteIcon(removeLabel, "close");
         removeLabel.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -1649,7 +1649,7 @@ export class TaskDetailModal extends Modal {
       suggestions.empty();
       const query = normalizeLabelName(input.value);
       if (!query) {
-        suggestions.createDiv({ cls: "slate-label-empty", text: "Type a label name" });
+        suggestions.createDiv({ cls: "graphite-label-empty", text: "Type a label name" });
         return;
       }
 
@@ -1659,7 +1659,7 @@ export class TaskDetailModal extends Modal {
         .slice(0, 8);
       for (const label of matches) {
         const suggestion = suggestions.createEl("button", {
-          cls: "slate-label-suggestion",
+          cls: "graphite-label-suggestion",
           text: displayLabel(label),
           attr: { type: "button" }
         });
@@ -1667,7 +1667,7 @@ export class TaskDetailModal extends Modal {
       }
       if (!labels.includes(query) && !this.draft.labels.includes(query)) {
         const create = suggestions.createEl("button", {
-          cls: "slate-label-suggestion",
+          cls: "graphite-label-suggestion",
           text: `Create label: ${displayLabel(query)}`,
           attr: { type: "button" }
         });
@@ -1704,8 +1704,8 @@ export class TaskDetailModal extends Modal {
   }
 
   private createField(parent: HTMLElement, label: string): HTMLElement {
-    const field = parent.createDiv({ cls: "slate-detail-field" });
-    field.createDiv({ cls: "slate-detail-label", text: label });
+    const field = parent.createDiv({ cls: "graphite-detail-field" });
+    field.createDiv({ cls: "graphite-detail-label", text: label });
     return field;
   }
 
@@ -1751,31 +1751,31 @@ function renderCustomDatePicker(
   let viewYear = initDate.getFullYear();
   let viewMonth = initDate.getMonth(); // 0–11
 
-  const container = parent.createDiv({ cls: "slate-date-custom-wrap" });
+  const container = parent.createDiv({ cls: "graphite-date-custom-wrap" });
 
   // Trigger row — same visual style as preset buttons
   const trigger = container.createEl("button", {
-    cls: "slate-date-preset slate-cal-trigger",
+    cls: "graphite-date-preset graphite-cal-trigger",
     attr: { type: "button" }
   });
   trigger.createSpan({ text: currentValue ? formatDueDateChip(currentValue) : "Custom date…" });
   if (currentValue) trigger.addClass("is-active");
 
   // Calendar panel — hidden until the trigger is tapped/clicked
-  const calWrap = container.createDiv({ cls: "slate-cal-wrap is-hidden" });
+  const calWrap = container.createDiv({ cls: "graphite-cal-wrap is-hidden" });
 
   function renderCal() {
     calWrap.empty();
 
-    const header = calWrap.createDiv({ cls: "slate-cal-header" });
-    const prevBtn = header.createEl("button", { cls: "slate-cal-nav", attr: { type: "button" } });
+    const header = calWrap.createDiv({ cls: "graphite-cal-header" });
+    const prevBtn = header.createEl("button", { cls: "graphite-cal-nav", attr: { type: "button" } });
     prevBtn.setText("‹");
     header.createSpan({
-      cls: "slate-cal-title",
+      cls: "graphite-cal-title",
       text: new Date(viewYear, viewMonth, 1)
         .toLocaleDateString(undefined, { month: "long", year: "numeric" })
     });
-    const nextBtn = header.createEl("button", { cls: "slate-cal-nav", attr: { type: "button" } });
+    const nextBtn = header.createEl("button", { cls: "graphite-cal-nav", attr: { type: "button" } });
     nextBtn.setText("›");
 
     prevBtn.addEventListener("click", (e) => {
@@ -1793,23 +1793,23 @@ function renderCustomDatePicker(
       renderCal();
     });
 
-    const grid = calWrap.createDiv({ cls: "slate-cal-grid" });
+    const grid = calWrap.createDiv({ cls: "graphite-cal-grid" });
     for (const d of ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]) {
-      grid.createSpan({ cls: "slate-cal-day-hdr", text: d });
+      grid.createSpan({ cls: "graphite-cal-day-hdr", text: d });
     }
 
     // Leading empty cells (week starts on Monday)
     const firstDow = new Date(viewYear, viewMonth, 1).getDay(); // 0=Sun
     const leadingEmpties = firstDow === 0 ? 6 : firstDow - 1;
     for (let i = 0; i < leadingEmpties; i++) {
-      grid.createDiv({ cls: "slate-cal-day is-empty" });
+      grid.createDiv({ cls: "graphite-cal-day is-empty" });
     }
 
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     for (let d = 1; d <= daysInMonth; d++) {
       const iso = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       const cell = grid.createEl("button", {
-        cls: "slate-cal-day",
+        cls: "graphite-cal-day",
         text: String(d),
         attr: { type: "button" }
       });
@@ -1824,7 +1824,7 @@ function renderCustomDatePicker(
     const renderedCells = leadingEmpties + daysInMonth;
     const trailingEmpties = 42 - renderedCells;
     for (let i = 0; i < trailingEmpties; i++) {
-      grid.createDiv({ cls: "slate-cal-day is-empty" });
+      grid.createDiv({ cls: "graphite-cal-day is-empty" });
     }
   }
 
@@ -1963,7 +1963,7 @@ function getTextareaSelectionAnchor(textarea: HTMLTextAreaElement): {
   }
 
   const computed = win.getComputedStyle(textarea);
-  const mirror = doc.body.createDiv({ cls: "slate-textarea-selection-mirror" });
+  const mirror = doc.body.createDiv({ cls: "graphite-textarea-selection-mirror" });
 
   mirror.setCssStyles({
     boxSizing: computed.boxSizing,

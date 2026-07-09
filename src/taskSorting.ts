@@ -1,11 +1,11 @@
 import { compareIsoDates } from "./dateUtils";
 import { projectDisplayName } from "./projects";
-import { SlateSortMode, SlateTask } from "./types";
+import { GraphiteSortMode, GraphiteTask } from "./types";
 
 export function compareTasksByMode(
-  a: SlateTask,
-  b: SlateTask,
-  mode: SlateSortMode
+  a: GraphiteTask,
+  b: GraphiteTask,
+  mode: GraphiteSortMode
 ): number {
   if (mode === "due") {
     return (
@@ -51,11 +51,11 @@ export function compareTasksByMode(
   return compareSmart(a, b);
 }
 
-function byOrder(a: SlateTask, b: SlateTask): number {
+function byOrder(a: GraphiteTask, b: GraphiteTask): number {
   return a.order - b.order;
 }
 
-function compareSmart(a: SlateTask, b: SlateTask): number {
+function compareSmart(a: GraphiteTask, b: GraphiteTask): number {
   return (
     comparePriority(a, b) ||
     compareOptionalDateAsc(a.deadline, b.deadline) ||
@@ -65,11 +65,11 @@ function compareSmart(a: SlateTask, b: SlateTask): number {
   );
 }
 
-function comparePriority(a: SlateTask, b: SlateTask): number {
+function comparePriority(a: GraphiteTask, b: GraphiteTask): number {
   return priorityRank(a.priority) - priorityRank(b.priority);
 }
 
-function priorityRank(priority: SlateTask["priority"]): number {
+function priorityRank(priority: GraphiteTask["priority"]): number {
   if (priority === "P1") {
     return 0;
   }

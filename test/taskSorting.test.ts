@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { compareTasksByMode } from "../src/taskSorting";
-import { SlateSortMode, SlateTask } from "../src/types";
+import { GraphiteSortMode, GraphiteTask } from "../src/types";
 
 let seq = 0;
-function t(over: Partial<SlateTask>): SlateTask {
+function t(over: Partial<GraphiteTask>): GraphiteTask {
   return {
     id: `task-${seq++}`,
     title: "Task",
@@ -17,7 +17,7 @@ function t(over: Partial<SlateTask>): SlateTask {
   };
 }
 
-function sortIds(tasks: SlateTask[], mode: SlateSortMode): string[] {
+function sortIds(tasks: GraphiteTask[], mode: GraphiteSortMode): string[] {
   return [...tasks].sort((a, b) => compareTasksByMode(a, b, mode)).map((task) => task.id);
 }
 

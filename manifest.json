@@ -1,6 +1,6 @@
 {
-  "id": "slate",
-  "name": "slate",
+  "id": "graphite",
+  "name": "graphite",
   "version": "0.1.0",
   "minAppVersion": "1.6.6",
   "description": "A minimal Todoist-like task manager using local Markdown files.",

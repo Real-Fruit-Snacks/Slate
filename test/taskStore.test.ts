@@ -7,7 +7,7 @@ import { createFakeApp, FakeVault } from "./helpers/fakeApp";
 
 function makeStore(): { store: TaskStore; vault: FakeVault } {
   const { app, vault } = createFakeApp();
-  const settings = { ...DEFAULT_SETTINGS, dataFolderPath: "_slate_files" };
+  const settings = { ...DEFAULT_SETTINGS, dataFolderPath: "_graphite_files" };
   const store = new TaskStore(app as unknown as App, settings);
   return { store, vault };
 }
@@ -103,14 +103,14 @@ describe("TaskStore — recurring completion", () => {
 describe("TaskStore — cross-file concurrency (reconcile regression)", () => {
   it("does not drop an edit when two source files are edited concurrently", async () => {
     const { store, vault } = makeStore();
-    vault.folders.add("_slate_files");
-    vault.folders.add("_slate_files/Data");
+    vault.folders.add("_graphite_files");
+    vault.folders.add("_graphite_files/Data");
     vault.files.set(
-      "_slate_files/Data/2026-06.md",
+      "_graphite_files/Data/2026-06.md",
       ["- [ ] Task A", "  id:: a", "  created:: 2026-06-15", "  priority:: P4"].join("\n")
     );
     vault.files.set(
-      "_slate_files/Data/2026-07.md",
+      "_graphite_files/Data/2026-07.md",
       ["- [ ] Task B", "  id:: b", "  created:: 2026-07-15", "  priority:: P4"].join("\n")
     );
 
@@ -122,7 +122,7 @@ describe("TaskStore — cross-file concurrency (reconcile regression)", () => {
     await Promise.all([store.toggleComplete("a"), store.toggleComplete("b")]);
 
     expect(store.getTasks().every((t) => t.completed)).toBe(true);
-    expect(parseTasks(vault.files.get("_slate_files/Data/2026-06.md") as string)[0].completed).toBe(true);
-    expect(parseTasks(vault.files.get("_slate_files/Data/2026-07.md") as string)[0].completed).toBe(true);
+    expect(parseTasks(vault.files.get("_graphite_files/Data/2026-06.md") as string)[0].completed).toBe(true);
+    expect(parseTasks(vault.files.get("_graphite_files/Data/2026-07.md") as string)[0].completed).toBe(true);
   });
 });

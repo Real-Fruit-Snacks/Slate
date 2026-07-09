@@ -1,72 +1,72 @@
-import { createSlateIcon } from "./ui/components/SlateIcon";
+import { createGraphiteIcon } from "./ui/components/GraphiteIcon";
 
-export type SlateButtonVariant = "default" | "primary" | "danger" | "destructive" | "ghost";
-export type SlateButtonSize = "sm" | "md";
-export type SlateChipVariant = "default" | "outline" | "muted";
+export type GraphiteButtonVariant = "default" | "primary" | "danger" | "destructive" | "ghost";
+export type GraphiteButtonSize = "sm" | "md";
+export type GraphiteChipVariant = "default" | "outline" | "muted";
 
-type SlateAttrs = Record<string, string>;
+type GraphiteAttrs = Record<string, string>;
 
-interface SlateButtonOptions {
+interface GraphiteButtonOptions {
   text?: string;
   icon?: string;
-  variant?: SlateButtonVariant;
-  size?: SlateButtonSize;
+  variant?: GraphiteButtonVariant;
+  size?: GraphiteButtonSize;
   className?: string;
-  attr?: SlateAttrs;
+  attr?: GraphiteAttrs;
   disabled?: boolean;
 }
 
-interface SlateIconButtonOptions extends Omit<SlateButtonOptions, "text"> {
+interface GraphiteIconButtonOptions extends Omit<GraphiteButtonOptions, "text"> {
   ariaLabel: string;
 }
 
-interface SlateChipOptions {
+interface GraphiteChipOptions {
   text?: string;
   icon?: string;
-  variant?: SlateChipVariant;
+  variant?: GraphiteChipVariant;
   className?: string;
-  attr?: SlateAttrs;
+  attr?: GraphiteAttrs;
 }
 
-interface SlateTextInputOptions {
+interface GraphiteTextInputOptions {
   type?: string;
   value?: string;
   placeholder?: string;
   className?: string;
-  attr?: SlateAttrs;
+  attr?: GraphiteAttrs;
 }
 
-interface SlateActionRowOptions {
+interface GraphiteActionRowOptions {
   className?: string;
 }
 
-const BUTTON_VARIANTS: Record<SlateButtonVariant, string> = {
+const BUTTON_VARIANTS: Record<GraphiteButtonVariant, string> = {
   default: "",
-  primary: "slate-ui-button-primary slate-button-primary",
-  danger: "slate-ui-button-danger slate-button-danger",
-  destructive: "slate-ui-button-destructive slate-button-destructive",
-  ghost: "slate-ui-button-ghost"
+  primary: "graphite-ui-button-primary graphite-button-primary",
+  danger: "graphite-ui-button-danger graphite-button-danger",
+  destructive: "graphite-ui-button-destructive graphite-button-destructive",
+  ghost: "graphite-ui-button-ghost"
 };
 
-const BUTTON_SIZES: Record<SlateButtonSize, string> = {
-  sm: "slate-ui-button-sm",
-  md: "slate-ui-button-md"
+const BUTTON_SIZES: Record<GraphiteButtonSize, string> = {
+  sm: "graphite-ui-button-sm",
+  md: "graphite-ui-button-md"
 };
 
-const CHIP_VARIANTS: Record<SlateChipVariant, string> = {
+const CHIP_VARIANTS: Record<GraphiteChipVariant, string> = {
   default: "",
-  outline: "slate-ui-chip-outline",
-  muted: "slate-ui-chip-muted"
+  outline: "graphite-ui-chip-outline",
+  muted: "graphite-ui-chip-muted"
 };
 
-export function createSlateButton(
+export function createGraphiteButton(
   parent: HTMLElement,
-  options: SlateButtonOptions = {}
+  options: GraphiteButtonOptions = {}
 ): HTMLButtonElement {
   const button = parent.createEl("button", {
     cls: classNames(
-      "slate-ui-button",
-      "slate-button",
+      "graphite-ui-button",
+      "graphite-button",
       BUTTON_VARIANTS[options.variant || "default"],
       BUTTON_SIZES[options.size || "md"],
       options.className
@@ -78,10 +78,10 @@ export function createSlateButton(
   });
 
   if (options.icon) {
-    createSlateIcon(button, options.icon, { className: "slate-ui-icon" });
+    createGraphiteIcon(button, options.icon, { className: "graphite-ui-icon" });
   }
   if (options.text) {
-    button.createSpan({ cls: "slate-ui-button-label", text: options.text });
+    button.createSpan({ cls: "graphite-ui-button-label", text: options.text });
   }
   if (options.disabled) {
     button.setAttr("disabled", "true");
@@ -90,13 +90,13 @@ export function createSlateButton(
   return button;
 }
 
-export function createSlateIconButton(
+export function createGraphiteIconButton(
   parent: HTMLElement,
-  options: SlateIconButtonOptions
+  options: GraphiteIconButtonOptions
 ): HTMLButtonElement {
-  return createSlateButton(parent, {
+  return createGraphiteButton(parent, {
     ...options,
-    className: classNames("slate-ui-icon-button", options.className),
+    className: classNames("graphite-ui-icon-button", options.className),
     attr: {
       "aria-label": options.ariaLabel,
       ...(options.attr || {})
@@ -104,10 +104,10 @@ export function createSlateIconButton(
   });
 }
 
-export function createSlateChip(parent: HTMLElement, options: SlateChipOptions): HTMLElement {
+export function createGraphiteChip(parent: HTMLElement, options: GraphiteChipOptions): HTMLElement {
   const chip = parent.createSpan({
     cls: classNames(
-      "slate-ui-chip",
+      "graphite-ui-chip",
       CHIP_VARIANTS[options.variant || "default"],
       options.className
     ),
@@ -115,21 +115,21 @@ export function createSlateChip(parent: HTMLElement, options: SlateChipOptions):
   });
 
   if (options.icon) {
-    createSlateIcon(chip, options.icon, { className: "slate-ui-icon" });
+    createGraphiteIcon(chip, options.icon, { className: "graphite-ui-icon" });
   }
   if (options.text) {
-    chip.createSpan({ cls: "slate-ui-chip-label", text: options.text });
+    chip.createSpan({ cls: "graphite-ui-chip-label", text: options.text });
   }
 
   return chip;
 }
 
-export function createSlateTextInput(
+export function createGraphiteTextInput(
   parent: HTMLElement,
-  options: SlateTextInputOptions = {}
+  options: GraphiteTextInputOptions = {}
 ): HTMLInputElement {
   return parent.createEl("input", {
-    cls: classNames("slate-ui-input", options.className),
+    cls: classNames("graphite-ui-input", options.className),
     attr: {
       type: options.type || "text",
       ...(options.placeholder ? { placeholder: options.placeholder } : {}),
@@ -139,21 +139,21 @@ export function createSlateTextInput(
   });
 }
 
-export function createSlateActionRow(
+export function createGraphiteActionRow(
   parent: HTMLElement,
-  options: SlateActionRowOptions = {}
+  options: GraphiteActionRowOptions = {}
 ): HTMLElement {
   return parent.createDiv({
-    cls: classNames("slate-ui-actions", options.className)
+    cls: classNames("graphite-ui-actions", options.className)
   });
 }
 
-export function createSlateBottomBar(
+export function createGraphiteBottomBar(
   parent: HTMLElement,
-  options: SlateActionRowOptions = {}
+  options: GraphiteActionRowOptions = {}
 ): HTMLElement {
   return parent.createDiv({
-    cls: classNames("slate-ui-bottom-bar", options.className)
+    cls: classNames("graphite-ui-bottom-bar", options.className)
   });
 }
 

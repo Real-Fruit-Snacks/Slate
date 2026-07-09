@@ -49,7 +49,7 @@ export function attachWikilinkAutocomplete(textarea: HTMLTextAreaElement, app: A
 
     const rect = textarea.getBoundingClientRect();
     dropdown = activeDocument.createElement("div");
-    dropdown.className = "slate-wikilink-dropdown";
+    dropdown.className = "graphite-wikilink-dropdown";
 
     // Position below textarea; flip above if not enough space
     const spaceBelow = window.innerHeight - rect.bottom;
@@ -70,18 +70,18 @@ export function attachWikilinkAutocomplete(textarea: HTMLTextAreaElement, app: A
       dropdown.innerHTML = "";
       matches.forEach((name, i) => {
         const item = activeDocument.createElement("div");
-        item.className = "slate-wikilink-item" + (i === activeIndex ? " is-active" : "");
+        item.className = "graphite-wikilink-item" + (i === activeIndex ? " is-active" : "");
         const basename = name.includes("/") ? name.split("/").pop()! : name;
         const folder = name.includes("/") ? name.slice(0, name.lastIndexOf("/")) : "";
 
         const nameSpan = activeDocument.createElement("span");
-        nameSpan.className = "slate-wikilink-item-name";
+        nameSpan.className = "graphite-wikilink-item-name";
         nameSpan.textContent = basename;
         item.appendChild(nameSpan);
 
         if (folder) {
           const folderSpan = activeDocument.createElement("span");
-          folderSpan.className = "slate-wikilink-item-folder";
+          folderSpan.className = "graphite-wikilink-item-folder";
           folderSpan.textContent = folder;
           item.appendChild(folderSpan);
         }

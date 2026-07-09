@@ -48,7 +48,7 @@ export class App {}
 export class Vault {}
 
 // `settings.ts` (imported transitively by the store) references these at module
-// load time (`class SlateSettingTab extends PluginSettingTab`). Minimal
+// load time (`class GraphiteSettingTab extends PluginSettingTab`). Minimal
 // stand-ins so the module loads; their methods are never exercised in tests.
 export class Plugin {}
 

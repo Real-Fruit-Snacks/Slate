@@ -7,7 +7,7 @@ export interface LocalPopoverOptions {
  * Position a popover relative to its trigger wrapper, keeping it inside the
  * viewport. With `useFixed`, the popover is placed with viewport coordinates so
  * ancestors with `overflow: hidden` or transforms cannot clip it (needed inside
- * modals). Otherwise it shifts horizontally via `--slate-popover-shift-x` and
+ * modals). Otherwise it shifts horizontally via `--graphite-popover-shift-x` and
  * flips above/below through the `is-open-up` / `is-open-down` classes.
  */
 export function alignLocalPopover(
@@ -21,7 +21,7 @@ export function alignLocalPopover(
   popover.removeClass("is-align-right");
   popover.removeClass("is-open-up");
   popover.removeClass("is-open-down");
-  popover.setCssProps({ "--slate-popover-shift-x": "0px" });
+  popover.setCssProps({ "--graphite-popover-shift-x": "0px" });
 
   const wrapperRect = wrapper.getBoundingClientRect();
 
@@ -74,7 +74,7 @@ export function alignLocalPopover(
     shiftX += margin - shiftedLeft;
   }
   if (shiftX !== 0) {
-    popover.setCssProps({ "--slate-popover-shift-x": `${Math.round(shiftX)}px` });
+    popover.setCssProps({ "--graphite-popover-shift-x": `${Math.round(shiftX)}px` });
   }
 
   const fitsBelow = wrapperRect.bottom + popoverHeight + margin <= ownerWindow.innerHeight;

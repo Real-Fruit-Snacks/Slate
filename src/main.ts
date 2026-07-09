@@ -2,8 +2,8 @@ import { Notice, Plugin, TAbstractFile, TFile, WorkspaceLeaf } from "obsidian";
 import type { MarkdownPostProcessorContext } from "obsidian";
 import { dailyNoteDateFromPath, normalizeDailyNoteDateFormat } from "./dailyNotes";
 import {
-  SlateSettingTab,
-  SlateSettings,
+  GraphiteSettingTab,
+  GraphiteSettings,
   DEFAULT_SETTINGS,
   normalizeDefaultProject,
   normalizeDataFolderPath,
@@ -17,16 +17,16 @@ import {
 import { dedupeLabels, normalizeLabelName } from "./labels";
 import { DataFolderVisibility } from "./vaultVisibility";
 import { TaskStore } from "./taskStore";
-import { TaskBoardView, VIEW_TYPE_SLATE } from "./views/TaskBoardView";
+import { TaskBoardView, VIEW_TYPE_GRAPHITE } from "./views/TaskBoardView";
 import { cleanProjectName, uniqueRealProjects } from "./projects";
 import { QuickAddModal } from "./views/QuickAddModal";
 import { DailyNoteCompletedBlock } from "./views/DailyNoteCompletedBlock";
 
-const SLATE_COMPLETED_CODE_BLOCK = "```slate-completed\n```";
-const SLATE_COMPLETED_CODE_BLOCK_RE = /```slate-completed\b[\s\S]*?```/i;
+const GRAPHITE_COMPLETED_CODE_BLOCK = "```graphite-completed\n```";
+const GRAPHITE_COMPLETED_CODE_BLOCK_RE = /```graphite-completed\b[\s\S]*?```/i;
 
-export default class SlatePlugin extends Plugin {
-  settings: SlateSettings;
+export default class GraphitePlugin extends Plugin {
+  settings: GraphiteSettings;
   store: TaskStore;
   private reloadDebounceTimer: number | null = null;
   private dataFolderVisibility: DataFolderVisibility | null = null;
@@ -39,12 +39,12 @@ export default class SlatePlugin extends Plugin {
     this.applyDataFolderVisibility();
 
     this.registerView(
-      VIEW_TYPE_SLATE,
+      VIEW_TYPE_GRAPHITE,
       (leaf: WorkspaceLeaf) =>
         new TaskBoardView(leaf, this.store, this.settings, () => this.saveSettings())
     );
 
-    this.addRibbonIcon("check-circle-2", "Open slate", () => {
+    this.addRibbonIcon("check-circle-2", "Open graphite", () => {
       void this.activateView();
     });
 
@@ -100,7 +100,7 @@ export default class SlatePlugin extends Plugin {
           ...Object.keys(this.settings.labelColors)
         ]);
         await this.saveSettings();
-        new Notice("slate labels normalized.");
+        new Notice("graphite labels normalized.");
       }
     });
 
@@ -110,15 +110,15 @@ export default class SlatePlugin extends Plugin {
       callback: async () => {
         const migratedCount = await this.store.migrateOldTaskFile();
         if (migratedCount === 0) {
-          new Notice("slate found no old tasks to migrate.");
+          new Notice("graphite found no old tasks to migrate.");
           return;
         }
 
-        new Notice(`slate migrated ${migratedCount} task${migratedCount === 1 ? "" : "s"}.`);
+        new Notice(`graphite migrated ${migratedCount} task${migratedCount === 1 ? "" : "s"}.`);
       }
     });
 
-    this.addSettingTab(new SlateSettingTab(this.app, this));
+    this.addSettingTab(new GraphiteSettingTab(this.app, this));
 
     this.registerEvent(
       this.app.vault.on("modify", (file) => {
@@ -157,7 +157,7 @@ export default class SlatePlugin extends Plugin {
       })
     );
 
-    this.registerMarkdownCodeBlockProcessor("slate-completed", (source, el, ctx) => {
+    this.registerMarkdownCodeBlockProcessor("graphite-completed", (source, el, ctx) => {
       this.renderCompletedTasksCodeBlock(source, el, ctx);
     });
 
@@ -231,13 +231,13 @@ export default class SlatePlugin extends Plugin {
     try {
       await this.store.reloadFromDisk();
     } catch (error) {
-      new Notice("slate could not reload task data.");
+      new Notice("graphite could not reload task data.");
       console.error(error);
     }
   }
 
-  refreshSlateViews(): void {
-    for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_SLATE)) {
+  refreshGraphiteViews(): void {
+    for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_GRAPHITE)) {
       const view = leaf.view;
       if (view instanceof TaskBoardView) {
         view.refresh();
@@ -300,7 +300,7 @@ export default class SlatePlugin extends Plugin {
       newNormalized
     ]);
     await this.saveSettings();
-    this.refreshSlateViews();
+    this.refreshGraphiteViews();
   }
 
   async deleteLabel(label: string): Promise<void> {
@@ -315,11 +315,11 @@ export default class SlatePlugin extends Plugin {
       (candidate) => normalizeLabelName(candidate) !== normalized
     );
     await this.saveSettings();
-    this.refreshSlateViews();
+    this.refreshGraphiteViews();
   }
 
   private async activateView(): Promise<void> {
-    const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_SLATE);
+    const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_GRAPHITE);
     if (leaves.length > 0) {
       const view = leaves[0].view;
       if (view instanceof TaskBoardView) {
@@ -330,12 +330,12 @@ export default class SlatePlugin extends Plugin {
     }
 
     const leaf = this.app.workspace.getLeaf(true);
-    await leaf.setViewState({ type: VIEW_TYPE_SLATE, active: true });
+    await leaf.setViewState({ type: VIEW_TYPE_GRAPHITE, active: true });
     this.app.workspace.setActiveLeaf(leaf, { focus: true });
   }
 
   private async activateDailyNoteView(date: string, sourcePath: string): Promise<void> {
-    const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_SLATE);
+    const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_GRAPHITE);
     if (leaves.length > 0) {
       const view = leaves[0].view;
       if (view instanceof TaskBoardView) {
@@ -346,7 +346,7 @@ export default class SlatePlugin extends Plugin {
     }
 
     const leaf = this.app.workspace.getLeaf(true);
-    await leaf.setViewState({ type: VIEW_TYPE_SLATE, active: true });
+    await leaf.setViewState({ type: VIEW_TYPE_GRAPHITE, active: true });
     const view = leaf.view;
     if (view instanceof TaskBoardView) {
       view.openDailyNote(date, sourcePath);
@@ -356,7 +356,7 @@ export default class SlatePlugin extends Plugin {
 
   private async openActiveDailyNoteCompletedTasks(): Promise<void> {
     if (!this.settings.dailyNotesIntegrationEnabled) {
-      new Notice("slate Daily Notes integration is disabled in settings.");
+      new Notice("graphite Daily Notes integration is disabled in settings.");
       return;
     }
 
@@ -368,7 +368,7 @@ export default class SlatePlugin extends Plugin {
 
     const date = this.dateFromDailyNoteFile(file);
     if (!date) {
-      new Notice("slate could not detect a date from the active note.");
+      new Notice("graphite could not detect a date from the active note.");
       return;
     }
 
@@ -377,7 +377,7 @@ export default class SlatePlugin extends Plugin {
 
   private async insertActiveDailyNoteCompletedBlock(): Promise<void> {
     if (!this.settings.dailyNotesIntegrationEnabled) {
-      new Notice("slate Daily Notes integration is disabled in settings.");
+      new Notice("graphite Daily Notes integration is disabled in settings.");
       return;
     }
 
@@ -388,15 +388,15 @@ export default class SlatePlugin extends Plugin {
     }
 
     if (!this.dateFromDailyNoteFile(file)) {
-      new Notice("slate could not detect a date from the active note.");
+      new Notice("graphite could not detect a date from the active note.");
       return;
     }
 
     const result = await this.ensureDailyNoteCompletedBlock(file);
     if (result === "inserted") {
-      new Notice("slate completed tasks block added.");
+      new Notice("graphite completed tasks block added.");
     } else if (result === "exists") {
-      new Notice("This note already has a slate completed tasks block.");
+      new Notice("This note already has a graphite completed tasks block.");
     }
   }
 
@@ -425,7 +425,7 @@ export default class SlatePlugin extends Plugin {
       return;
     }
 
-    for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_SLATE)) {
+    for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_GRAPHITE)) {
       const view = leaf.view;
       if (view instanceof TaskBoardView) {
         view.openDailyNote(date, file.path);
@@ -439,14 +439,14 @@ export default class SlatePlugin extends Plugin {
     }
 
     const content = await this.app.vault.read(file);
-    if (SLATE_COMPLETED_CODE_BLOCK_RE.test(content)) {
+    if (GRAPHITE_COMPLETED_CODE_BLOCK_RE.test(content)) {
       return "exists";
     }
 
     const separator = content.trim().length > 0
       ? content.endsWith("\n") ? "\n" : "\n\n"
       : "";
-    await this.app.vault.modify(file, `${content}${separator}${SLATE_COMPLETED_CODE_BLOCK}\n`);
+    await this.app.vault.modify(file, `${content}${separator}${GRAPHITE_COMPLETED_CODE_BLOCK}\n`);
     return "inserted";
   }
 
@@ -492,8 +492,8 @@ export default class SlatePlugin extends Plugin {
     try {
       await this.store.load();
     } catch (error) {
-      new Notice("slate could not initialize task storage. Open the developer console for details.");
-      console.error("[slate] Failed to initialize task storage.", error, {
+      new Notice("graphite could not initialize task storage. Open the developer console for details.");
+      console.error("[graphite] Failed to initialize task storage.", error, {
         dataFolderPath: this.settings.dataFolderPath,
         tasksFilePath: this.settings.tasksFilePath
       });
@@ -501,7 +501,7 @@ export default class SlatePlugin extends Plugin {
   }
 }
 
-function toSettingsData(value: unknown): Partial<SlateSettings> {
+function toSettingsData(value: unknown): Partial<GraphiteSettings> {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
     return {};
   }

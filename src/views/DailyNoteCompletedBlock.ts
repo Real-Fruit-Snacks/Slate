@@ -5,9 +5,9 @@ import { dailyNoteDateFromPath } from "../dailyNotes";
 import { displayLabel } from "../labels";
 import { getPriorityClass, getPriorityDisplayLabel, hasVisiblePriority } from "../priority";
 import { normalizeTaskProject } from "../projects";
-import { SlateSettings } from "../settings";
+import { GraphiteSettings } from "../settings";
 import { TaskStore } from "../taskStore";
-import { SlateTask } from "../types";
+import { GraphiteTask } from "../types";
 import { renderLinkedText } from "./linkedText";
 
 interface DailyNoteCompletedBlockOptions {
@@ -16,7 +16,7 @@ interface DailyNoteCompletedBlockOptions {
   sourcePath: string;
   app: App;
   store: TaskStore;
-  settings: SlateSettings;
+  settings: GraphiteSettings;
   openDailyNote: (date: string, sourcePath: string) => void;
 }
 
@@ -28,7 +28,7 @@ export class DailyNoteCompletedBlock extends MarkdownRenderChild {
   private readonly sourcePath: string;
   private readonly app: App;
   private readonly store: TaskStore;
-  private readonly settings: SlateSettings;
+  private readonly settings: GraphiteSettings;
   private readonly openDailyNote: (date: string, sourcePath: string) => void;
   private unsubscribe?: () => void;
 
@@ -55,12 +55,12 @@ export class DailyNoteCompletedBlock extends MarkdownRenderChild {
 
   private render(): void {
     this.containerEl.empty();
-    const root = this.containerEl.createDiv({ cls: "slate-daily-codeblock" });
+    const root = this.containerEl.createDiv({ cls: "graphite-daily-codeblock" });
 
     if (!this.settings.dailyNotesIntegrationEnabled) {
       root.createDiv({
-        cls: "slate-empty slate-empty-small",
-        text: "slate Daily Notes integration is disabled in settings."
+        cls: "graphite-empty graphite-empty-small",
+        text: "graphite Daily Notes integration is disabled in settings."
       });
       return;
     }
@@ -68,27 +68,27 @@ export class DailyNoteCompletedBlock extends MarkdownRenderChild {
     const date = this.resolveDate();
     if (!date) {
       root.createDiv({
-        cls: "slate-empty slate-empty-small",
-        text: "slate could not detect a date for this note."
+        cls: "graphite-empty graphite-empty-small",
+        text: "graphite could not detect a date for this note."
       });
       return;
     }
 
     const tasks = this.store.getCompletedTasksForDate(date);
-    const header = root.createDiv({ cls: "slate-daily-codeblock-header" });
+    const header = root.createDiv({ cls: "graphite-daily-codeblock-header" });
     const heading = header.createDiv();
     heading.createDiv({
-      cls: "slate-daily-codeblock-title",
+      cls: "graphite-daily-codeblock-title",
       text: formatDailyBlockTitle(date)
     });
     heading.createDiv({
-      cls: "slate-daily-codeblock-subtitle",
+      cls: "graphite-daily-codeblock-subtitle",
       text: tasks.length === 1 ? "1 completed task" : `${tasks.length} completed tasks`
     });
 
     const openButton = header.createEl("button", {
-      cls: "slate-daily-codeblock-open",
-      text: "Open in slate"
+      cls: "graphite-daily-codeblock-open",
+      text: "Open in graphite"
     });
     openButton.addEventListener("click", () => {
       this.openDailyNote(date, this.sourcePath);
@@ -96,32 +96,32 @@ export class DailyNoteCompletedBlock extends MarkdownRenderChild {
 
     if (tasks.length === 0) {
       root.createDiv({
-        cls: "slate-empty slate-empty-small",
+        cls: "graphite-empty graphite-empty-small",
         text: "No tasks completed on this day."
       });
       return;
     }
 
-    const list = root.createDiv({ cls: "slate-daily-codeblock-list" });
+    const list = root.createDiv({ cls: "graphite-daily-codeblock-list" });
     for (const task of tasks) {
       this.renderTaskRow(list, task);
     }
   }
 
-  private renderTaskRow(parent: HTMLElement, task: SlateTask): void {
-    const row = parent.createDiv({ cls: "slate-daily-codeblock-row" });
-    renderLinkedText(task.title, row.createDiv({ cls: "slate-daily-codeblock-task-title" }), {
+  private renderTaskRow(parent: HTMLElement, task: GraphiteTask): void {
+    const row = parent.createDiv({ cls: "graphite-daily-codeblock-row" });
+    renderLinkedText(task.title, row.createDiv({ cls: "graphite-daily-codeblock-task-title" }), {
       app: this.app,
       sourcePath: task.sourcePath || this.sourcePath
     });
 
-    const meta = row.createDiv({ cls: "slate-daily-codeblock-meta" });
+    const meta = row.createDiv({ cls: "graphite-daily-codeblock-meta" });
     const project = normalizeTaskProject(task.project);
     if (project) {
       const color = getProjectColor(project, this.settings.projectColors);
-      const chip = meta.createSpan({ cls: "slate-daily-codeblock-chip" });
+      const chip = meta.createSpan({ cls: "graphite-daily-codeblock-chip" });
       chip.setCssStyles({ backgroundColor: color.light });
-      chip.createSpan({ cls: "slate-project-dot" }).setCssStyles({
+      chip.createSpan({ cls: "graphite-project-dot" }).setCssStyles({
         backgroundColor: color.regular
       });
       chip.createSpan({ text: project });
@@ -129,7 +129,7 @@ export class DailyNoteCompletedBlock extends MarkdownRenderChild {
 
     if (hasVisiblePriority(task.priority)) {
       meta.createSpan({
-        cls: `slate-daily-codeblock-chip slate-activity-priority ${getPriorityClass(task.priority)}`,
+        cls: `graphite-daily-codeblock-chip graphite-activity-priority ${getPriorityClass(task.priority)}`,
         text: getPriorityDisplayLabel(task.priority)
       });
     }
@@ -137,7 +137,7 @@ export class DailyNoteCompletedBlock extends MarkdownRenderChild {
     for (const label of task.labels) {
       const color = getLabelColor(label, this.settings.labelColors);
       const chip = meta.createSpan({
-        cls: "slate-daily-codeblock-chip slate-daily-codeblock-label",
+        cls: "graphite-daily-codeblock-chip graphite-daily-codeblock-label",
         text: displayLabel(label)
       });
       chip.setCssStyles({

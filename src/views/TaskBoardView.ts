@@ -17,14 +17,14 @@ import {
   yesterdayIso
 } from "../dateUtils";
 import {
-  applySlateFontSettings,
-  SlateIconSettings,
-  SlateSettings,
+  applyGraphiteFontSettings,
+  GraphiteIconSettings,
+  GraphiteSettings,
   normalizeOverdueRange,
   overdueRangeLabel
 } from "../settings";
 import { TaskStore } from "../taskStore";
-import { SlateSortMode, SlateTask, BoardViewMode, CreateTaskInput, OVERDUE_RANGES, Priority } from "../types";
+import { GraphiteSortMode, GraphiteTask, BoardViewMode, CreateTaskInput, OVERDUE_RANGES, Priority } from "../types";
 import { AddTaskComposer } from "./AddTaskComposer";
 import { dedupeLabels, displayLabel, normalizeLabelName } from "../labels";
 import { TaskDetailModal } from "./TaskDetailModal";
@@ -42,15 +42,15 @@ import {
   projectDisplayName,
   uniqueRealProjects
 } from "../projects";
-import { createSlateIcon } from "../ui/components/SlateIcon";
-import { SlateDropdown } from "../ui/components/SlateDropdown";
+import { createGraphiteIcon } from "../ui/components/GraphiteIcon";
+import { GraphiteDropdown } from "../ui/components/GraphiteDropdown";
 import { ConfirmModal } from "./ConfirmModal";
 import { renderLinkedText, stripInlineMarkdownPreservingLinks } from "./linkedText";
 import { compareTasksByMode } from "../taskSorting";
 import { CreateProjectModal, DeleteProjectModal, RenameProjectModal } from "./projects/ProjectModals";
 import { renderProjectActionsMenu } from "./projects/projectActions";
 
-export const VIEW_TYPE_SLATE = "slate-task-board";
+export const VIEW_TYPE_GRAPHITE = "graphite-task-board";
 
 function markdownPreviewText(text: string): string {
   return text
@@ -70,7 +70,7 @@ function markdownPreviewText(text: string): string {
     .trim();
 }
 
-const SORT_OPTIONS: Array<{ mode: SlateSortMode; label: string }> = [
+const SORT_OPTIONS: Array<{ mode: GraphiteSortMode; label: string }> = [
   { mode: "smart", label: "Smart" },
   { mode: "due", label: "Due date" },
   { mode: "priority", label: "Priority" },
@@ -111,13 +111,13 @@ export class TaskBoardView extends ItemView {
   private mobileComposerReturnScroll: { top: number; left: number } | null = null;
   private composerCleanup: (() => void) | null = null;
   private renderScheduled = false;
-  private dropdowns: SlateDropdown[] = [];
+  private dropdowns: GraphiteDropdown[] = [];
   private handleRootClick = (event: MouseEvent): void => {
     const target = event.target;
     if (
       this.taskActionsOpenId &&
       target instanceof HTMLElement &&
-      target.closest(".slate-task-actions, .slate-task-action-menu")
+      target.closest(".graphite-task-actions, .graphite-task-action-menu")
     ) {
       return;
     }
@@ -129,7 +129,7 @@ export class TaskBoardView extends ItemView {
     if (
       this.labelActionsOpen &&
       target instanceof HTMLElement &&
-      target.closest(".slate-label-actions-button, .slate-label-menu")
+      target.closest(".graphite-label-actions-button, .graphite-label-menu")
     ) {
       return;
     }
@@ -163,7 +163,7 @@ export class TaskBoardView extends ItemView {
     }
 
     const openProjectInput = this.containerEl.querySelector<HTMLElement>(
-      ".slate-custom-project-wrap:not(.is-hidden)"
+      ".graphite-custom-project-wrap:not(.is-hidden)"
     );
     if (openProjectInput) {
       this.stopEscape(event);
@@ -172,7 +172,7 @@ export class TaskBoardView extends ItemView {
     }
 
     const openPopover = this.containerEl.querySelector<HTMLElement>(
-      ".slate-composer-popover:not(.is-hidden)"
+      ".graphite-composer-popover:not(.is-hidden)"
     );
     if (openPopover) {
       this.stopEscape(event);
@@ -181,7 +181,7 @@ export class TaskBoardView extends ItemView {
     }
 
     const openMenu = this.containerEl.querySelector<HTMLElement>(
-      ".slate-composer-menu:not(.is-hidden)"
+      ".graphite-composer-menu:not(.is-hidden)"
     );
     if (openMenu) {
       this.stopEscape(event);
@@ -223,18 +223,18 @@ export class TaskBoardView extends ItemView {
   constructor(
     leaf: WorkspaceLeaf,
     private store: TaskStore,
-    private settings: SlateSettings,
+    private settings: GraphiteSettings,
     private saveSettings: () => Promise<void>
   ) {
     super(leaf);
   }
 
   getViewType(): string {
-    return VIEW_TYPE_SLATE;
+    return VIEW_TYPE_GRAPHITE;
   }
 
   getDisplayText(): string {
-    return "Tasks · slate";
+    return "Tasks · graphite";
   }
 
   getIcon(): string {
@@ -355,17 +355,17 @@ export class TaskBoardView extends ItemView {
     this.removeTaskActionMenu();
     const { containerEl } = this;
     const sidebarScrollLeft =
-      containerEl.querySelector<HTMLElement>(".slate-sidebar")?.scrollLeft ??
+      containerEl.querySelector<HTMLElement>(".graphite-sidebar")?.scrollLeft ??
       this.sidebarScrollLeft;
     containerEl.empty();
-    containerEl.addClass("slate-root");
-    containerEl.addClass("slate-view");
+    containerEl.addClass("graphite-root");
+    containerEl.addClass("graphite-view");
     containerEl.toggleClass("is-mobile", Platform.isMobile);
-    applySlateFontSettings(containerEl, this.settings);
+    applyGraphiteFontSettings(containerEl, this.settings);
     containerEl.addEventListener("keydown", this.handleRootKeyDown, true);
     containerEl.addEventListener("click", this.handleRootClick, true);
 
-    const shell = containerEl.createDiv({ cls: "slate-shell" });
+    const shell = containerEl.createDiv({ cls: "graphite-shell" });
     this.renderSidebar(shell);
     this.renderMain(shell);
 
@@ -378,7 +378,7 @@ export class TaskBoardView extends ItemView {
   }
 
   private getMainScrollSnapshot(): { top: number; left: number } | null {
-    const main = this.containerEl.querySelector<HTMLElement>(".slate-main");
+    const main = this.containerEl.querySelector<HTMLElement>(".graphite-main");
     if (!main) {
       return null;
     }
@@ -408,7 +408,7 @@ export class TaskBoardView extends ItemView {
   private restoreMainScrollSnapshot(snapshot: { top: number; left: number }): void {
     const ownerWindow = this.containerEl.ownerDocument.defaultView || window;
     const restore = () => {
-      const main = this.containerEl.querySelector<HTMLElement>(".slate-main");
+      const main = this.containerEl.querySelector<HTMLElement>(".graphite-main");
       if (main) {
         main.scrollTop = snapshot.top;
         main.scrollLeft = snapshot.left;
@@ -423,7 +423,7 @@ export class TaskBoardView extends ItemView {
 
   private restoreSidebarScroll(scrollLeft: number): void {
     window.requestAnimationFrame(() => {
-      const sidebar = this.containerEl.querySelector<HTMLElement>(".slate-sidebar");
+      const sidebar = this.containerEl.querySelector<HTMLElement>(".graphite-sidebar");
       if (!sidebar) {
         return;
       }
@@ -434,16 +434,16 @@ export class TaskBoardView extends ItemView {
   }
 
   private renderSidebar(parent: HTMLElement): void {
-    const sidebar = parent.createEl("aside", { cls: "slate-sidebar" });
+    const sidebar = parent.createEl("aside", { cls: "graphite-sidebar" });
     sidebar.scrollLeft = this.sidebarScrollLeft;
     sidebar.addEventListener("scroll", () => {
       this.sidebarScrollLeft = sidebar.scrollLeft;
     });
 
     if (this.shouldShowContextualAddTask()) {
-      const sidebarAdd = sidebar.createEl("button", { cls: "slate-add-sidebar" });
-      createSlateIcon(sidebarAdd, "add", { className: "slate-add-plus", size: 18 });
-      sidebarAdd.createSpan({ cls: "slate-add-text", text: "Add task" });
+      const sidebarAdd = sidebar.createEl("button", { cls: "graphite-add-sidebar" });
+      createGraphiteIcon(sidebarAdd, "add", { className: "graphite-add-plus", size: 18 });
+      sidebarAdd.createSpan({ cls: "graphite-add-text", text: "Add task" });
       sidebarAdd.addEventListener("click", () => {
         this.openAddComposer();
       });
@@ -451,7 +451,7 @@ export class TaskBoardView extends ItemView {
 
     const tasks = this.store.getTasks();
     const activeTopLevel = this.getActiveTopLevelTasks(tasks);
-    const nav = sidebar.createDiv({ cls: "slate-nav" });
+    const nav = sidebar.createDiv({ cls: "graphite-nav" });
 
     this.renderNavButton(nav, "Search", "search", undefined, "search");
     this.renderNavButton(nav, "Inbox", "inbox", this.getInboxTasks(activeTopLevel).length, "inbox");
@@ -461,15 +461,15 @@ export class TaskBoardView extends ItemView {
     this.renderNavButton(nav, "Projects", "projects", undefined, "projects");
     this.renderNavButton(nav, "Activity", "activity", undefined, "activity");
 
-    const projectsSection = sidebar.createDiv({ cls: "slate-sidebar-section" });
-    const projectsHeadingRow = projectsSection.createDiv({ cls: "slate-sidebar-heading-row" });
-    projectsHeadingRow.createDiv({ cls: "slate-sidebar-heading", text: "Projects" });
+    const projectsSection = sidebar.createDiv({ cls: "graphite-sidebar-section" });
+    const projectsHeadingRow = projectsSection.createDiv({ cls: "graphite-sidebar-heading-row" });
+    projectsHeadingRow.createDiv({ cls: "graphite-sidebar-heading", text: "Projects" });
     const addProjectBtn = projectsHeadingRow.createEl("button", {
-      cls: "slate-sidebar-add-project",
+      cls: "graphite-sidebar-add-project",
       attr: { type: "button", "aria-label": "New project" }
     });
-    createSlateIcon(addProjectBtn, "add");
-    addProjectBtn.createSpan({ cls: "slate-sidebar-add-project-label", text: "Project" });
+    createGraphiteIcon(addProjectBtn, "add");
+    addProjectBtn.createSpan({ cls: "graphite-sidebar-add-project-label", text: "Project" });
     addProjectBtn.addEventListener("click", () => {
       new CreateProjectModal(this.app, this.getKnownProjects(), (project) => {
         this.ensureProjectInRegistry(project.name);
@@ -485,7 +485,7 @@ export class TaskBoardView extends ItemView {
     for (const cleanProject of this.getActiveProjects()) {
       const count = activeTopLevel.filter((task) => normalizeTaskProject(task.project) === cleanProject).length;
       const button = projectsSection.createEl("button", {
-        cls: "slate-project-button"
+        cls: "graphite-project-button"
       });
       button.toggleClass(
         "is-active",
@@ -493,14 +493,14 @@ export class TaskBoardView extends ItemView {
       );
       const color = getProjectColor(cleanProject, this.settings.projectColors);
       button.setCssProps({
-        "--slate-project-bg": color.light,
-        "--slate-project-color": color.regular
+        "--graphite-project-bg": color.light,
+        "--graphite-project-color": color.regular
       });
       button
-        .createSpan({ cls: "slate-project-dot" })
+        .createSpan({ cls: "graphite-project-dot" })
         .setCssStyles({ backgroundColor: color.regular });
-      button.createEl("span", { cls: "slate-nav-label", text: cleanProject });
-      button.createEl("span", { cls: "slate-count", text: String(count) });
+      button.createEl("span", { cls: "graphite-nav-label", text: cleanProject });
+      button.createEl("span", { cls: "graphite-count", text: String(count) });
       this.enableProjectDrop(button, cleanProject);
       button.addEventListener("click", () => {
         this.mode = "projects";
@@ -516,12 +516,12 @@ export class TaskBoardView extends ItemView {
 
     if (this.settings.archivedProjects.length > 0) {
       const archiveButton = projectsSection.createEl("button", {
-        cls: "slate-project-button slate-archived-button"
+        cls: "graphite-project-button graphite-archived-button"
       });
       archiveButton.toggleClass("is-active", this.mode === "archived");
-      createSlateIcon(archiveButton, "archive", { className: "slate-nav-icon", size: 18 });
-      archiveButton.createEl("span", { cls: "slate-nav-label", text: "Archived" });
-      archiveButton.createEl("span", { cls: "slate-count", text: String(this.settings.archivedProjects.length) });
+      createGraphiteIcon(archiveButton, "archive", { className: "graphite-nav-icon", size: 18 });
+      archiveButton.createEl("span", { cls: "graphite-nav-label", text: "Archived" });
+      archiveButton.createEl("span", { cls: "graphite-count", text: String(this.settings.archivedProjects.length) });
       archiveButton.addEventListener("click", () => {
         this.mode = "archived";
         this.selectedProject = null;
@@ -548,9 +548,9 @@ export class TaskBoardView extends ItemView {
     label: string,
     mode: BoardViewMode,
     count?: number,
-    iconKey?: keyof SlateIconSettings
+    iconKey?: keyof GraphiteIconSettings
   ): void {
-    const button = parent.createEl("button", { cls: "slate-nav-button" });
+    const button = parent.createEl("button", { cls: "graphite-nav-button" });
     const active =
       label === "Search"
         ? false
@@ -558,14 +558,14 @@ export class TaskBoardView extends ItemView {
           ? this.mode === "projects" && this.selectedProject === null
           : this.mode === mode;
     button.toggleClass("is-active", active);
-    const iconEl = button.createEl("span", { cls: "slate-nav-icon" });
+    const iconEl = button.createEl("span", { cls: "graphite-nav-icon" });
     if (iconKey) {
-      createSlateIcon(iconEl, iconKey, { size: 18 });
+      createGraphiteIcon(iconEl, iconKey, { size: 18 });
     }
-    button.createEl("span", { cls: "slate-nav-label", text: label });
+    button.createEl("span", { cls: "graphite-nav-label", text: label });
 
     if (count !== undefined) {
-      button.createEl("span", { cls: "slate-count", text: String(count) });
+      button.createEl("span", { cls: "graphite-count", text: String(count) });
     }
 
     button.addEventListener("click", () => {
@@ -593,16 +593,16 @@ export class TaskBoardView extends ItemView {
   }
 
   private renderMain(parent: HTMLElement): void {
-    const main = parent.createEl("main", { cls: "slate-main" });
+    const main = parent.createEl("main", { cls: "graphite-main" });
     const tasks = this.store.getTasks();
     const visible = this.getVisibleTasks(tasks);
     const activityData = this.mode === "activity" ? this.getActivityData(tasks) : null;
 
-    const header = main.createDiv({ cls: "slate-main-header" });
+    const header = main.createDiv({ cls: "graphite-main-header" });
     const titleWrap = header.createDiv();
     titleWrap.createEl("h1", { text: this.getTitle() });
     titleWrap.createDiv({
-      cls: "slate-subtitle",
+      cls: "graphite-subtitle",
       text: activityData
         ? `${activityData.allTimeCount} completed task${activityData.allTimeCount === 1 ? "" : "s"}`
         : `${visible.length} task${visible.length === 1 ? "" : "s"}`
@@ -611,7 +611,7 @@ export class TaskBoardView extends ItemView {
       this.renderSortingControl(header);
     }
 
-    const sections = main.createDiv({ cls: "slate-sections" });
+    const sections = main.createDiv({ cls: "graphite-sections" });
 
     this.renderTaskSections(sections, tasks);
 
@@ -619,16 +619,16 @@ export class TaskBoardView extends ItemView {
       return;
     }
 
-    const addArea = main.createDiv({ cls: "slate-add-area" });
+    const addArea = main.createDiv({ cls: "graphite-add-area" });
     if (this.composerOpen) {
       this.renderAddTaskComposer(addArea, () => {
         this.composerOpen = false;
         this.render();
       });
     } else {
-      const inlineAdd = addArea.createEl("button", { cls: "slate-add-inline" });
-      createSlateIcon(inlineAdd, "add", { className: "slate-add-plus", size: 18 });
-      inlineAdd.createSpan({ cls: "slate-add-text", text: "Add task" });
+      const inlineAdd = addArea.createEl("button", { cls: "graphite-add-inline" });
+      createGraphiteIcon(inlineAdd, "add", { className: "graphite-add-plus", size: 18 });
+      inlineAdd.createSpan({ cls: "graphite-add-text", text: "Add task" });
       inlineAdd.addEventListener("click", () => {
         this.openAddComposer();
       });
@@ -636,8 +636,8 @@ export class TaskBoardView extends ItemView {
 
     if (tasks.length === 0) {
       main.createDiv({
-        cls: "slate-empty",
-        text: `No tasks yet. Add one and slate will write it to ${this.store.dataDir}/YYYY-MM.md.`
+        cls: "graphite-empty",
+        text: `No tasks yet. Add one and graphite will write it to ${this.store.dataDir}/YYYY-MM.md.`
       });
     }
   }
@@ -720,23 +720,23 @@ export class TaskBoardView extends ItemView {
     }
 
     if (this.mobileComposerOpen) {
-      const screen = parent.createDiv({ cls: "slate-mobile-quick-add-screen" });
-      const header = screen.createDiv({ cls: "slate-mobile-quick-add-screen-header" });
+      const screen = parent.createDiv({ cls: "graphite-mobile-quick-add-screen" });
+      const header = screen.createDiv({ cls: "graphite-mobile-quick-add-screen-header" });
       const backButton = header.createEl("button", {
-        cls: "slate-mobile-quick-add-back",
+        cls: "graphite-mobile-quick-add-back",
         attr: { type: "button", "aria-label": "Back to tasks" }
       });
-      createSlateIcon(backButton, "back");
+      createGraphiteIcon(backButton, "back");
       backButton.addEventListener("click", () => this.closeMobileComposer());
-      header.createDiv({ cls: "slate-mobile-quick-add-title", text: "Add task" });
+      header.createDiv({ cls: "graphite-mobile-quick-add-title", text: "Add task" });
       const closeButton = header.createEl("button", {
-        cls: "slate-mobile-quick-add-close",
+        cls: "graphite-mobile-quick-add-close",
         attr: { type: "button", "aria-label": "Close add task" }
       });
-      createSlateIcon(closeButton, "close");
+      createGraphiteIcon(closeButton, "close");
       closeButton.addEventListener("click", () => this.closeMobileComposer());
 
-      const body = screen.createDiv({ cls: "slate-mobile-quick-add-body" });
+      const body = screen.createDiv({ cls: "graphite-mobile-quick-add-body" });
       this.renderAddTaskComposer(body, () => {
         this.closeMobileComposer();
       });
@@ -744,10 +744,10 @@ export class TaskBoardView extends ItemView {
     }
 
     const button = parent.createEl("button", {
-      cls: "slate-mobile-quick-add-button",
+      cls: "graphite-mobile-quick-add-button",
       attr: { type: "button", "aria-label": "Add task" }
     });
-    createSlateIcon(button, "add");
+    createGraphiteIcon(button, "add");
     button.addEventListener("click", () => this.openAddComposer());
   }
 
@@ -771,11 +771,11 @@ export class TaskBoardView extends ItemView {
     return undefined;
   }
 
-  private groupTasks(tasks: SlateTask[]): Map<string, SlateTask[]> {
-    const result = new Map<string, SlateTask[]>();
+  private groupTasks(tasks: GraphiteTask[]): Map<string, GraphiteTask[]> {
+    const result = new Map<string, GraphiteTask[]>();
 
     if (this.settings.groupBy === "label") {
-      const noLabel: SlateTask[] = [];
+      const noLabel: GraphiteTask[] = [];
       for (const task of tasks) {
         if (task.labels.length === 0) {
           noLabel.push(task);
@@ -788,7 +788,7 @@ export class TaskBoardView extends ItemView {
       if (noLabel.length > 0) result.set("No label", noLabel);
     } else if (this.settings.groupBy === "priority") {
       const order: Priority[] = ["P1", "P2", "P3", "P4"];
-      const buckets = new Map<Priority, SlateTask[]>();
+      const buckets = new Map<Priority, GraphiteTask[]>();
       for (const task of tasks) {
         const p = isDefaultPriority(task.priority) ? "P4" : task.priority;
         if (!buckets.has(p)) buckets.set(p, []);
@@ -806,16 +806,16 @@ export class TaskBoardView extends ItemView {
   }
 
   private renderSortingControl(parent: HTMLElement): void {
-    const wrapper = parent.createDiv({ cls: "slate-sorting" });
+    const wrapper = parent.createDiv({ cls: "graphite-sorting" });
     const button = wrapper.createEl("button", {
-      cls: "slate-sorting-button",
+      cls: "graphite-sorting-button",
       attr: {
         type: "button",
         "aria-haspopup": "menu",
         "aria-expanded": String(this.sortPopoverOpen)
       }
     });
-    createSlateIcon(button, "sorting", { className: "slate-sorting-icon" });
+    createGraphiteIcon(button, "sorting", { className: "graphite-sorting-icon" });
     button.createSpan({ text: "Sorting" });
     button.addEventListener("click", (event) => {
       event.preventDefault();
@@ -828,11 +828,11 @@ export class TaskBoardView extends ItemView {
       return;
     }
 
-    const popover = wrapper.createDiv({ cls: "slate-sorting-popover" });
-    popover.createDiv({ cls: "slate-sorting-title", text: "Sort by" });
+    const popover = wrapper.createDiv({ cls: "graphite-sorting-popover" });
+    popover.createDiv({ cls: "graphite-sorting-title", text: "Sort by" });
     for (const option of SORT_OPTIONS) {
       const item = popover.createEl("button", {
-        cls: "slate-sorting-option",
+        cls: "graphite-sorting-option",
         attr: {
           type: "button",
           role: "menuitemradio",
@@ -841,7 +841,7 @@ export class TaskBoardView extends ItemView {
       });
       item.toggleClass("is-active", this.settings.sortMode === option.mode);
       item.createSpan({
-        cls: "slate-sorting-check",
+        cls: "graphite-sorting-check",
         text: this.settings.sortMode === option.mode ? "✓" : ""
       });
       item.createSpan({ text: option.label });
@@ -858,8 +858,8 @@ export class TaskBoardView extends ItemView {
     }
 
     if (this.mode === "projects") {
-      popover.createDiv({ cls: "slate-sorting-divider" });
-      popover.createDiv({ cls: "slate-sorting-title", text: "Group by" });
+      popover.createDiv({ cls: "graphite-sorting-divider" });
+      popover.createDiv({ cls: "graphite-sorting-title", text: "Group by" });
       const GROUP_OPTIONS: { label: string; value: "none" | "label" | "priority" }[] = [
         { label: "None", value: "none" },
         { label: "Label", value: "label" },
@@ -867,11 +867,11 @@ export class TaskBoardView extends ItemView {
       ];
       for (const opt of GROUP_OPTIONS) {
         const item = popover.createEl("button", {
-          cls: "slate-sorting-option",
+          cls: "graphite-sorting-option",
           attr: { type: "button", role: "menuitemradio", "aria-checked": String(this.settings.groupBy === opt.value) }
         });
         item.toggleClass("is-active", this.settings.groupBy === opt.value);
-        item.createSpan({ cls: "slate-sorting-check", text: this.settings.groupBy === opt.value ? "✓" : "" });
+        item.createSpan({ cls: "graphite-sorting-check", text: this.settings.groupBy === opt.value ? "✓" : "" });
         item.createSpan({ text: opt.label });
         item.addEventListener("click", (event) => {
           event.preventDefault();
@@ -887,7 +887,7 @@ export class TaskBoardView extends ItemView {
     }
   }
 
-  private renderTaskSections(parent: HTMLElement, allTasks: SlateTask[]): void {
+  private renderTaskSections(parent: HTMLElement, allTasks: GraphiteTask[]): void {
     parent.empty();
 
     const active = this.getActiveTopLevelTasks(allTasks);
@@ -958,8 +958,8 @@ export class TaskBoardView extends ItemView {
 
           const groups = this.groupTasks(projectTasks);
           for (const [groupName, groupTasks] of groups) {
-            const sub = projectSection.createDiv({ cls: "slate-task-group" });
-            sub.createDiv({ cls: "slate-task-group-label", text: groupName });
+            const sub = projectSection.createDiv({ cls: "graphite-task-group" });
+            sub.createDiv({ cls: "graphite-task-group-label", text: groupName });
             this.renderTaskList(sub, groupTasks);
           }
         }
@@ -997,7 +997,7 @@ export class TaskBoardView extends ItemView {
     this.renderTaskList(section, visible);
   }
 
-  private renderCompletedView(parent: HTMLElement, allTasks: SlateTask[]): void {
+  private renderCompletedView(parent: HTMLElement, allTasks: GraphiteTask[]): void {
     const completed = this.getCompletedDisplayTasks(allTasks);
 
     if (completed.length === 0) {
@@ -1005,8 +1005,8 @@ export class TaskBoardView extends ItemView {
       return;
     }
 
-    const groups = new Map<string, SlateTask[]>();
-    const noDate: SlateTask[] = [];
+    const groups = new Map<string, GraphiteTask[]>();
+    const noDate: GraphiteTask[] = [];
 
     for (const task of completed) {
       const date = task.completedDate;
@@ -1032,26 +1032,26 @@ export class TaskBoardView extends ItemView {
     }
   }
 
-  private renderActivityView(parent: HTMLElement, allTasks: SlateTask[]): void {
+  private renderActivityView(parent: HTMLElement, allTasks: GraphiteTask[]): void {
     const data = this.getActivityData(allTasks);
     const selectedDate = this.activitySelectedDate || data.defaultSelectedDate || todayIso();
     const selectedTasks = data.byDate.get(selectedDate) || [];
 
-    const activity = parent.createDiv({ cls: "slate-activity" });
+    const activity = parent.createDiv({ cls: "graphite-activity" });
 
     if (data.allTimeCount === 0) {
       activity.createDiv({
-        cls: "slate-activity-empty",
+        cls: "graphite-activity-empty",
         text: "No completed tasks yet. Complete a task and your activity will appear here."
       });
       return;
     }
 
-    const dashboard = activity.createDiv({ cls: "slate-activity-dashboard" });
-    const dashboardTop = dashboard.createDiv({ cls: "slate-activity-dashboard-top" });
-    dashboardTop.createSpan({ cls: "slate-activity-tab is-active", text: "Overview" });
+    const dashboard = activity.createDiv({ cls: "graphite-activity-dashboard" });
+    const dashboardTop = dashboard.createDiv({ cls: "graphite-activity-dashboard-top" });
+    dashboardTop.createSpan({ cls: "graphite-activity-tab is-active", text: "Overview" });
 
-    const summary = dashboard.createDiv({ cls: "slate-activity-summary" });
+    const summary = dashboard.createDiv({ cls: "graphite-activity-summary" });
     this.renderActivitySummaryCard(summary, "Today", data.todayCount);
     this.renderActivitySummaryCard(summary, "Yesterday", data.yesterdayCount);
     this.renderActivitySummaryCard(summary, "This week", data.weekCount);
@@ -1059,16 +1059,16 @@ export class TaskBoardView extends ItemView {
     this.renderActivitySummaryCard(summary, "All time", data.allTimeCount);
     this.renderActivitySummaryCard(summary, "Current streak", `${data.currentStreak}d`);
 
-    const heatmapSection = dashboard.createDiv({ cls: "slate-activity-panel" });
-    const heatmapHeader = heatmapSection.createDiv({ cls: "slate-activity-panel-header" });
+    const heatmapSection = dashboard.createDiv({ cls: "graphite-activity-panel" });
+    const heatmapHeader = heatmapSection.createDiv({ cls: "graphite-activity-panel-header" });
     heatmapHeader.createEl("h2", { text: "Completed tasks" });
     heatmapHeader.createSpan({ text: "Last 26 weeks" });
 
-    const heatmapScroller = heatmapSection.createDiv({ cls: "slate-activity-heatmap-scroll" });
-    const heatmap = heatmapScroller.createDiv({ cls: "slate-activity-heatmap" });
+    const heatmapScroller = heatmapSection.createDiv({ cls: "graphite-activity-heatmap-scroll" });
+    const heatmap = heatmapScroller.createDiv({ cls: "graphite-activity-heatmap" });
     for (const day of data.heatmapDays) {
       const cell = heatmap.createEl("button", {
-        cls: `slate-activity-day level-${day.level}`,
+        cls: `graphite-activity-day level-${day.level}`,
         attr: {
           type: "button",
           title: `${formatActivityDate(day.date)} · ${day.count} completed`,
@@ -1082,21 +1082,21 @@ export class TaskBoardView extends ItemView {
       });
     }
 
-    const feed = activity.createDiv({ cls: "slate-activity-feed" });
-    const feedHeader = feed.createDiv({ cls: "slate-activity-feed-header" });
+    const feed = activity.createDiv({ cls: "graphite-activity-feed" });
+    const feedHeader = feed.createDiv({ cls: "graphite-activity-feed-header" });
     feedHeader.createEl("h2", {
       text: formatActivityDayHeading(selectedDate, selectedTasks.length)
     });
 
     if (selectedTasks.length === 0) {
       feed.createDiv({
-        cls: "slate-empty slate-empty-small",
+        cls: "graphite-empty graphite-empty-small",
         text: "No tasks completed on this day."
       });
       return;
     }
 
-    const list = feed.createDiv({ cls: "slate-activity-list" });
+    const list = feed.createDiv({ cls: "graphite-activity-list" });
     for (const task of selectedTasks) {
       this.renderActivityFeedRow(list, task);
     }
@@ -1104,19 +1104,19 @@ export class TaskBoardView extends ItemView {
 
   private renderDailyNoteView(parent: HTMLElement): void {
     const date = this.dailyNoteDate;
-    const daily = parent.createDiv({ cls: "slate-daily-note" });
+    const daily = parent.createDiv({ cls: "graphite-daily-note" });
 
     if (!date) {
       daily.createDiv({
-        cls: "slate-empty slate-empty-small",
-        text: "Open a daily note and run the slate Daily Notes command to see completed tasks."
+        cls: "graphite-empty graphite-empty-small",
+        text: "Open a daily note and run the graphite Daily Notes command to see completed tasks."
       });
       return;
     }
 
     const tasks = this.store.getCompletedTasksForDate(date);
-    const panel = daily.createDiv({ cls: "slate-daily-note-panel" });
-    const header = panel.createDiv({ cls: "slate-daily-note-header" });
+    const panel = daily.createDiv({ cls: "graphite-daily-note-panel" });
+    const header = panel.createDiv({ cls: "graphite-daily-note-header" });
     header.createEl("h2", {
       text: formatActivityDayHeading(date, tasks.length)
     });
@@ -1126,20 +1126,20 @@ export class TaskBoardView extends ItemView {
 
     if (this.dailyNoteSourcePath) {
       panel.createDiv({
-        cls: "slate-daily-note-source",
+        cls: "graphite-daily-note-source",
         text: this.dailyNoteSourcePath
       });
     }
 
     if (tasks.length === 0) {
       panel.createDiv({
-        cls: "slate-empty slate-empty-small",
+        cls: "graphite-empty graphite-empty-small",
         text: "No tasks completed on this daily note date."
       });
       return;
     }
 
-    const list = panel.createDiv({ cls: "slate-activity-list" });
+    const list = panel.createDiv({ cls: "graphite-activity-list" });
     for (const task of tasks) {
       this.renderActivityFeedRow(list, task);
     }
@@ -1150,16 +1150,16 @@ export class TaskBoardView extends ItemView {
     label: string,
     value: number | string
   ): void {
-    const card = parent.createDiv({ cls: "slate-activity-card" });
-    card.createDiv({ cls: "slate-activity-card-count", text: String(value) });
+    const card = parent.createDiv({ cls: "graphite-activity-card" });
+    card.createDiv({ cls: "graphite-activity-card-count", text: String(value) });
     card.createDiv({
-      cls: "slate-activity-card-label",
+      cls: "graphite-activity-card-label",
       text: label
     });
   }
 
-  private renderActivityFeedRow(parent: HTMLElement, task: SlateTask): void {
-    const row = parent.createDiv({ cls: "slate-activity-row" });
+  private renderActivityFeedRow(parent: HTMLElement, task: GraphiteTask): void {
+    const row = parent.createDiv({ cls: "graphite-activity-row" });
     row.setAttr("role", "button");
     row.setAttr("tabindex", "0");
     row.addEventListener("click", (event) => {
@@ -1178,34 +1178,34 @@ export class TaskBoardView extends ItemView {
       }
     });
 
-    const title = row.createDiv({ cls: "slate-activity-row-title" });
+    const title = row.createDiv({ cls: "graphite-activity-row-title" });
     title.createSpan({ text: "You completed " });
-    renderLinkedText(task.title, title.createSpan({ cls: "slate-activity-task-title" }), {
+    renderLinkedText(task.title, title.createSpan({ cls: "graphite-activity-task-title" }), {
       app: this.app,
       sourcePath: task.sourcePath
     });
 
-    const meta = row.createDiv({ cls: "slate-activity-row-meta" });
+    const meta = row.createDiv({ cls: "graphite-activity-row-meta" });
     const project = normalizeTaskProject(task.project);
     if (project) {
       const projectColor = getProjectColor(project, this.settings.projectColors);
-      const projectChip = meta.createSpan({ cls: "slate-activity-project-chip" });
+      const projectChip = meta.createSpan({ cls: "graphite-activity-project-chip" });
       projectChip.setCssStyles({ backgroundColor: projectColor.light });
       projectChip
-        .createSpan({ cls: "slate-project-dot" })
+        .createSpan({ cls: "graphite-project-dot" })
         .setCssStyles({ backgroundColor: projectColor.regular });
       projectChip.createSpan({ text: project });
     }
 
     if (hasVisiblePriority(task.priority)) {
       meta.createSpan({
-        cls: `slate-activity-priority ${getPriorityClass(task.priority)}`,
+        cls: `graphite-activity-priority ${getPriorityClass(task.priority)}`,
         text: getPriorityDisplayLabel(task.priority)
       });
     }
 
     for (const label of task.labels) {
-      const chip = meta.createSpan({ cls: "slate-activity-label", text: displayLabel(label) });
+      const chip = meta.createSpan({ cls: "graphite-activity-label", text: displayLabel(label) });
       const labelColor = getLabelColor(label, this.settings.labelColors);
       chip.setCssStyles({
         borderColor: labelColor.light,
@@ -1218,7 +1218,7 @@ export class TaskBoardView extends ItemView {
     }
   }
 
-  private getActivityData(allTasks: SlateTask[]): ActivityData {
+  private getActivityData(allTasks: GraphiteTask[]): ActivityData {
     const signature = getActivityDataSignature(allTasks);
     if (this.activityCache?.signature === signature) {
       return this.activityCache.data;
@@ -1229,7 +1229,7 @@ export class TaskBoardView extends ItemView {
     return data;
   }
 
-  private renderFiltersAndLabels(parent: HTMLElement, allTasks: SlateTask[]): void {
+  private renderFiltersAndLabels(parent: HTMLElement, allTasks: GraphiteTask[]): void {
     if (this.activeFilter) {
       const definition = this.getFilterDefinitions(allTasks).find(
         (filter) => filter.id === this.activeFilter
@@ -1252,9 +1252,9 @@ export class TaskBoardView extends ItemView {
       return;
     }
 
-    const filtersSection = parent.createDiv({ cls: "slate-filter-section" });
+    const filtersSection = parent.createDiv({ cls: "graphite-filter-section" });
     filtersSection.createEl("h2", { text: "My Filters" });
-    const filterList = filtersSection.createDiv({ cls: "slate-filter-list" });
+    const filterList = filtersSection.createDiv({ cls: "graphite-filter-list" });
     for (const filter of this.getFilterDefinitions(allTasks)) {
       this.renderFilterRow(filterList, filter.name, filter.count, filter.icon, () => {
         this.activeFilter = filter.id;
@@ -1263,22 +1263,22 @@ export class TaskBoardView extends ItemView {
       });
     }
 
-    const labelsSection = parent.createDiv({ cls: "slate-filter-section" });
-    const labelsHeader = labelsSection.createDiv({ cls: "slate-labels-header" });
+    const labelsSection = parent.createDiv({ cls: "graphite-filter-section" });
+    const labelsHeader = labelsSection.createDiv({ cls: "graphite-labels-header" });
     labelsHeader.createEl("h2", { text: "Labels" });
     const labelAddButton = labelsHeader.createEl("button", {
-      cls: "slate-label-add",
+      cls: "graphite-label-add",
       attr: { type: "button", "aria-label": "Create label" }
     });
-    createSlateIcon(labelAddButton, "add");
+    createGraphiteIcon(labelAddButton, "add");
     labelAddButton.addEventListener("click", () => {
       this.createLabelFromPrompt();
     });
 
-    const labelList = labelsSection.createDiv({ cls: "slate-filter-list" });
+    const labelList = labelsSection.createDiv({ cls: "graphite-filter-list" });
     const labels = this.getAllLabels();
     if (labels.length === 0) {
-      labelList.createDiv({ cls: "slate-empty slate-empty-small", text: "No labels yet." });
+      labelList.createDiv({ cls: "graphite-empty graphite-empty-small", text: "No labels yet." });
       return;
     }
 
@@ -1290,7 +1290,7 @@ export class TaskBoardView extends ItemView {
 
   private renderBackToFilters(parent: HTMLElement): void {
     parent
-      .createEl("button", { cls: "slate-back-button", text: "Back to Filters & Labels" })
+      .createEl("button", { cls: "graphite-back-button", text: "Back to Filters & Labels" })
       .addEventListener("click", () => {
         this.activeFilter = null;
         this.activeLabel = null;
@@ -1306,31 +1306,31 @@ export class TaskBoardView extends ItemView {
     onClick: () => void,
     color?: string
   ): void {
-    const row = parent.createEl("button", { cls: "slate-filter-row", attr: { type: "button" } });
-    row.toggleClass("slate-label-row", Boolean(color));
-    const dot = row.createSpan({ cls: "slate-filter-dot" });
+    const row = parent.createEl("button", { cls: "graphite-filter-row", attr: { type: "button" } });
+    row.toggleClass("graphite-label-row", Boolean(color));
+    const dot = row.createSpan({ cls: "graphite-filter-dot" });
     if (color) {
-      dot.addClass("slate-label-dot");
+      dot.addClass("graphite-label-dot");
       dot.setCssStyles({ backgroundColor: color });
     } else if (icon) {
-      createSlateIcon(dot, icon);
+      createGraphiteIcon(dot, icon);
     }
-    row.createSpan({ cls: "slate-filter-name", text: name });
-    row.createSpan({ cls: "slate-row-count", text: String(count) });
+    row.createSpan({ cls: "graphite-filter-name", text: name });
+    row.createSpan({ cls: "graphite-row-count", text: String(count) });
     row.addEventListener("click", onClick);
   }
 
   private renderLabelRow(parent: HTMLElement, label: string, count: number): void {
     const color = getLabelColor(label, this.settings.labelColors).regular;
-    const row = parent.createDiv({ cls: "slate-filter-row slate-label-row slate-filter-row-with-actions" });
+    const row = parent.createDiv({ cls: "graphite-filter-row graphite-label-row graphite-filter-row-with-actions" });
     const main = row.createEl("button", {
-      cls: "slate-filter-row-main",
+      cls: "graphite-filter-row-main",
       attr: { type: "button" }
     });
-    const dot = main.createSpan({ cls: "slate-filter-dot slate-label-dot" });
+    const dot = main.createSpan({ cls: "graphite-filter-dot graphite-label-dot" });
     dot.setCssStyles({ backgroundColor: color });
-    main.createSpan({ cls: "slate-filter-name", text: displayLabel(label) });
-    main.createSpan({ cls: "slate-row-count", text: String(count) });
+    main.createSpan({ cls: "graphite-filter-name", text: displayLabel(label) });
+    main.createSpan({ cls: "graphite-row-count", text: String(count) });
     main.addEventListener("click", () => {
       this.activeLabel = label;
       this.activeFilter = null;
@@ -1343,10 +1343,10 @@ export class TaskBoardView extends ItemView {
 
   private renderLabelActionsButton(parent: HTMLElement, label: string, taskCount: number): void {
     const button = parent.createEl("button", {
-      cls: "slate-label-actions-button",
+      cls: "graphite-label-actions-button",
       attr: { type: "button", "aria-label": `Actions for ${displayLabel(label)}` }
     });
-    createSlateIcon(button, "more");
+    createGraphiteIcon(button, "more");
 
     button.addEventListener("click", (event) => {
       event.preventDefault();
@@ -1370,12 +1370,12 @@ export class TaskBoardView extends ItemView {
     const ownerDocument = button.ownerDocument;
     const ownerWindow = ownerDocument.defaultView || window;
 
-    const menu = ownerDocument.body.createDiv({ cls: "slate-project-menu slate-label-menu" });
+    const menu = ownerDocument.body.createDiv({ cls: "graphite-project-menu graphite-label-menu" });
     this.labelMenuEl = menu;
     menu.setCssStyles({ visibility: "hidden" });
 
     const renameItem = menu.createEl("button", {
-      cls: "slate-project-option slate-label-option",
+      cls: "graphite-project-option graphite-label-option",
       text: "Rename label",
       attr: { type: "button" }
     });
@@ -1388,7 +1388,7 @@ export class TaskBoardView extends ItemView {
     });
 
     const deleteItem = menu.createEl("button", {
-      cls: "slate-project-option slate-label-option is-destructive",
+      cls: "graphite-project-option graphite-label-option is-destructive",
       text: "Delete label",
       attr: { type: "button" }
     });
@@ -1440,10 +1440,10 @@ export class TaskBoardView extends ItemView {
     count: number,
     renderHeaderAction?: (header: HTMLElement) => void
   ): HTMLElement {
-    const section = parent.createDiv({ cls: "slate-section" });
-    const header = section.createDiv({ cls: "slate-section-header" });
+    const section = parent.createDiv({ cls: "graphite-section" });
+    const header = section.createDiv({ cls: "graphite-section-header" });
     header.createEl("h2", { text: title });
-    header.createSpan({ cls: "slate-section-count", text: String(count) });
+    header.createSpan({ cls: "graphite-section-count", text: String(count) });
     renderHeaderAction?.(header);
     return section;
   }
@@ -1533,7 +1533,7 @@ export class TaskBoardView extends ItemView {
     }
   }
 
-  private renderArchivedProjectsView(parent: HTMLElement, allTasks: SlateTask[]): void {
+  private renderArchivedProjectsView(parent: HTMLElement, allTasks: GraphiteTask[]): void {
     const archivedProjects = this.settings.archivedProjects;
 
     if (archivedProjects.length === 0) {
@@ -1546,10 +1546,10 @@ export class TaskBoardView extends ItemView {
         (task) => normalizeTaskProject(task.project) === project
       );
       const section = this.createSection(parent, project, projectTasks.length, (header) => {
-        const badge = header.createSpan({ cls: "slate-archived-badge", text: "Archived" });
+        const badge = header.createSpan({ cls: "graphite-archived-badge", text: "Archived" });
         badge.setCssStyles({ marginLeft: "auto" });
         const restoreBtn = header.createEl("button", {
-          cls: "slate-button slate-restore-button",
+          cls: "graphite-button graphite-restore-button",
           text: "Restore",
           attr: { type: "button" }
         });
@@ -1564,9 +1564,9 @@ export class TaskBoardView extends ItemView {
   }
 
   private renderOverdueRangeSelect(parent: HTMLElement): void {
-    const overdueDropdown = new SlateDropdown({
+    const overdueDropdown = new GraphiteDropdown({
       triggerParent: parent,
-      triggerClassName: "slate-overdue-range-trigger",
+      triggerClassName: "graphite-overdue-range-trigger",
       ariaLabel: "Overdue range",
       getOptions: () =>
         OVERDUE_RANGES.map((range) => ({ value: range, label: overdueRangeLabel(range) })),
@@ -1583,7 +1583,7 @@ export class TaskBoardView extends ItemView {
   }
 
   private enableTodayDrop(section: HTMLElement): void {
-    section.addClass("slate-drop-zone");
+    section.addClass("graphite-drop-zone");
     section.addEventListener("dragover", (event) => {
       const task = this.getDraggedTask(event);
       if (!task || task.completed || isToday(task.due) || !isBeforeToday(task.due)) {
@@ -1620,7 +1620,7 @@ export class TaskBoardView extends ItemView {
   }
 
   private enableProjectDrop(button: HTMLElement, project: string): void {
-    button.addClass("slate-project-drop-zone");
+    button.addClass("graphite-project-drop-zone");
     button.dataset.project = project;
     button.addEventListener("dragover", (event) => {
       const task = this.getDraggedTask(event);
@@ -1658,7 +1658,7 @@ export class TaskBoardView extends ItemView {
   }
 
   private enableDueDateDrop(section: HTMLElement, due: string): void {
-    section.addClass("slate-date-drop-zone");
+    section.addClass("graphite-date-drop-zone");
     section.dataset.due = due;
     section.addEventListener("dragover", (event) => {
       const task = this.getDraggedTask(event);
@@ -1704,10 +1704,10 @@ export class TaskBoardView extends ItemView {
       });
   }
 
-  private showDropTargets(task: SlateTask): void {
+  private showDropTargets(task: GraphiteTask): void {
     this.clearDropTargets();
     for (const projectTarget of Array.from(
-      this.containerEl.querySelectorAll<HTMLElement>(".slate-project-drop-zone")
+      this.containerEl.querySelectorAll<HTMLElement>(".graphite-project-drop-zone")
     )) {
       if (normalizeTaskProject(task.project) !== projectTarget.dataset.project) {
         projectTarget.addClass("is-drop-available");
@@ -1716,12 +1716,12 @@ export class TaskBoardView extends ItemView {
 
     if (!task.completed && !isToday(task.due) && isBeforeToday(task.due)) {
       this.containerEl
-        .querySelector<HTMLElement>(".slate-drop-zone")
+        .querySelector<HTMLElement>(".graphite-drop-zone")
         ?.addClass("is-drop-available");
     }
 
     for (const dateTarget of Array.from(
-      this.containerEl.querySelectorAll<HTMLElement>(".slate-date-drop-zone")
+      this.containerEl.querySelectorAll<HTMLElement>(".graphite-date-drop-zone")
     )) {
       if (task.due !== dateTarget.dataset.due) {
         dateTarget.addClass("is-drop-available");
@@ -1731,7 +1731,7 @@ export class TaskBoardView extends ItemView {
 
   private createDragImage(row: HTMLElement): HTMLElement {
     const dragImage = row.cloneNode(true) as HTMLElement;
-    dragImage.addClass("slate-drag-preview");
+    dragImage.addClass("graphite-drag-preview");
     dragImage.setCssStyles({
       position: "absolute",
       top: "-9999px",
@@ -1742,10 +1742,10 @@ export class TaskBoardView extends ItemView {
     return dragImage;
   }
 
-  private getDraggedTask(event: DragEvent): SlateTask | undefined {
+  private getDraggedTask(event: DragEvent): GraphiteTask | undefined {
     const taskId =
       this.draggedTaskId ||
-      event.dataTransfer?.getData("application/x-slate-task-id") ||
+      event.dataTransfer?.getData("application/x-graphite-task-id") ||
       event.dataTransfer?.getData("text/plain");
     if (!taskId) {
       return undefined;
@@ -1754,7 +1754,7 @@ export class TaskBoardView extends ItemView {
     return this.store.getTasks().find((task) => task.id === taskId);
   }
 
-  private hasDragTarget(task: SlateTask): boolean {
+  private hasDragTarget(task: GraphiteTask): boolean {
     if (task.completed) {
       return false;
     }
@@ -1771,19 +1771,19 @@ export class TaskBoardView extends ItemView {
   }
 
   private renderEmptySection(parent: HTMLElement, text: string): void {
-    const section = parent.createDiv({ cls: "slate-section" });
-    section.createDiv({ cls: "slate-empty", text });
+    const section = parent.createDiv({ cls: "graphite-section" });
+    section.createDiv({ cls: "graphite-empty", text });
   }
 
-  private renderTaskList(parent: HTMLElement, tasks: SlateTask[]): void {
-    const list = parent.createDiv({ cls: "slate-task-list" });
+  private renderTaskList(parent: HTMLElement, tasks: GraphiteTask[]): void {
+    const list = parent.createDiv({ cls: "graphite-task-list" });
 
     if (tasks.length === 0) {
-      list.createDiv({ cls: "slate-empty slate-empty-small", text: "Nothing here." });
+      list.createDiv({ cls: "graphite-empty graphite-empty-small", text: "Nothing here." });
       return;
     }
 
-    const subTasksByParent = new Map<string, SlateTask[]>();
+    const subTasksByParent = new Map<string, GraphiteTask[]>();
     for (const task of this.store.getTasks()) {
       if (!task.parentId) continue;
       const subTasks = subTasksByParent.get(task.parentId) || [];
@@ -1797,8 +1797,8 @@ export class TaskBoardView extends ItemView {
     }
   }
 
-  private renderTaskItem(parent: HTMLElement, task: SlateTask, subTasks: SlateTask[]): void {
-    const item = parent.createDiv({ cls: "slate-task-item" });
+  private renderTaskItem(parent: HTMLElement, task: GraphiteTask, subTasks: GraphiteTask[]): void {
+    const item = parent.createDiv({ cls: "graphite-task-item" });
     item.toggleClass("has-subtasks", subTasks.length > 0);
     item.toggleClass("is-subtasks-expanded", this.expandedSubtaskPreviewIds.has(task.id));
     this.renderTaskRow(item, task, subTasks);
@@ -1808,8 +1808,8 @@ export class TaskBoardView extends ItemView {
     }
   }
 
-  private renderTaskRow(parent: HTMLElement, task: SlateTask, subTasks: SlateTask[] = []): void {
-    const row = parent.createDiv({ cls: "slate-task-row" });
+  private renderTaskRow(parent: HTMLElement, task: GraphiteTask, subTasks: GraphiteTask[] = []): void {
+    const row = parent.createDiv({ cls: "graphite-task-row" });
     row.dataset.taskId = task.id;
     row.toggleClass("is-completed", task.completed);
     row.toggleClass("is-highlighted", this.highlightedTaskId === task.id);
@@ -1822,13 +1822,13 @@ export class TaskBoardView extends ItemView {
     });
 
     const dragHandle = row.createEl("button", {
-      cls: "slate-task-drag-handle",
+      cls: "graphite-task-drag-handle",
       attr: {
         type: "button",
         "aria-label": `Drag ${task.title}`
       }
     });
-    createSlateIcon(dragHandle, "dragHandle");
+    createGraphiteIcon(dragHandle, "dragHandle");
     if (task.completed || !this.hasDragTarget(task)) {
       dragHandle.addClass("is-disabled");
       dragHandle.setAttr("disabled", "true");
@@ -1843,7 +1843,7 @@ export class TaskBoardView extends ItemView {
         this.draggedTaskId = task.id;
         const dragImage = this.createDragImage(row);
         row.addClass("is-dragging");
-        event.dataTransfer?.setData("application/x-slate-task-id", task.id);
+        event.dataTransfer?.setData("application/x-graphite-task-id", task.id);
         event.dataTransfer?.setData("text/plain", task.id);
         if (event.dataTransfer) {
           event.dataTransfer.effectAllowed = "move";
@@ -1860,7 +1860,7 @@ export class TaskBoardView extends ItemView {
     }
 
     const checkbox = row.createEl("button", {
-      cls: `slate-task-checkbox ${getPriorityClass(task.priority)}`,
+      cls: `graphite-task-checkbox ${getPriorityClass(task.priority)}`,
       attr: {
         type: "button",
         "aria-label": task.completed ? "Mark task incomplete" : "Complete task"
@@ -1868,8 +1868,8 @@ export class TaskBoardView extends ItemView {
     });
     const checkboxPriorityColor = getPriorityColor(task.priority);
     checkbox.setCssProps({
-      "--slate-priority-text": checkboxPriorityColor.color,
-      "--slate-priority-bg": checkboxPriorityColor.light
+      "--graphite-priority-text": checkboxPriorityColor.color,
+      "--graphite-priority-bg": checkboxPriorityColor.light
     });
     checkbox.toggleClass("is-checked", task.completed);
     checkbox.addEventListener("click", (event) => {
@@ -1877,8 +1877,8 @@ export class TaskBoardView extends ItemView {
       void this.store.toggleComplete(task.id);
     });
 
-    const content = row.createDiv({ cls: "slate-task-content" });
-    renderLinkedText(task.title, content.createDiv({ cls: "slate-task-title" }), {
+    const content = row.createDiv({ cls: "graphite-task-content" });
+    renderLinkedText(task.title, content.createDiv({ cls: "graphite-task-title" }), {
       app: this.app,
       sourcePath: task.sourcePath
     });
@@ -1886,7 +1886,7 @@ export class TaskBoardView extends ItemView {
     if (task.description) {
       renderLinkedText(
         markdownPreviewText(task.description),
-        content.createDiv({ cls: "slate-task-description" }),
+        content.createDiv({ cls: "graphite-task-description" }),
         {
           app: this.app,
           sourcePath: task.sourcePath
@@ -1894,25 +1894,25 @@ export class TaskBoardView extends ItemView {
       );
     }
 
-    const meta = content.createDiv({ cls: "slate-task-meta" });
+    const meta = content.createDiv({ cls: "graphite-task-meta" });
     if (task.due) {
       const dateSpan = meta.createSpan({
-        cls: `slate-task-date${isBeforeToday(task.due) ? " is-overdue" : ""}`,
+        cls: `graphite-task-date${isBeforeToday(task.due) ? " is-overdue" : ""}`,
         text: formatDueChip(task.due)
       });
       if (task.repeat) {
-        createSlateIcon(dateSpan, "recurring", { className: "slate-task-repeat-icon" });
+        createGraphiteIcon(dateSpan, "recurring", { className: "graphite-task-repeat-icon" });
       }
     }
     if (task.deadline) {
       meta.createSpan({
-        cls: `slate-task-deadline${isBeforeToday(task.deadline) ? " is-overdue" : ""}`,
+        cls: `graphite-task-deadline${isBeforeToday(task.deadline) ? " is-overdue" : ""}`,
         text: `Deadline ${formatShortDate(task.deadline)}`
       });
     }
     if (task.labels.length > 0) {
       for (const label of task.labels) {
-        const chip = meta.createSpan({ cls: "slate-task-label", text: displayLabel(label) });
+        const chip = meta.createSpan({ cls: "graphite-task-label", text: displayLabel(label) });
         const labelColor = getLabelColor(label, this.settings.labelColors);
         chip.setCssStyles({
           borderColor: labelColor.light,
@@ -1929,15 +1929,15 @@ export class TaskBoardView extends ItemView {
       }
     }
     if (task.attachments.length > 0) {
-      const attachmentEl = meta.createSpan({ cls: "slate-task-attachments" });
-      createSlateIcon(attachmentEl, "attachment", { className: "slate-chip-icon" });
+      const attachmentEl = meta.createSpan({ cls: "graphite-task-attachments" });
+      createGraphiteIcon(attachmentEl, "attachment", { className: "graphite-chip-icon" });
       attachmentEl.createSpan({ text: String(task.attachments.length) });
     }
     if (subTasks.length > 0) {
       const isExpanded = this.expandedSubtaskPreviewIds.has(task.id);
       const done = subTasks.filter((t) => t.completed).length;
       const counterEl = meta.createEl("button", {
-        cls: "slate-task-subtask-counter",
+        cls: "graphite-task-subtask-counter",
         attr: {
           type: "button",
           "aria-label": isExpanded ? "Collapse sub-tasks" : "Expand sub-tasks",
@@ -1945,7 +1945,7 @@ export class TaskBoardView extends ItemView {
         }
       });
       counterEl.toggleClass("is-expanded", isExpanded);
-      createSlateIcon(counterEl, "subtasks", { className: "slate-chip-icon" });
+      createGraphiteIcon(counterEl, "subtasks", { className: "graphite-chip-icon" });
       counterEl.createSpan({ text: `${done}/${subTasks.length}` });
       counterEl.addEventListener("click", (event) => {
         event.preventDefault();
@@ -1956,31 +1956,31 @@ export class TaskBoardView extends ItemView {
 
     if (!task.completed && task.completedOccurrences && task.completedOccurrences.length > 0) {
       const last = task.completedOccurrences[task.completedOccurrences.length - 1];
-      const lastSpan = meta.createSpan({ cls: "slate-task-last-completed" });
-      createSlateIcon(lastSpan, "completed", { className: "slate-chip-icon" });
+      const lastSpan = meta.createSpan({ cls: "graphite-task-last-completed" });
+      createGraphiteIcon(lastSpan, "completed", { className: "graphite-chip-icon" });
       lastSpan.createSpan({ text: formatDueChip(last) });
     }
 
     const project = normalizeTaskProject(task.project);
     if (project) {
       const projectColor = getProjectColor(project, this.settings.projectColors);
-      const projectChip = row.createDiv({ cls: "slate-task-project" });
+      const projectChip = row.createDiv({ cls: "graphite-task-project" });
       projectChip.setCssStyles({ backgroundColor: projectColor.light });
       projectChip
-        .createSpan({ cls: "slate-project-dot" })
+        .createSpan({ cls: "graphite-project-dot" })
         .setCssStyles({ backgroundColor: projectColor.regular });
       projectChip.createSpan({ text: project });
     }
 
-    const actions = row.createDiv({ cls: "slate-task-actions" });
+    const actions = row.createDiv({ cls: "graphite-task-actions" });
     const actionButton = actions.createEl("button", {
-      cls: "slate-task-actions-button",
+      cls: "graphite-task-actions-button",
       attr: {
         type: "button",
         "aria-label": "Task actions"
       }
     });
-    createSlateIcon(actionButton, "more");
+    createGraphiteIcon(actionButton, "more");
     actionButton.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -1995,13 +1995,13 @@ export class TaskBoardView extends ItemView {
     });
 
     const deleteButton = actions.createEl("button", {
-      cls: "slate-task-delete",
+      cls: "graphite-task-delete",
       attr: {
         type: "button",
         "aria-label": "Delete task"
       }
     });
-    createSlateIcon(deleteButton, "delete");
+    createGraphiteIcon(deleteButton, "delete");
     deleteButton.addEventListener("click", (event) => {
       event.stopPropagation();
       new ConfirmModal(this.app, {
@@ -2013,7 +2013,7 @@ export class TaskBoardView extends ItemView {
     });
   }
 
-  private toggleSubtaskPreview(taskId: string, item?: HTMLElement, subTasks?: SlateTask[]): void {
+  private toggleSubtaskPreview(taskId: string, item?: HTMLElement, subTasks?: GraphiteTask[]): void {
     const willExpand = !this.expandedSubtaskPreviewIds.has(taskId);
     if (willExpand) {
       this.expandedSubtaskPreviewIds.add(taskId);
@@ -2023,17 +2023,17 @@ export class TaskBoardView extends ItemView {
 
     if (item && subTasks) {
       item.toggleClass("is-subtasks-expanded", willExpand);
-      item.querySelector(":scope > .slate-task-subtask-preview")?.remove();
+      item.querySelector(":scope > .graphite-task-subtask-preview")?.remove();
 
-      const expandButton = item.querySelector<HTMLElement>(".slate-task-expand-toggle");
+      const expandButton = item.querySelector<HTMLElement>(".graphite-task-expand-toggle");
       if (expandButton) {
         expandButton.empty();
         expandButton.setAttr("aria-label", willExpand ? "Collapse sub-tasks" : "Expand sub-tasks");
         expandButton.setAttr("aria-expanded", String(willExpand));
-        createSlateIcon(expandButton, willExpand ? "expand" : "collapse");
+        createGraphiteIcon(expandButton, willExpand ? "expand" : "collapse");
       }
 
-      const counterEl = item.querySelector<HTMLElement>(".slate-task-subtask-counter");
+      const counterEl = item.querySelector<HTMLElement>(".graphite-task-subtask-counter");
       if (counterEl) {
         counterEl.toggleClass("is-expanded", willExpand);
         counterEl.setAttr("aria-label", willExpand ? "Collapse sub-tasks" : "Expand sub-tasks");
@@ -2049,11 +2049,11 @@ export class TaskBoardView extends ItemView {
     this.renderPreservingMainScroll();
   }
 
-  private renderSubtaskPreview(parent: HTMLElement, subTasks: SlateTask[]): void {
-    const preview = parent.createDiv({ cls: "slate-task-subtask-preview" });
+  private renderSubtaskPreview(parent: HTMLElement, subTasks: GraphiteTask[]): void {
+    const preview = parent.createDiv({ cls: "graphite-task-subtask-preview" });
 
     for (const subTask of subTasks) {
-      const row = preview.createDiv({ cls: "slate-task-subtask-preview-row" });
+      const row = preview.createDiv({ cls: "graphite-task-subtask-preview-row" });
       row.dataset.taskId = subTask.id;
       row.toggleClass("is-completed", subTask.completed);
       row.addEventListener("click", (event) => {
@@ -2065,7 +2065,7 @@ export class TaskBoardView extends ItemView {
       });
 
       const checkbox = row.createEl("button", {
-        cls: `slate-task-checkbox slate-subtask-preview-checkbox ${getPriorityClass(subTask.priority)}`,
+        cls: `graphite-task-checkbox graphite-subtask-preview-checkbox ${getPriorityClass(subTask.priority)}`,
         attr: {
           type: "button",
           "aria-label": subTask.completed ? "Mark sub-task incomplete" : "Complete sub-task"
@@ -2073,8 +2073,8 @@ export class TaskBoardView extends ItemView {
       });
       const checkboxPriorityColor = getPriorityColor(subTask.priority);
       checkbox.setCssProps({
-        "--slate-priority-text": checkboxPriorityColor.color,
-        "--slate-priority-bg": checkboxPriorityColor.light
+        "--graphite-priority-text": checkboxPriorityColor.color,
+        "--graphite-priority-bg": checkboxPriorityColor.light
       });
       checkbox.toggleClass("is-checked", subTask.completed);
       checkbox.addEventListener("click", (event) => {
@@ -2086,28 +2086,28 @@ export class TaskBoardView extends ItemView {
         this.updateSubtaskPreviewCounter(parent);
         this.suppressNextStoreRender = true;
         void this.store.toggleComplete(subTask.id).catch((error) => {
-          console.error("[slate] Failed to toggle sub-task completion.", error);
+          console.error("[graphite] Failed to toggle sub-task completion.", error);
           this.suppressNextStoreRender = false;
           this.renderPreservingMainScroll();
         });
       });
 
-      const content = row.createDiv({ cls: "slate-subtask-preview-content" });
-      renderLinkedText(subTask.title, content.createDiv({ cls: "slate-subtask-preview-title" }), {
+      const content = row.createDiv({ cls: "graphite-subtask-preview-content" });
+      renderLinkedText(subTask.title, content.createDiv({ cls: "graphite-subtask-preview-title" }), {
         app: this.app,
         sourcePath: subTask.sourcePath
       });
 
-      const meta = content.createDiv({ cls: "slate-subtask-preview-meta" });
+      const meta = content.createDiv({ cls: "graphite-subtask-preview-meta" });
       if (subTask.due) {
         meta.createSpan({
-          cls: `slate-task-date${isBeforeToday(subTask.due) ? " is-overdue" : ""}`,
+          cls: `graphite-task-date${isBeforeToday(subTask.due) ? " is-overdue" : ""}`,
           text: formatDueChip(subTask.due)
         });
       }
       if (subTask.labels.length > 0) {
         for (const label of subTask.labels.slice(0, 3)) {
-          const chip = meta.createSpan({ cls: "slate-task-label", text: displayLabel(label) });
+          const chip = meta.createSpan({ cls: "graphite-task-label", text: displayLabel(label) });
           const labelColor = getLabelColor(label, this.settings.labelColors);
           chip.setCssStyles({
             borderColor: labelColor.light,
@@ -2119,19 +2119,19 @@ export class TaskBoardView extends ItemView {
   }
 
   private updateSubtaskPreviewCounter(item: HTMLElement): void {
-    const counterEl = item.querySelector<HTMLElement>(".slate-task-subtask-counter");
+    const counterEl = item.querySelector<HTMLElement>(".graphite-task-subtask-counter");
     if (!counterEl) return;
 
-    const total = item.querySelectorAll(".slate-task-subtask-preview-row").length;
-    const done = item.querySelectorAll(".slate-task-subtask-preview-row.is-completed").length;
+    const total = item.querySelectorAll(".graphite-task-subtask-preview-row").length;
+    const done = item.querySelectorAll(".graphite-task-subtask-preview-row.is-completed").length;
     const textEl = counterEl.querySelector<HTMLElement>("span:last-child");
     if (textEl) {
       textEl.textContent = `${done}/${total}`;
     }
   }
 
-  private renderTaskActionMenu(task: SlateTask, trigger: HTMLElement): HTMLElement {
-    const menu = this.containerEl.createDiv({ cls: "slate-task-action-menu" });
+  private renderTaskActionMenu(task: GraphiteTask, trigger: HTMLElement): HTMLElement {
+    const menu = this.containerEl.createDiv({ cls: "graphite-task-action-menu" });
     menu.addEventListener("click", (event) => event.stopPropagation());
 
     if (!task.completed && task.due !== todayIso()) {
@@ -2148,10 +2148,10 @@ export class TaskBoardView extends ItemView {
     }
 
     if (!task.completed) {
-      const pickDateItem = menu.createEl("label", { cls: "slate-task-action-menu-item" });
+      const pickDateItem = menu.createEl("label", { cls: "graphite-task-action-menu-item" });
       pickDateItem.createSpan({ text: "Pick date" });
       const dateInput = pickDateItem.createEl("input", {
-        cls: "slate-task-action-date-input",
+        cls: "graphite-task-action-date-input",
         attr: {
           type: "date",
           value: task.due || todayIso(),
@@ -2215,7 +2215,7 @@ export class TaskBoardView extends ItemView {
   ): void {
     parent
       .createEl("button", {
-        cls: "slate-task-action-menu-item",
+        cls: "graphite-task-action-menu-item",
         text: label,
         attr: { type: "button" }
       })
@@ -2226,7 +2226,7 @@ export class TaskBoardView extends ItemView {
       });
   }
 
-  private moveTaskDue(task: SlateTask, due: string | undefined): void {
+  private moveTaskDue(task: GraphiteTask, due: string | undefined): void {
     if (task.completed || task.due === due) {
       this.removeTaskActionMenu();
       return;
@@ -2236,7 +2236,7 @@ export class TaskBoardView extends ItemView {
     void this.store.updateTask(task.id, { due });
   }
 
-  private openTaskDetail(task: SlateTask): void {
+  private openTaskDetail(task: GraphiteTask): void {
     new TaskDetailModal(this.app, {
       task,
       projects: this.getActiveProjects(),
@@ -2251,7 +2251,7 @@ export class TaskBoardView extends ItemView {
     }).open();
   }
 
-  private getVisibleTasks(tasks: SlateTask[]): SlateTask[] {
+  private getVisibleTasks(tasks: GraphiteTask[]): GraphiteTask[] {
     const active = this.getActiveTopLevelTasks(tasks);
 
     if (this.mode === "inbox") {
@@ -2322,17 +2322,17 @@ export class TaskBoardView extends ItemView {
     return this.sortTasks(active);
   }
 
-  private getInboxTasks(tasks: SlateTask[]): SlateTask[] {
+  private getInboxTasks(tasks: GraphiteTask[]): GraphiteTask[] {
     return this.sortTasks(
       tasks.filter((task) => !normalizeTaskProject(task.project))
     );
   }
 
-  private getActiveTopLevelTasks(tasks: SlateTask[]): SlateTask[] {
+  private getActiveTopLevelTasks(tasks: GraphiteTask[]): GraphiteTask[] {
     return this.getActiveFilterTasks(tasks).filter((task) => !task.parentId);
   }
 
-  private getActiveFilterTasks(tasks: SlateTask[]): SlateTask[] {
+  private getActiveFilterTasks(tasks: GraphiteTask[]): GraphiteTask[] {
     const archivedSet = new Set(this.settings.archivedProjects);
     return tasks.filter((task) =>
       !task.completed &&
@@ -2340,7 +2340,7 @@ export class TaskBoardView extends ItemView {
     );
   }
 
-  private getCompletedDisplayTasks(tasks: SlateTask[]): SlateTask[] {
+  private getCompletedDisplayTasks(tasks: GraphiteTask[]): GraphiteTask[] {
     const archivedSet = new Set(this.settings.archivedProjects);
     return this.sortTasks(tasks.filter((task) =>
       task.completed &&
@@ -2348,7 +2348,7 @@ export class TaskBoardView extends ItemView {
     ));
   }
 
-  private getTodayTasks(tasks: SlateTask[]): SlateTask[] {
+  private getTodayTasks(tasks: GraphiteTask[]): GraphiteTask[] {
     const today = todayIso();
     return [
       ...tasks.filter((task) => task.due === today),
@@ -2363,11 +2363,11 @@ export class TaskBoardView extends ItemView {
       });
   }
 
-  private getOverdueTasks(tasks: SlateTask[]): SlateTask[] {
+  private getOverdueTasks(tasks: GraphiteTask[]): GraphiteTask[] {
     return tasks.filter((task) => this.isInSelectedOverdueRange(task));
   }
 
-  private isInSelectedOverdueRange(task: SlateTask): boolean {
+  private isInSelectedOverdueRange(task: GraphiteTask): boolean {
     if (task.completed || !task.due || task.due >= todayIso()) {
       return false;
     }
@@ -2387,7 +2387,7 @@ export class TaskBoardView extends ItemView {
     return task.due < addDaysIso(-30);
   }
 
-  private getUpcomingTasks(tasks: SlateTask[]): SlateTask[] {
+  private getUpcomingTasks(tasks: GraphiteTask[]): GraphiteTask[] {
     return tasks
       .filter((task) => isAfterToday(task.due))
       .sort((a, b) => {
@@ -2409,11 +2409,11 @@ export class TaskBoardView extends ItemView {
     )].sort(compareIsoDates);
   }
 
-  private sortTasks(tasks: SlateTask[]): SlateTask[] {
+  private sortTasks(tasks: GraphiteTask[]): GraphiteTask[] {
     return [...tasks].sort((a, b) => this.compareTasks(a, b));
   }
 
-  private compareTasks(a: SlateTask, b: SlateTask): number {
+  private compareTasks(a: GraphiteTask, b: GraphiteTask): number {
     return compareTasksByMode(a, b, this.settings.sortMode);
   }
 
@@ -2457,11 +2457,11 @@ export class TaskBoardView extends ItemView {
     return "Search";
   }
 
-  private getFilterDefinitions(tasks: SlateTask[]): Array<{
+  private getFilterDefinitions(tasks: GraphiteTask[]): Array<{
     id: string;
     name: string;
     icon: string;
-    tasks: SlateTask[];
+    tasks: GraphiteTask[];
     count: number;
   }> {
     const active = this.getActiveFilterTasks(tasks);
@@ -2538,10 +2538,10 @@ export class TaskBoardView extends ItemView {
   }
 
   private renderSearchOverlay(parent: HTMLElement): void {
-    const backdrop = parent.createDiv({ cls: "slate-search-backdrop" });
-    const modal = backdrop.createDiv({ cls: "slate-search-modal" });
+    const backdrop = parent.createDiv({ cls: "graphite-search-backdrop" });
+    const modal = backdrop.createDiv({ cls: "graphite-search-modal" });
     const input = modal.createEl("input", {
-      cls: "slate-search-input",
+      cls: "graphite-search-input",
       attr: {
         type: "search",
         placeholder: "Search tasks...",
@@ -2549,8 +2549,8 @@ export class TaskBoardView extends ItemView {
         autofocus: "true"
       }
     });
-    const results = modal.createDiv({ cls: "slate-search-results" });
-    let matches: SlateTask[] = [];
+    const results = modal.createDiv({ cls: "graphite-search-results" });
+    let matches: GraphiteTask[] = [];
     let selectedIndex = 0;
 
     const close = () => {
@@ -2608,7 +2608,7 @@ export class TaskBoardView extends ItemView {
       const query = this.searchQuery.trim().toLowerCase();
       if (!query) {
         matches = [];
-        results.createDiv({ cls: "slate-search-empty", text: "Type to search tasks" });
+        results.createDiv({ cls: "graphite-search-empty", text: "Type to search tasks" });
         return;
       }
 
@@ -2619,25 +2619,25 @@ export class TaskBoardView extends ItemView {
       selectedIndex = Math.min(selectedIndex, Math.max(matches.length - 1, 0));
 
       if (matches.length === 0) {
-        results.createDiv({ cls: "slate-search-empty", text: "No matching tasks." });
+        results.createDiv({ cls: "graphite-search-empty", text: "No matching tasks." });
         return;
       }
 
       for (const [index, task] of matches.entries()) {
-        const result = results.createEl("button", { cls: "slate-search-result" });
+        const result = results.createEl("button", { cls: "graphite-search-result" });
         result.toggleClass("is-selected", index === selectedIndex);
-        result.createDiv({ cls: "slate-search-title", text: task.title });
+        result.createDiv({ cls: "graphite-search-title", text: task.title });
         if (task.description) {
           renderLinkedText(
             markdownPreviewText(task.description),
-            result.createDiv({ cls: "slate-search-description" }),
+            result.createDiv({ cls: "graphite-search-description" }),
             {
               app: this.app,
               sourcePath: task.sourcePath
             }
           );
         }
-        const meta = result.createDiv({ cls: "slate-search-meta" });
+        const meta = result.createDiv({ cls: "graphite-search-meta" });
         meta.createSpan({ text: projectDisplayName(task.project) });
         if (task.due) {
           meta.createSpan({ text: formatDueChip(task.due) });
@@ -2658,7 +2658,7 @@ export class TaskBoardView extends ItemView {
     window.setTimeout(() => input.focus(), 0);
   }
 
-  private openTaskLocation(task: SlateTask): void {
+  private openTaskLocation(task: GraphiteTask): void {
     this.searchOpen = false;
     this.searchQuery = "";
     this.composerOpen = false;
@@ -2796,28 +2796,28 @@ class LabelPromptModal extends Modal {
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-label-prompt");
+    contentEl.addClass("graphite-label-prompt");
     contentEl.createEl("h2", { text: "Create label" });
 
     const input = contentEl.createEl("input", {
-      cls: "slate-label-prompt-input",
+      cls: "graphite-label-prompt-input",
       attr: {
         type: "text",
         placeholder: "#label"
       }
     });
 
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
     actions
       .createEl("button", {
-        cls: "slate-button",
+        cls: "graphite-button",
         text: "Cancel",
         attr: { type: "button" }
       })
       .addEventListener("click", () => this.close());
 
     const submitButton = actions.createEl("button", {
-      cls: "slate-button slate-button-primary",
+      cls: "graphite-button graphite-button-primary",
       text: "Create",
       attr: { type: "button" }
     });
@@ -2838,7 +2838,7 @@ class LabelPromptModal extends Modal {
   }
 }
 
-function byOrder(a: SlateTask, b: SlateTask): number {
+function byOrder(a: GraphiteTask, b: GraphiteTask): number {
   return a.order - b.order;
 }
 
@@ -2928,8 +2928,8 @@ function addDaysIso(offset: number): string {
   return `${year}-${month}-${day}`;
 }
 
-function groupByDueDate(tasks: SlateTask[]): Array<[string, SlateTask[]]> {
-  const map = new Map<string, SlateTask[]>();
+function groupByDueDate(tasks: GraphiteTask[]): Array<[string, GraphiteTask[]]> {
+  const map = new Map<string, GraphiteTask[]>();
   for (const task of tasks.sort((a, b) => {
     if (a.due && b.due && a.due !== b.due) {
       return compareIsoDates(a.due, b.due);
@@ -2949,7 +2949,7 @@ function groupByDueDate(tasks: SlateTask[]): Array<[string, SlateTask[]]> {
   return [...map.entries()];
 }
 
-function searchableText(task: SlateTask): string {
+function searchableText(task: GraphiteTask): string {
   return [
     task.title,
     task.description,

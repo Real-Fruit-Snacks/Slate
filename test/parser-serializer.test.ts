@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { parseTasks, parseTaskDocument } from "../src/parser";
 import { serializeTasks, serializeTaskDocument } from "../src/serializer";
-import { SlateTask } from "../src/types";
+import { GraphiteTask } from "../src/types";
 
-function makeTask(over: Partial<SlateTask> = {}): SlateTask {
+function makeTask(over: Partial<GraphiteTask> = {}): GraphiteTask {
   return {
     id: "task-1",
     title: "Write report",
@@ -27,7 +27,7 @@ describe("task round-trip (serialize -> parse)", () => {
       priority: "P2",
       description: "Keep it short.",
       labels: ["writing", "report"],
-      attachments: ["_slate_files/Attachments/task-1/a.png"]
+      attachments: ["_graphite_files/Attachments/task-1/a.png"]
     });
 
     const [p] = parseTasks(serializeTasks([task]));
@@ -42,7 +42,7 @@ describe("task round-trip (serialize -> parse)", () => {
     expect(p.priority).toBe("P2");
     expect(p.description).toBe("Keep it short.");
     expect(p.labels).toEqual(["writing", "report"]);
-    expect(p.attachments).toEqual(["_slate_files/Attachments/task-1/a.png"]);
+    expect(p.attachments).toEqual(["_graphite_files/Attachments/task-1/a.png"]);
   });
 
   it("preserves completion state and completed date", () => {

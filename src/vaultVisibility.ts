@@ -1,10 +1,10 @@
 import { App, Notice } from "obsidian";
 
-const STYLE_EL_ID = "slate-data-folder-visibility";
+const STYLE_EL_ID = "graphite-data-folder-visibility";
 const IGNORE_FILTERS_KEY = "userIgnoreFilters";
 
 /**
- * Keeps the Slate data folder hidden from Obsidian's UI without touching stored
+ * Keeps the Graphite data folder hidden from Obsidian's UI without touching stored
  * data. Two independent mechanisms:
  *
  * 1. A managed <style> element hides the folder's row (and its contents) in the
@@ -116,7 +116,7 @@ export class DataFolderVisibility {
         }
       }
     } catch (error) {
-      console.warn("[slate] Could not update Obsidian excluded files list.", error);
+      console.warn("[graphite] Could not update Obsidian excluded files list.", error);
       this.warnFilterFallback(folderPath, hidden);
     }
   }
@@ -128,7 +128,7 @@ export class DataFolderVisibility {
 
     this.warnedFilterFailure = true;
     new Notice(
-      `Slate hid "${folderPath}" from the file explorer. To also hide it from ` +
+      `Graphite hid "${folderPath}" from the file explorer. To also hide it from ` +
         `search and graph, add it to Settings → Files and links → Excluded files.`,
       10000
     );

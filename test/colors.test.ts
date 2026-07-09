@@ -4,7 +4,7 @@ import {
   getProjectColor,
   getLabelColor,
   resolveColorToHex,
-  SLATE_COLOR_PALETTE
+  GRAPHITE_COLOR_PALETTE
 } from "../src/colors";
 
 describe("colorForName", () => {
@@ -13,7 +13,7 @@ describe("colorForName", () => {
   });
 
   it("picks a palette entry (theme var) when there is no override", () => {
-    const paletteRegulars = SLATE_COLOR_PALETTE.map((c) => c.regular);
+    const paletteRegulars = GRAPHITE_COLOR_PALETTE.map((c) => c.regular);
     expect(paletteRegulars).toContain(colorForName("Client Work").regular);
   });
 

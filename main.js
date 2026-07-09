@@ -20,7 +20,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/main.ts
 var main_exports = {};
 __export(main_exports, {
-  default: () => SlatePlugin
+  default: () => GraphitePlugin
 });
 module.exports = __toCommonJS(main_exports);
 var import_obsidian16 = require("obsidian");
@@ -239,7 +239,7 @@ function dedupeLabels(labels) {
 }
 
 // src/colors.ts
-var SLATE_COLOR_PALETTE = [
+var GRAPHITE_COLOR_PALETTE = [
   { name: "yellow", regular: "var(--color-yellow)", light: "rgba(var(--color-yellow-rgb), 0.14)" },
   { name: "red", regular: "var(--color-red)", light: "rgba(var(--color-red-rgb), 0.14)" },
   { name: "purple", regular: "var(--color-purple)", light: "rgba(var(--color-purple-rgb), 0.14)" },
@@ -284,7 +284,7 @@ function colorForName(value, override) {
       light: lightColorForOverride(override)
     };
   }
-  const color = SLATE_COLOR_PALETTE[hashString(value) % SLATE_COLOR_PALETTE.length];
+  const color = GRAPHITE_COLOR_PALETTE[hashString(value) % GRAPHITE_COLOR_PALETTE.length];
   return {
     regular: color.regular,
     light: color.light
@@ -292,7 +292,7 @@ function colorForName(value, override) {
 }
 function getProjectColor(projectName, projectColors) {
   const override = projectColors[projectName];
-  const generated = SLATE_COLOR_PALETTE[hashString(projectName) % SLATE_COLOR_PALETTE.length];
+  const generated = GRAPHITE_COLOR_PALETTE[hashString(projectName) % GRAPHITE_COLOR_PALETTE.length];
   const regular = override || generated.regular;
   return {
     regular,
@@ -318,7 +318,7 @@ function hashString(value) {
   return Math.abs(hash);
 }
 function lightColorForOverride(value) {
-  const matchingPaletteColor = SLATE_COLOR_PALETTE.find(
+  const matchingPaletteColor = GRAPHITE_COLOR_PALETTE.find(
     (color) => color.regular.toLowerCase() === value.toLowerCase()
   );
   if (matchingPaletteColor) {
@@ -393,10 +393,10 @@ var RenameLabelModal = class extends import_obsidian2.Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-label-prompt");
+    contentEl.addClass("graphite-label-prompt");
     contentEl.createEl("h2", { text: "Rename label" });
     const input = contentEl.createEl("input", {
-      cls: "slate-label-prompt-input",
+      cls: "graphite-label-prompt-input",
       attr: {
         type: "text",
         value: displayLabel(this.currentLabel)
@@ -404,21 +404,21 @@ var RenameLabelModal = class extends import_obsidian2.Modal {
     });
     input.select();
     let errorEl = null;
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
     const showError = (message) => {
       if (!errorEl) {
-        errorEl = contentEl.createDiv({ cls: "slate-modal-error" });
+        errorEl = contentEl.createDiv({ cls: "graphite-modal-error" });
         actions.before(errorEl);
       }
       errorEl.setText(message);
     };
     actions.createEl("button", {
-      cls: "slate-button",
+      cls: "graphite-button",
       text: "Cancel",
       attr: { type: "button" }
     }).addEventListener("click", () => this.close());
     const submitButton = actions.createEl("button", {
-      cls: "slate-button slate-button-primary",
+      cls: "graphite-button graphite-button-primary",
       text: "Rename",
       attr: { type: "button" }
     });
@@ -461,18 +461,18 @@ var DeleteLabelModal = class extends import_obsidian2.Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-label-prompt");
+    contentEl.addClass("graphite-label-prompt");
     contentEl.createEl("h2", { text: `Delete ${displayLabel(this.label)}?` });
     const desc = this.taskCount > 0 ? `This will remove ${displayLabel(this.label)} from ${this.taskCount} task${this.taskCount === 1 ? "" : "s"}. Tasks will not be deleted.` : "This label is not assigned to any tasks.";
-    contentEl.createEl("p", { text: desc, cls: "slate-modal-desc" });
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
+    contentEl.createEl("p", { text: desc, cls: "graphite-modal-desc" });
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
     actions.createEl("button", {
-      cls: "slate-button",
+      cls: "graphite-button",
       text: "Cancel",
       attr: { type: "button" }
     }).addEventListener("click", () => this.close());
     actions.createEl("button", {
-      cls: "slate-button slate-button-destructive",
+      cls: "graphite-button graphite-button-destructive",
       text: "Delete label",
       attr: { type: "button" }
     }).addEventListener("click", () => {
@@ -513,9 +513,9 @@ var FONT_OPTIONS = [
 ];
 
 // src/settings.ts
-var DEFAULT_DATA_FOLDER_PATH = "_slate_files";
+var DEFAULT_DATA_FOLDER_PATH = "_graphite_files";
 var DEFAULT_SETTINGS = {
-  tasksFilePath: "slate/tasks.md",
+  tasksFilePath: "graphite/tasks.md",
   dataFolderPath: DEFAULT_DATA_FOLDER_PATH,
   defaultProject: "",
   icons: {
@@ -564,7 +564,7 @@ var FONT_OPTION_LABELS = {
   geistMono: "Geist Mono",
   dmSans: "DM Sans"
 };
-var SLATE_FONT_STACKS = {
+var GRAPHITE_FONT_STACKS = {
   system: 'var(--font-interface), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   ibmPlexSans: '"IBM Plex Sans", var(--font-interface), system-ui, sans-serif',
   ibmPlexMono: '"IBM Plex Mono", var(--font-monospace), monospace',
@@ -618,17 +618,17 @@ function overdueRangeLabel(range) {
   return OVERDUE_RANGE_LABELS[range];
 }
 function fontStackForOption(option) {
-  return SLATE_FONT_STACKS[option] || SLATE_FONT_STACKS.system;
+  return GRAPHITE_FONT_STACKS[option] || GRAPHITE_FONT_STACKS.system;
 }
-function applySlateFontSettings(element, settings) {
+function applyGraphiteFontSettings(element, settings) {
   element.setCssProps({
-    "--slate-font-ui": fontStackForOption(settings.uiFont),
-    "--slate-font-task-title": fontStackForOption(settings.taskTitleFont),
-    "--slate-font-task-description": fontStackForOption(settings.taskDescriptionFont),
-    "--slate-font-label": fontStackForOption(settings.labelFont)
+    "--graphite-font-ui": fontStackForOption(settings.uiFont),
+    "--graphite-font-task-title": fontStackForOption(settings.taskTitleFont),
+    "--graphite-font-task-description": fontStackForOption(settings.taskDescriptionFont),
+    "--graphite-font-label": fontStackForOption(settings.labelFont)
   });
 }
-var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
+var GraphiteSettingTab = class extends import_obsidian3.PluginSettingTab {
   constructor(app, plugin) {
     super(app, plugin);
     this.plugin = plugin;
@@ -638,15 +638,15 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     this.colorHexCache = /* @__PURE__ */ new Map();
-    applySlateFontSettings(containerEl, this.plugin.settings);
-    new import_obsidian3.Setting(containerEl).setName("Old task file").setDesc("Legacy Markdown file used by older slate versions.").addText((text) => {
-      text.setPlaceholder("slate/tasks.md").setValue(this.plugin.settings.tasksFilePath).onChange(async (value) => {
+    applyGraphiteFontSettings(containerEl, this.plugin.settings);
+    new import_obsidian3.Setting(containerEl).setName("Old task file").setDesc("Legacy Markdown file used by older graphite versions.").addText((text) => {
+      text.setPlaceholder("graphite/tasks.md").setValue(this.plugin.settings.tasksFilePath).onChange(async (value) => {
         this.plugin.settings.tasksFilePath = value.trim() || DEFAULT_SETTINGS.tasksFilePath;
         await this.plugin.saveSettings();
         await this.plugin.reloadTasks();
       });
     });
-    new import_obsidian3.Setting(containerEl).setName("Data folder").setDesc("Folder where slate stores task data and attachments.").addText((text) => {
+    new import_obsidian3.Setting(containerEl).setName("Data folder").setDesc("Folder where graphite stores task data and attachments.").addText((text) => {
       let draftPath = this.plugin.settings.dataFolderPath;
       const commitPathChange = async () => {
         const normalizedPath = normalizeDataFolderPath(draftPath);
@@ -674,7 +674,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
       });
     });
     new import_obsidian3.Setting(containerEl).setName("Hide data folder from the vault UI").setDesc(
-      "Hide the Slate data folder from the file explorer, search, and graph. Files stay on disk and Slate keeps using them."
+      "Hide the Graphite data folder from the file explorer, search, and graph. Files stay on disk and Graphite keeps using them."
     ).addToggle((toggle) => {
       toggle.setValue(this.plugin.settings.hideDataFolderFromVault).onChange(async (value) => {
         this.plugin.settings.hideDataFolderFromVault = value;
@@ -688,15 +688,15 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
       dropdown.setValue(this.plugin.settings.defaultOverdueRange).onChange(async (value) => {
         this.plugin.settings.defaultOverdueRange = normalizeOverdueRange(value);
         await this.plugin.saveSettings();
-        this.plugin.refreshSlateViews();
+        this.plugin.refreshGraphiteViews();
       });
     });
     new import_obsidian3.Setting(containerEl).setName("Daily Notes").setHeading();
-    new import_obsidian3.Setting(containerEl).setName("Enable Daily Notes integration").setDesc("Allow slate to show completed tasks for the active daily note date.").addToggle((toggle) => {
+    new import_obsidian3.Setting(containerEl).setName("Enable Daily Notes integration").setDesc("Allow graphite to show completed tasks for the active daily note date.").addToggle((toggle) => {
       toggle.setValue(this.plugin.settings.dailyNotesIntegrationEnabled).onChange(async (value) => {
         this.plugin.settings.dailyNotesIntegrationEnabled = value;
         await this.plugin.saveSettings();
-        this.plugin.refreshSlateViews();
+        this.plugin.refreshGraphiteViews();
       });
     });
     new import_obsidian3.Setting(containerEl).setName("Daily note date format").setDesc("Used to match the active note file to a date. Default: YYYY-MM-DD.").addText((text) => {
@@ -706,7 +706,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
         this.plugin.settings.dailyNoteDateFormat = normalized;
         text.setValue(normalized);
         await this.plugin.saveSettings();
-        this.plugin.refreshSlateViews();
+        this.plugin.refreshGraphiteViews();
       };
       text.setPlaceholder(DEFAULT_DAILY_NOTE_DATE_FORMAT).setValue(this.plugin.settings.dailyNoteDateFormat).onChange((value) => {
         draftFormat = value;
@@ -722,7 +722,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
         text.inputEl.blur();
       });
     });
-    new import_obsidian3.Setting(containerEl).setName("Auto-add completed tasks block").setDesc("When a daily note is opened, append a slate-completed code block if the note does not already have one.").addToggle((toggle) => {
+    new import_obsidian3.Setting(containerEl).setName("Auto-add completed tasks block").setDesc("When a daily note is opened, append a graphite-completed code block if the note does not already have one.").addToggle((toggle) => {
       toggle.setValue(this.plugin.settings.dailyNotesAutoInsertCompletedBlock).onChange(async (value) => {
         this.plugin.settings.dailyNotesAutoInsertCompletedBlock = value;
         await this.plugin.saveSettings();
@@ -754,7 +754,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
     if (projects.length === 0) {
       containerEl.createDiv({
         cls: "setting-item-description",
-        text: "No projects yet. slate will generate stable colors when projects appear."
+        text: "No projects yet. graphite will generate stable colors when projects appear."
       });
     }
     for (const project of projects) {
@@ -781,7 +781,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
       dropdown.setValue(this.plugin.settings[key]).onChange(async (value) => {
         this.plugin.settings[key] = normalizeFontOption(value);
         await this.plugin.saveSettings();
-        this.plugin.refreshSlateViews();
+        this.plugin.refreshGraphiteViews();
         this.display();
       });
     });
@@ -793,14 +793,14 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
       picker.setValue(resolveColorToHex(override || automaticColor, this.colorHexCache)).onChange(async (value) => {
         this.plugin.settings.projectColors[project] = value;
         await this.plugin.saveSettings();
-        this.plugin.refreshSlateViews();
+        this.plugin.refreshGraphiteViews();
       });
     }).addButton((button) => {
       button.setButtonText("Reset").onClick(() => {
         void (async () => {
           delete this.plugin.settings.projectColors[project];
           await this.plugin.saveSettings();
-          this.plugin.refreshSlateViews();
+          this.plugin.refreshGraphiteViews();
           this.display();
         })();
       });
@@ -824,7 +824,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
             label
           ]);
           await this.plugin.saveSettings();
-          this.plugin.refreshSlateViews();
+          this.plugin.refreshGraphiteViews();
           this.display();
         })();
       });
@@ -837,7 +837,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
       picker.setValue(resolveColorToHex(override || automaticColor, this.colorHexCache)).onChange(async (value) => {
         this.plugin.settings.labelColors[label] = value;
         await this.plugin.saveSettings();
-        this.plugin.refreshSlateViews();
+        this.plugin.refreshGraphiteViews();
       });
     }).addButton((button) => {
       button.setButtonText("Rename").onClick(() => {
@@ -863,7 +863,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
         void (async () => {
           delete this.plugin.settings.labelColors[label];
           await this.plugin.saveSettings();
-          this.plugin.refreshSlateViews();
+          this.plugin.refreshGraphiteViews();
           this.display();
         })();
       });
@@ -873,7 +873,7 @@ var SlateSettingTab = class extends import_obsidian3.PluginSettingTab {
 
 // src/vaultVisibility.ts
 var import_obsidian4 = require("obsidian");
-var STYLE_EL_ID = "slate-data-folder-visibility";
+var STYLE_EL_ID = "graphite-data-folder-visibility";
 var IGNORE_FILTERS_KEY = "userIgnoreFilters";
 var DataFolderVisibility = class {
   constructor(app) {
@@ -955,7 +955,7 @@ var DataFolderVisibility = class {
         }
       }
     } catch (error) {
-      console.warn("[slate] Could not update Obsidian excluded files list.", error);
+      console.warn("[graphite] Could not update Obsidian excluded files list.", error);
       this.warnFilterFallback(folderPath, hidden);
     }
   }
@@ -965,7 +965,7 @@ var DataFolderVisibility = class {
     }
     this.warnedFilterFailure = true;
     new import_obsidian4.Notice(
-      `Slate hid "${folderPath}" from the file explorer. To also hide it from search and graph, add it to Settings \u2192 Files and links \u2192 Excluded files.`,
+      `Graphite hid "${folderPath}" from the file explorer. To also hide it from search and graph, add it to Settings \u2192 Files and links \u2192 Excluded files.`,
       1e4
     );
   }
@@ -1611,7 +1611,7 @@ var TaskStore = class {
     };
   }
   async load() {
-    console.debug("[slate] Loading task storage.", {
+    console.debug("[graphite] Loading task storage.", {
       rootDir: this.rootDir,
       dataDir: this.dataDir,
       attachmentsDir: this.attachmentsDir,
@@ -1652,7 +1652,7 @@ var TaskStore = class {
     const sourcePath = this.monthlyPathForDate(created);
     const sourceReady = await this.ensureSourceDocument(sourcePath);
     if (!sourceReady) {
-      new import_obsidian5.Notice("slate could not create the task data file. Check the console for details.");
+      new import_obsidian5.Notice("graphite could not create the task data file. Check the console for details.");
       return;
     }
     const attachments = normalizeAttachments(input.attachments || []);
@@ -1886,7 +1886,7 @@ var TaskStore = class {
     const folderPath = (0, import_obsidian5.normalizePath)(`${this.attachmentsDir}/${taskId}`);
     const folderReady = await this.ensureFolder(folderPath);
     if (!folderReady) {
-      throw new Error(`slate cannot use attachment folder: ${folderPath}`);
+      throw new Error(`graphite cannot use attachment folder: ${folderPath}`);
     }
     const data = await file.arrayBuffer();
     return this.createUniqueBinaryFile(folderPath, file.name, data);
@@ -1965,7 +1965,7 @@ var TaskStore = class {
     for (const path of writtenSet) {
       const document2 = this.documents.get(path);
       if (!document2) {
-        console.warn("[slate] No parsed document for a just-written source; skipping.", { path });
+        console.warn("[graphite] No parsed document for a just-written source; skipping.", { path });
         continue;
       }
       tasksBySource.set(
@@ -1998,8 +1998,8 @@ var TaskStore = class {
       try {
         await this.app.vault.modify(file, content);
       } catch (error) {
-        new import_obsidian5.Notice("Slate could not save task changes. Open the developer console for details.");
-        console.error("[slate] Failed to write task data.", error, { sourcePath });
+        new import_obsidian5.Notice("Graphite could not save task changes. Open the developer console for details.");
+        console.error("[graphite] Failed to write task data.", error, { sourcePath });
         throw error;
       } finally {
         this.writingPaths.delete((0, import_obsidian5.normalizePath)(sourcePath));
@@ -2037,9 +2037,9 @@ var TaskStore = class {
     await this.ensureFile(
       this.mainFilePath,
       [
-        "# slate",
+        "# graphite",
         "",
-        `slate task data is stored in \`${this.dataDir}/*.md\`.`,
+        `graphite task data is stored in \`${this.dataDir}/*.md\`.`,
         `Attachments are stored in \`${this.attachmentsDir}/<task-id>/\`.`
       ].join("\n")
     );
@@ -2099,7 +2099,7 @@ var TaskStore = class {
         this.warnWrongType(normalizedPath, "file", created);
         return null;
       }
-      console.warn("[slate] File already exists but is not available in the vault index yet.", error, {
+      console.warn("[graphite] File already exists but is not available in the vault index yet.", error, {
         path: normalizedPath
       });
       return null;
@@ -2108,7 +2108,7 @@ var TaskStore = class {
   async replaceFile(path, content) {
     const file = await this.ensureFile(path, "");
     if (!file) {
-      throw new Error(`slate cannot write file because the path is unavailable: ${path}`);
+      throw new Error(`graphite cannot write file because the path is unavailable: ${path}`);
     }
     await this.app.vault.modify(file, content);
     return file;
@@ -2155,7 +2155,7 @@ var TaskStore = class {
         this.warnWrongType(normalizedPath, "folder", created);
         return false;
       }
-      console.warn("[slate] Folder already exists but is not available in the vault index yet.", error, {
+      console.warn("[graphite] Folder already exists but is not available in the vault index yet.", error, {
         path: normalizedPath
       });
       return true;
@@ -2178,7 +2178,7 @@ var TaskStore = class {
         throw error;
       }
     }
-    throw new Error(`slate could not create a unique attachment path for ${filename}`);
+    throw new Error(`graphite could not create a unique attachment path for ${filename}`);
   }
   warnWrongType(path, expectedType, existing) {
     const key = `${expectedType}:${path}`;
@@ -2187,9 +2187,9 @@ var TaskStore = class {
     }
     this.warnedStorageIssues.add(key);
     const actualType = existing instanceof import_obsidian5.TFolder ? "folder" : "file";
-    const message = `slate expected a ${expectedType} at "${path}", but found a ${actualType}.`;
+    const message = `graphite expected a ${expectedType} at "${path}", but found a ${actualType}.`;
     new import_obsidian5.Notice(`${message} Please rename or move the conflicting vault item.`);
-    console.warn("[slate] Storage path type mismatch.", {
+    console.warn("[graphite] Storage path type mismatch.", {
       path,
       expectedType,
       actualType,
@@ -2458,12 +2458,12 @@ var PRIORITY_COLORS = {
   },
   P4: {
     name: "Priority 4",
-    color: "var(--slate-muted)",
+    color: "var(--graphite-muted)",
     light: "transparent"
   },
   none: {
     name: "Priority",
-    color: "var(--slate-muted)",
+    color: "var(--graphite-muted)",
     light: "transparent"
   }
 };
@@ -2495,11 +2495,11 @@ function getPriorityClass(priority) {
 // src/views/CustomRepeatModal.ts
 var import_obsidian7 = require("obsidian");
 
-// src/ui/components/SlateIcon.ts
+// src/ui/components/GraphiteIcon.ts
 var import_obsidian6 = require("obsidian");
 
-// src/ui/icons/slateIcons.ts
-var SLATE_ICON_MAP = {
+// src/ui/icons/graphiteIcons.ts
+var GRAPHITE_ICON_MAP = {
   activity: "chart-no-axes-column",
   add: "plus",
   archive: "archive",
@@ -2532,27 +2532,27 @@ var SLATE_ICON_MAP = {
   today: "calendar-check",
   upcoming: "calendar-clock"
 };
-function resolveSlateIcon(icon) {
-  return SLATE_ICON_MAP[icon] || icon;
+function resolveGraphiteIcon(icon) {
+  return GRAPHITE_ICON_MAP[icon] || icon;
 }
 
-// src/ui/components/SlateIcon.ts
-function createSlateIcon(parent, icon, options = {}) {
+// src/ui/components/GraphiteIcon.ts
+function createGraphiteIcon(parent, icon, options = {}) {
   const iconEl = parent.createSpan({
-    cls: classNames("slate-icon", options.className),
+    cls: classNames("graphite-icon", options.className),
     attr: options.ariaLabel ? { "aria-label": options.ariaLabel, role: "img" } : { "aria-hidden": "true" }
   });
-  (0, import_obsidian6.setIcon)(iconEl, resolveSlateIcon(icon));
+  (0, import_obsidian6.setIcon)(iconEl, resolveGraphiteIcon(icon));
   applyIconOptions(iconEl, options);
   return iconEl;
 }
 function applyIconOptions(el, options) {
   const props = {};
   if (options.size) {
-    props["--slate-icon-size"] = `${options.size}px`;
+    props["--graphite-icon-size"] = `${options.size}px`;
   }
   if (options.strokeWidth) {
-    props["--slate-icon-stroke-width"] = String(options.strokeWidth);
+    props["--graphite-icon-stroke-width"] = String(options.strokeWidth);
   }
   if (Object.keys(props).length > 0) {
     el.setCssProps(props);
@@ -2565,20 +2565,20 @@ function classNames(...parts) {
 // src/ui.ts
 var BUTTON_VARIANTS = {
   default: "",
-  primary: "slate-ui-button-primary slate-button-primary",
-  danger: "slate-ui-button-danger slate-button-danger",
-  destructive: "slate-ui-button-destructive slate-button-destructive",
-  ghost: "slate-ui-button-ghost"
+  primary: "graphite-ui-button-primary graphite-button-primary",
+  danger: "graphite-ui-button-danger graphite-button-danger",
+  destructive: "graphite-ui-button-destructive graphite-button-destructive",
+  ghost: "graphite-ui-button-ghost"
 };
 var BUTTON_SIZES = {
-  sm: "slate-ui-button-sm",
-  md: "slate-ui-button-md"
+  sm: "graphite-ui-button-sm",
+  md: "graphite-ui-button-md"
 };
-function createSlateButton(parent, options = {}) {
+function createGraphiteButton(parent, options = {}) {
   const button = parent.createEl("button", {
     cls: classNames2(
-      "slate-ui-button",
-      "slate-button",
+      "graphite-ui-button",
+      "graphite-button",
       BUTTON_VARIANTS[options.variant || "default"],
       BUTTON_SIZES[options.size || "md"],
       options.className
@@ -2589,19 +2589,19 @@ function createSlateButton(parent, options = {}) {
     }
   });
   if (options.icon) {
-    createSlateIcon(button, options.icon, { className: "slate-ui-icon" });
+    createGraphiteIcon(button, options.icon, { className: "graphite-ui-icon" });
   }
   if (options.text) {
-    button.createSpan({ cls: "slate-ui-button-label", text: options.text });
+    button.createSpan({ cls: "graphite-ui-button-label", text: options.text });
   }
   if (options.disabled) {
     button.setAttr("disabled", "true");
   }
   return button;
 }
-function createSlateActionRow(parent, options = {}) {
+function createGraphiteActionRow(parent, options = {}) {
   return parent.createDiv({
-    cls: classNames2("slate-ui-actions", options.className)
+    cls: classNames2("graphite-ui-actions", options.className)
   });
 }
 function classNames2(...parts) {
@@ -2615,7 +2615,7 @@ function alignLocalPopover(wrapper, popover, options = {}) {
   popover.removeClass("is-align-right");
   popover.removeClass("is-open-up");
   popover.removeClass("is-open-down");
-  popover.setCssProps({ "--slate-popover-shift-x": "0px" });
+  popover.setCssProps({ "--graphite-popover-shift-x": "0px" });
   const wrapperRect = wrapper.getBoundingClientRect();
   if (options.useFixed) {
     popover.setCssStyles({
@@ -2659,7 +2659,7 @@ function alignLocalPopover(wrapper, popover, options = {}) {
     shiftX += margin - shiftedLeft;
   }
   if (shiftX !== 0) {
-    popover.setCssProps({ "--slate-popover-shift-x": `${Math.round(shiftX)}px` });
+    popover.setCssProps({ "--graphite-popover-shift-x": `${Math.round(shiftX)}px` });
   }
   const fitsBelow = wrapperRect.bottom + popoverHeight + margin <= ownerWindow.innerHeight;
   const fitsAbove = wrapperRect.top - popoverHeight - margin >= 0;
@@ -2678,8 +2678,8 @@ function alignLocalPopover(wrapper, popover, options = {}) {
   popover.addClass("is-open-down");
 }
 
-// src/ui/components/SlateDropdown.ts
-var SlateDropdown = class {
+// src/ui/components/GraphiteDropdown.ts
+var GraphiteDropdown = class {
   constructor(config) {
     this.config = config;
     this.labelEl = null;
@@ -2691,7 +2691,7 @@ var SlateDropdown = class {
     } else {
       const parent = config.triggerParent;
       if (!parent) {
-        throw new Error("SlateDropdown requires either `trigger` or `triggerParent`.");
+        throw new Error("GraphiteDropdown requires either `trigger` or `triggerParent`.");
       }
       this.triggerEl = this.buildDefaultTrigger(parent);
     }
@@ -2749,7 +2749,7 @@ var SlateDropdown = class {
     }
     const doc = this.triggerEl.ownerDocument;
     const menu = doc.createElement("div");
-    menu.className = "slate-dropdown-menu";
+    menu.className = "graphite-dropdown-menu";
     if (this.config.menuClassName) {
       menu.classList.add(this.config.menuClassName);
     }
@@ -2770,7 +2770,7 @@ var SlateDropdown = class {
     };
     doc.addEventListener("pointerdown", handleOutside, true);
     this.detachOutside = () => doc.removeEventListener("pointerdown", handleOutside, true);
-    const firstOption = menu.querySelector(".slate-dropdown-option");
+    const firstOption = menu.querySelector(".graphite-dropdown-option");
     firstOption == null ? void 0 : firstOption.focus({ preventScroll: true });
   }
   close() {
@@ -2789,15 +2789,15 @@ var SlateDropdown = class {
   }
   buildDefaultTrigger(parent) {
     const trigger = parent.createEl("button", {
-      cls: "slate-dropdown-trigger",
+      cls: "graphite-dropdown-trigger",
       attr: { type: "button" }
     });
     if (this.config.triggerClassName) {
       trigger.addClass(this.config.triggerClassName);
     }
-    this.dotEl = trigger.createSpan({ cls: "slate-dropdown-dot is-hidden" });
-    this.labelEl = trigger.createSpan({ cls: "slate-dropdown-trigger-label" });
-    trigger.createSpan({ cls: "slate-dropdown-caret" });
+    this.dotEl = trigger.createSpan({ cls: "graphite-dropdown-dot is-hidden" });
+    this.labelEl = trigger.createSpan({ cls: "graphite-dropdown-trigger-label" });
+    trigger.createSpan({ cls: "graphite-dropdown-caret" });
     return trigger;
   }
   currentOption() {
@@ -2814,12 +2814,12 @@ var SlateDropdown = class {
     let lastSection;
     for (const option of this.config.getOptions()) {
       if (option.section && option.section !== lastSection) {
-        menu.createDiv({ cls: "slate-dropdown-section", text: option.section });
+        menu.createDiv({ cls: "graphite-dropdown-section", text: option.section });
         lastSection = option.section;
       }
       const isSelected = option.value === selected;
       const item = menu.createEl("button", {
-        cls: "slate-dropdown-option",
+        cls: "graphite-dropdown-option",
         attr: {
           type: "button",
           role: "option",
@@ -2829,13 +2829,13 @@ var SlateDropdown = class {
       });
       item.toggleClass("is-selected", isSelected);
       item.createSpan({
-        cls: "slate-dropdown-option-check",
+        cls: "graphite-dropdown-option-check",
         text: isSelected ? "\u2713" : ""
       });
       if (option.dotColor) {
-        item.createSpan({ cls: "slate-dropdown-option-dot" }).setCssStyles({ backgroundColor: option.dotColor });
+        item.createSpan({ cls: "graphite-dropdown-option-dot" }).setCssStyles({ backgroundColor: option.dotColor });
       }
-      item.createSpan({ cls: "slate-dropdown-option-label", text: option.label });
+      item.createSpan({ cls: "graphite-dropdown-option-label", text: option.label });
       item.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -2866,7 +2866,7 @@ var SlateDropdown = class {
   }
   focusOption(start, direction) {
     let candidate = start;
-    while (candidate && !candidate.classList.contains("slate-dropdown-option")) {
+    while (candidate && !candidate.classList.contains("graphite-dropdown-option")) {
       candidate = direction === "next" ? candidate.nextElementSibling : candidate.previousElementSibling;
     }
     candidate == null ? void 0 : candidate.focus({ preventScroll: true });
@@ -2899,7 +2899,7 @@ var CustomRepeatModal = class extends import_obsidian7.Modal {
   }
   onOpen() {
     this.titleEl.setText("Custom repeat");
-    this.modalEl.addClass("slate-custom-repeat-modal");
+    this.modalEl.addClass("graphite-custom-repeat-modal");
     this.render();
   }
   onClose() {
@@ -2913,7 +2913,7 @@ var CustomRepeatModal = class extends import_obsidian7.Modal {
     const { contentEl } = this;
     contentEl.empty();
     this.renderSection(contentEl, "Based on");
-    const modeWrap = contentEl.createDiv({ cls: "slate-repeat-radio-group" });
+    const modeWrap = contentEl.createDiv({ cls: "graphite-repeat-radio-group" });
     this.renderRadio(modeWrap, "Scheduled date", this.draft.mode === "scheduledDate", () => {
       this.draft.mode = "scheduledDate";
       this.render();
@@ -2924,9 +2924,9 @@ var CustomRepeatModal = class extends import_obsidian7.Modal {
       this.render();
     });
     this.renderSection(contentEl, "Every");
-    const everyRow = contentEl.createDiv({ cls: "slate-repeat-every-row" });
+    const everyRow = contentEl.createDiv({ cls: "graphite-repeat-every-row" });
     const intervalInput = everyRow.createEl("input", {
-      cls: "slate-repeat-interval-input",
+      cls: "graphite-repeat-interval-input",
       attr: { type: "number", min: "1", step: "1", value: String(this.draft.interval) }
     });
     intervalInput.addEventListener("input", () => {
@@ -2942,9 +2942,9 @@ var CustomRepeatModal = class extends import_obsidian7.Modal {
     });
     const freqs = ["daily", "weekly", "weekdays", "monthly", "yearly"];
     (_a = this.freqDropdown) == null ? void 0 : _a.destroy();
-    this.freqDropdown = new SlateDropdown({
+    this.freqDropdown = new GraphiteDropdown({
       triggerParent: everyRow,
-      triggerClassName: "slate-repeat-freq-trigger",
+      triggerClassName: "graphite-repeat-freq-trigger",
       ariaLabel: "Frequency",
       getOptions: () => freqs.map((f) => ({ value: f, label: FREQ_LABELS[f] })),
       getValue: () => this.draft.frequency,
@@ -2958,11 +2958,11 @@ var CustomRepeatModal = class extends import_obsidian7.Modal {
     });
     if (this.draft.frequency === "weekly" && this.draft.mode === "scheduledDate") {
       this.renderSection(contentEl, "On");
-      const dayRow = contentEl.createDiv({ cls: "slate-repeat-day-row" });
+      const dayRow = contentEl.createDiv({ cls: "graphite-repeat-day-row" });
       const selectedWeekdays = getRepeatWeekdays(this.draft);
       for (const { label, value } of DISPLAY_DAYS) {
         const btn = dayRow.createEl("button", {
-          cls: "slate-repeat-day-btn",
+          cls: "graphite-repeat-day-btn",
           text: label,
           attr: { type: "button" }
         });
@@ -2976,14 +2976,14 @@ var CustomRepeatModal = class extends import_obsidian7.Modal {
       }
     }
     this.renderSection(contentEl, "Ends");
-    const endsWrap = contentEl.createDiv({ cls: "slate-repeat-radio-group" });
+    const endsWrap = contentEl.createDiv({ cls: "graphite-repeat-radio-group" });
     this.renderRadio(endsWrap, "Never", this.draft.ends === "never", () => {
       this.draft.ends = "never";
       this.draft.endsDate = void 0;
       this.draft.endsCount = void 0;
       this.render();
     });
-    const onDateRow = endsWrap.createDiv({ cls: "slate-repeat-ends-row" });
+    const onDateRow = endsWrap.createDiv({ cls: "graphite-repeat-ends-row" });
     this.renderRadio(onDateRow, "On date", this.draft.ends === "onDate", () => {
       this.draft.ends = "onDate";
       this.draft.endsCount = void 0;
@@ -2991,14 +2991,14 @@ var CustomRepeatModal = class extends import_obsidian7.Modal {
     });
     if (this.draft.ends === "onDate") {
       const dateInput = onDateRow.createEl("input", {
-        cls: "slate-repeat-ends-date",
+        cls: "graphite-repeat-ends-date",
         attr: { type: "date", value: this.draft.endsDate || "" }
       });
       dateInput.addEventListener("change", () => {
         this.draft.endsDate = dateInput.value || void 0;
       });
     }
-    const afterRow = endsWrap.createDiv({ cls: "slate-repeat-ends-row" });
+    const afterRow = endsWrap.createDiv({ cls: "graphite-repeat-ends-row" });
     this.renderRadio(afterRow, "After", this.draft.ends === "afterOccurrences", () => {
       this.draft.ends = "afterOccurrences";
       this.draft.endsDate = void 0;
@@ -3006,21 +3006,21 @@ var CustomRepeatModal = class extends import_obsidian7.Modal {
     });
     if (this.draft.ends === "afterOccurrences") {
       const countInput = afterRow.createEl("input", {
-        cls: "slate-repeat-ends-count",
+        cls: "graphite-repeat-ends-count",
         attr: { type: "number", min: "1", step: "1", value: String(this.draft.endsCount || 1) }
       });
       countInput.addEventListener("input", () => {
         const v = parseInt(countInput.value);
         if (v >= 1) this.draft.endsCount = v;
       });
-      afterRow.createSpan({ cls: "slate-repeat-ends-label", text: "occurrences" });
+      afterRow.createSpan({ cls: "graphite-repeat-ends-label", text: "occurrences" });
     }
-    const preview = contentEl.createDiv({ cls: "slate-repeat-preview" });
-    createSlateIcon(preview, "recurring", { className: "slate-chip-icon" });
+    const preview = contentEl.createDiv({ cls: "graphite-repeat-preview" });
+    createGraphiteIcon(preview, "recurring", { className: "graphite-chip-icon" });
     preview.createSpan({ text: getRepeatLabel(this.draft) });
-    const actions = createSlateActionRow(contentEl, { className: "slate-repeat-modal-actions" });
-    const cancelBtn = createSlateButton(actions, { text: "Cancel" });
-    const saveBtn = createSlateButton(actions, { text: "Save", variant: "primary" });
+    const actions = createGraphiteActionRow(contentEl, { className: "graphite-repeat-modal-actions" });
+    const cancelBtn = createGraphiteButton(actions, { text: "Cancel" });
+    const saveBtn = createGraphiteButton(actions, { text: "Save", variant: "primary" });
     const requiresWeekdays = this.requiresWeekdays();
     saveBtn.toggleAttribute("disabled", requiresWeekdays && getRepeatWeekdays(this.draft).length === 0);
     cancelBtn.addEventListener("click", () => this.close());
@@ -3036,11 +3036,11 @@ var CustomRepeatModal = class extends import_obsidian7.Modal {
     });
   }
   renderSection(parent, title) {
-    parent.createEl("h3", { cls: "slate-repeat-section-title", text: title });
+    parent.createEl("h3", { cls: "graphite-repeat-section-title", text: title });
   }
   renderRadio(parent, label, checked, onClick) {
-    const row = parent.createDiv({ cls: `slate-repeat-radio-row${checked ? " is-checked" : ""}` });
-    const dot = row.createDiv({ cls: "slate-repeat-radio-dot" });
+    const row = parent.createDiv({ cls: `graphite-repeat-radio-row${checked ? " is-checked" : ""}` });
+    const dot = row.createDiv({ cls: "graphite-repeat-radio-dot" });
     if (checked) dot.addClass("is-active");
     row.createSpan({ text: label });
     row.addEventListener("click", onClick);
@@ -3111,7 +3111,7 @@ function attachWikilinkAutocomplete(textarea, app) {
     activeIndex = 0;
     const rect = textarea.getBoundingClientRect();
     dropdown = activeDocument.createElement("div");
-    dropdown.className = "slate-wikilink-dropdown";
+    dropdown.className = "graphite-wikilink-dropdown";
     const spaceBelow = window.innerHeight - rect.bottom;
     const dropdownMaxHeight = 220;
     const dropdownStyles = {
@@ -3129,16 +3129,16 @@ function attachWikilinkAutocomplete(textarea, app) {
       dropdown.innerHTML = "";
       matches.forEach((name, i) => {
         const item = activeDocument.createElement("div");
-        item.className = "slate-wikilink-item" + (i === activeIndex ? " is-active" : "");
+        item.className = "graphite-wikilink-item" + (i === activeIndex ? " is-active" : "");
         const basename = name.includes("/") ? name.split("/").pop() : name;
         const folder = name.includes("/") ? name.slice(0, name.lastIndexOf("/")) : "";
         const nameSpan = activeDocument.createElement("span");
-        nameSpan.className = "slate-wikilink-item-name";
+        nameSpan.className = "graphite-wikilink-item-name";
         nameSpan.textContent = basename;
         item.appendChild(nameSpan);
         if (folder) {
           const folderSpan = activeDocument.createElement("span");
-          folderSpan.className = "slate-wikilink-item-folder";
+          folderSpan.className = "graphite-wikilink-item-folder";
           folderSpan.textContent = folder;
           item.appendChild(folderSpan);
         }
@@ -3286,7 +3286,7 @@ function attachQuickAddAutocomplete(input, getLabels, getProjects) {
     activeIndex = 0;
     const rect = input.getBoundingClientRect();
     dropdown = activeDocument.createElement("div");
-    dropdown.className = "slate-wikilink-dropdown";
+    dropdown.className = "graphite-wikilink-dropdown";
     dropdown.setCssStyles({
       left: `${rect.left}px`,
       top: `${rect.bottom + 2}px`,
@@ -3297,7 +3297,7 @@ function attachQuickAddAutocomplete(input, getLabels, getProjects) {
       dropdown.innerHTML = "";
       matches.forEach((m, i) => {
         const item = activeDocument.createElement("div");
-        item.className = "slate-wikilink-item" + (i === activeIndex ? " is-active" : "");
+        item.className = "graphite-wikilink-item" + (i === activeIndex ? " is-active" : "");
         const prefix = token.type === "label" ? "#" : "//";
         item.textContent = prefix + m;
         item.addEventListener("mousedown", (e) => {
@@ -3371,7 +3371,7 @@ var AddTaskComposer = class {
     this.selectedProjectValue = "";
   }
   render(parent, options) {
-    const form = parent.createEl("form", { cls: "slate-composer" });
+    const form = parent.createEl("form", { cls: "graphite-composer" });
     const isMobileScreen = options.presentation === "mobile-screen";
     form.toggleClass("is-mobile-screen", isMobileScreen);
     let selectedDue = options.defaultDue || "";
@@ -3380,7 +3380,7 @@ var AddTaskComposer = class {
     let selectedLabels = [];
     let pendingAttachments = [];
     this.titleInput = form.createEl("textarea", {
-      cls: "slate-composer-title",
+      cls: "graphite-composer-title",
       attr: {
         placeholder: "Task title",
         rows: "1"
@@ -3405,7 +3405,7 @@ var AddTaskComposer = class {
     this.titleInput.addEventListener("input", resizeTitleInput);
     resizeTitleInput();
     const descriptionInput = form.createEl("textarea", {
-      cls: "slate-composer-description",
+      cls: "graphite-composer-description",
       attr: {
         placeholder: "Description"
       }
@@ -3423,27 +3423,27 @@ var AddTaskComposer = class {
       event.preventDefault();
       form.requestSubmit();
     });
-    const chipRow = form.createDiv({ cls: "slate-composer-chip-row" });
-    const dueDateWrap = chipRow.createDiv({ cls: "slate-date-picker-wrap" });
-    const repeatChipWrap = chipRow.createDiv({ cls: "slate-repeat-chip-wrap" });
-    const priorityWrap = chipRow.createDiv({ cls: "slate-chip-select-wrap" });
+    const chipRow = form.createDiv({ cls: "graphite-composer-chip-row" });
+    const dueDateWrap = chipRow.createDiv({ cls: "graphite-date-picker-wrap" });
+    const repeatChipWrap = chipRow.createDiv({ cls: "graphite-repeat-chip-wrap" });
+    const priorityWrap = chipRow.createDiv({ cls: "graphite-chip-select-wrap" });
     createIcon(priorityWrap, "priority");
-    const priorityIndicator = priorityWrap.createSpan({ cls: "slate-priority-indicator" });
-    const priorityDisplay = priorityWrap.createSpan({ cls: "slate-priority-display" });
+    const priorityIndicator = priorityWrap.createSpan({ cls: "graphite-priority-indicator" });
+    const priorityDisplay = priorityWrap.createSpan({ cls: "graphite-priority-display" });
     const priorityChoices = PRIORITIES.filter((priority) => priority !== "none");
     let priorityValue = "P4";
     const updatePriorityStyle = () => {
       const color = getPriorityColor(priorityValue);
       priorityWrap.setCssProps({
-        "--slate-priority-text": color.color,
-        "--slate-priority-bg": color.light,
-        "--slate-priority-border": color.color
+        "--graphite-priority-text": color.color,
+        "--graphite-priority-bg": color.light,
+        "--graphite-priority-border": color.color
       });
       priorityWrap.toggleClass("has-priority", hasVisiblePriority(priorityValue));
       priorityIndicator.setCssStyles({ backgroundColor: color.color });
       priorityDisplay.setText(getPriorityDisplayLabel(priorityValue));
     };
-    const priorityDropdown = new SlateDropdown({
+    const priorityDropdown = new GraphiteDropdown({
       trigger: priorityWrap,
       ariaLabel: "Priority",
       getValue: () => priorityValue,
@@ -3468,25 +3468,25 @@ var AddTaskComposer = class {
       }
     });
     const pendingAttachmentsEl = form.createDiv({
-      cls: "slate-composer-attachments is-hidden"
+      cls: "graphite-composer-attachments is-hidden"
     });
     const renderPendingAttachments = () => {
       pendingAttachmentsEl.empty();
       pendingAttachmentsEl.toggleClass("is-hidden", pendingAttachments.length === 0);
       for (const [index, file] of pendingAttachments.entries()) {
-        const item = pendingAttachmentsEl.createDiv({ cls: "slate-composer-attachment" });
-        createSlateIcon(item, isImageFile(file) ? "attachment" : "file", {
-          className: "slate-composer-attachment-icon"
+        const item = pendingAttachmentsEl.createDiv({ cls: "graphite-composer-attachment" });
+        createGraphiteIcon(item, isImageFile(file) ? "attachment" : "file", {
+          className: "graphite-composer-attachment-icon"
         });
-        item.createDiv({ cls: "slate-composer-attachment-name", text: file.name });
+        item.createDiv({ cls: "graphite-composer-attachment-name", text: file.name });
         const removeButton = item.createEl("button", {
-          cls: "slate-composer-attachment-remove",
+          cls: "graphite-composer-attachment-remove",
           attr: {
             type: "button",
             "aria-label": `Remove ${file.name}`
           }
         });
-        createSlateIcon(removeButton, "close");
+        createGraphiteIcon(removeButton, "close");
         removeButton.addEventListener("click", () => {
           pendingAttachments = pendingAttachments.filter((_, candidateIndex) => candidateIndex !== index);
           renderPendingAttachments();
@@ -3505,20 +3505,20 @@ var AddTaskComposer = class {
       renderPendingAttachments();
     });
     const mobilePanelSide = import_obsidian8.Platform.isMobile ? "above" : "below";
-    const labelsWrap = chipRow.createDiv({ cls: "slate-composer-labels-wrap" });
+    const labelsWrap = chipRow.createDiv({ cls: "graphite-composer-labels-wrap" });
     const labelsButton = createChipButton(labelsWrap, "Labels", "tag");
-    const deadlineWrap = chipRow.createDiv({ cls: "slate-composer-deadline-wrap" });
-    const labelsPanel = labelsWrap.createDiv({ cls: "slate-composer-popover is-hidden" });
-    const selectedLabelsEl = labelsPanel.createDiv({ cls: "slate-selected-labels" });
+    const deadlineWrap = chipRow.createDiv({ cls: "graphite-composer-deadline-wrap" });
+    const labelsPanel = labelsWrap.createDiv({ cls: "graphite-composer-popover is-hidden" });
+    const selectedLabelsEl = labelsPanel.createDiv({ cls: "graphite-selected-labels" });
     const labelInput = labelsPanel.createEl("input", {
-      cls: "slate-label-input",
+      cls: "graphite-label-input",
       attr: {
         type: "text",
         placeholder: "#label"
       }
     });
-    const labelSuggestions = labelsPanel.createDiv({ cls: "slate-label-suggestions" });
-    const labelChipsRow = form.createDiv({ cls: "slate-composer-label-chips is-hidden" });
+    const labelSuggestions = labelsPanel.createDiv({ cls: "graphite-label-suggestions" });
+    const labelChipsRow = form.createDiv({ cls: "graphite-composer-label-chips is-hidden" });
     let detachOutsideListener = () => void 0;
     let closeProjectMenu = () => void 0;
     let closeDueDatePopover = () => void 0;
@@ -3579,16 +3579,16 @@ var AddTaskComposer = class {
       deadlineWrap.empty();
       const hasDeadline = Boolean(selectedDeadline);
       const btn = deadlineWrap.createEl("button", {
-        cls: `slate-chip-button${hasDeadline ? " slate-date-chip is-active is-selected" : ""}`,
+        cls: `graphite-chip-button${hasDeadline ? " graphite-date-chip is-active is-selected" : ""}`,
         attr: { type: "button", "aria-label": "Set deadline" }
       });
       createIcon(btn, "deadline");
       btn.createSpan({
-        cls: "slate-chip-label",
+        cls: "graphite-chip-label",
         text: hasDeadline ? formatDueDateChip(selectedDeadline) : "Deadline"
       });
       if (hasDeadline) {
-        const clearSpan = createSlateIcon(btn, "close", { className: "slate-deadline-clear" });
+        const clearSpan = createGraphiteIcon(btn, "close", { className: "graphite-deadline-clear" });
         clearSpan.addEventListener("click", (e) => {
           e.stopPropagation();
           selectedDeadline = "";
@@ -3596,8 +3596,8 @@ var AddTaskComposer = class {
           renderDeadlineButton();
         });
       }
-      const panel = deadlineWrap.createDiv({ cls: "slate-composer-popover slate-date-popover is-hidden" });
-      panel.createDiv({ cls: "slate-popover-title", text: "Deadline" });
+      const panel = deadlineWrap.createDiv({ cls: "graphite-composer-popover graphite-date-popover is-hidden" });
+      panel.createDiv({ cls: "graphite-popover-title", text: "Deadline" });
       closeDeadlinePanel = () => {
         panel.addClass("is-hidden");
         panel.removeClass("is-calendar-open");
@@ -3614,7 +3614,7 @@ var AddTaskComposer = class {
       };
       const addPreset = (label, value) => {
         const presetBtn = panel.createEl("button", {
-          cls: "slate-date-preset",
+          cls: "graphite-date-preset",
           text: label,
           attr: { type: "button" }
         });
@@ -3673,21 +3673,21 @@ var AddTaskComposer = class {
           renderLabels();
         };
         const chip = selectedLabelsEl.createEl("button", {
-          cls: "slate-selected-label",
+          cls: "graphite-selected-label",
           text: displayLabel(label),
           attr: { type: "button" }
         });
         chip.setCssStyles({ backgroundColor: color.light, borderColor: color.light });
         chip.addEventListener("click", removeLabel);
         const externalChip = labelChipsRow.createEl("span", {
-          cls: "slate-label-chip",
+          cls: "graphite-label-chip",
           attr: { "aria-label": `Remove label ${displayLabel(label)}` }
         });
-        externalChip.setCssProps({ "--slate-label-chip-color": color.regular, "--slate-label-chip-bg": color.light });
+        externalChip.setCssProps({ "--graphite-label-chip-color": color.regular, "--graphite-label-chip-bg": color.light });
         createIcon(externalChip, "tag");
-        externalChip.createSpan({ cls: "slate-label-chip-name", text: displayLabel(label) });
+        externalChip.createSpan({ cls: "graphite-label-chip-name", text: displayLabel(label) });
         const removeBtn = externalChip.createEl("button", {
-          cls: "slate-label-chip-remove",
+          cls: "graphite-label-chip-remove",
           attr: { type: "button", "aria-label": `Remove ${displayLabel(label)}` }
         });
         createIcon(removeBtn, "close");
@@ -3697,7 +3697,7 @@ var AddTaskComposer = class {
       const query = normalizeLabelName(labelInput.value);
       if (!query) {
         labelSuggestions.createDiv({
-          cls: "slate-label-empty",
+          cls: "graphite-label-empty",
           text: "Type a label name"
         });
         return;
@@ -3705,7 +3705,7 @@ var AddTaskComposer = class {
       const matches = dedupeLabels(options.labels).filter((label) => label.includes(query) && !selectedLabels.includes(label)).slice(0, 8);
       for (const label of matches) {
         const suggestion = labelSuggestions.createEl("button", {
-          cls: "slate-label-suggestion",
+          cls: "graphite-label-suggestion",
           text: displayLabel(label),
           attr: { type: "button" }
         });
@@ -3713,7 +3713,7 @@ var AddTaskComposer = class {
       }
       if (!dedupeLabels(options.labels).includes(query) && !selectedLabels.includes(query)) {
         const create = labelSuggestions.createEl("button", {
-          cls: "slate-label-suggestion",
+          cls: "graphite-label-suggestion",
           text: `Create label: ${displayLabel(query)}`,
           attr: { type: "button" }
         });
@@ -3742,20 +3742,20 @@ var AddTaskComposer = class {
       }
     });
     renderLabels();
-    const footer = form.createDiv({ cls: "slate-composer-footer" });
-    const projectArea = footer.createDiv({ cls: "slate-composer-project" });
+    const footer = form.createDiv({ cls: "graphite-composer-footer" });
+    const projectArea = footer.createDiv({ cls: "graphite-composer-project" });
     const projectPicker = projectArea.createEl("button", {
-      cls: "slate-project-picker slate-location-picker",
+      cls: "graphite-project-picker graphite-location-picker",
       attr: {
         type: "button",
         "aria-haspopup": "listbox",
         "aria-expanded": "false"
       }
     });
-    const projectDot = projectPicker.createSpan({ cls: "slate-project-dot slate-composer-project-dot" });
-    const projectLabel = projectPicker.createSpan({ cls: "slate-project-trigger-label" });
+    const projectDot = projectPicker.createSpan({ cls: "graphite-project-dot graphite-composer-project-dot" });
+    const projectLabel = projectPicker.createSpan({ cls: "graphite-project-trigger-label" });
     const projectMenu = createEl("div", {
-      cls: "slate-project-menu",
+      cls: "graphite-project-menu",
       attr: {
         role: "listbox"
       }
@@ -3763,24 +3763,24 @@ var AddTaskComposer = class {
     const projects = uniqueRealProjects([options.defaultProject, ...options.projects]);
     const defaultProject = normalizeTaskProject(options.defaultProject) || "";
     this.selectedProjectValue = projects.includes(defaultProject) ? defaultProject : "";
-    const customProjectWrap = projectArea.createDiv({ cls: "slate-custom-project-wrap is-hidden" });
+    const customProjectWrap = projectArea.createDiv({ cls: "graphite-custom-project-wrap is-hidden" });
     this.customProjectInput = customProjectWrap.createEl("input", {
-      cls: "slate-chip-input slate-custom-project",
+      cls: "graphite-chip-input graphite-custom-project",
       attr: {
         type: "text",
         placeholder: "Project name"
       }
     });
     const confirmProjectBtn = customProjectWrap.createEl("button", {
-      cls: "slate-custom-project-confirm",
+      cls: "graphite-custom-project-confirm",
       attr: { type: "button", "aria-label": "Confirm project" }
     });
-    createSlateIcon(confirmProjectBtn, "completed");
+    createGraphiteIcon(confirmProjectBtn, "completed");
     const cancelProjectBtn = customProjectWrap.createEl("button", {
-      cls: "slate-custom-project-cancel",
+      cls: "graphite-custom-project-cancel",
       attr: { type: "button", "aria-label": "Cancel" }
     });
-    createSlateIcon(cancelProjectBtn, "close");
+    createGraphiteIcon(cancelProjectBtn, "close");
     let previousProjectValue = "";
     const confirmProject = () => {
       var _a;
@@ -3843,7 +3843,7 @@ var AddTaskComposer = class {
     };
     const renderProjectOption = (parent2, label, value, projectColor) => {
       const option = parent2.createEl("button", {
-        cls: "slate-project-option",
+        cls: "graphite-project-option",
         attr: {
           type: "button",
           role: "option",
@@ -3853,13 +3853,13 @@ var AddTaskComposer = class {
       option.toggleClass("is-selected", this.selectedProjectValue === value);
       option.toggleClass("has-project", Boolean(projectColor));
       option.createSpan({
-        cls: "slate-project-option-check",
+        cls: "graphite-project-option-check",
         text: this.selectedProjectValue === value ? "\u2713" : ""
       });
       if (projectColor) {
-        option.createSpan({ cls: "slate-project-dot" }).setCssStyles({ backgroundColor: projectColor.regular });
+        option.createSpan({ cls: "graphite-project-dot" }).setCssStyles({ backgroundColor: projectColor.regular });
       }
-      option.createSpan({ cls: "slate-project-option-label", text: label });
+      option.createSpan({ cls: "graphite-project-option-label", text: label });
       option.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -3869,7 +3869,7 @@ var AddTaskComposer = class {
     const renderProjectMenu = () => {
       projectMenu.empty();
       renderProjectOption(projectMenu, "Inbox", "");
-      projectMenu.createDiv({ cls: "slate-project-section-label", text: "Projects" });
+      projectMenu.createDiv({ cls: "graphite-project-section-label", text: "Projects" });
       for (const project of projects) {
         renderProjectOption(
           projectMenu,
@@ -3885,10 +3885,10 @@ var AddTaskComposer = class {
       const project = normalizeTaskProject(displayValue) || "";
       projectLabel.setText(project || "Inbox");
       if (!project) {
-        projectDot.setCssStyles({ backgroundColor: "var(--slate-faint)" });
+        projectDot.setCssStyles({ backgroundColor: "var(--graphite-faint)" });
         projectPicker.setCssStyles({
-          backgroundColor: "var(--slate-hover)",
-          borderColor: "var(--slate-border)"
+          backgroundColor: "var(--graphite-hover)",
+          borderColor: "var(--graphite-border)"
         });
         return;
       }
@@ -3899,7 +3899,7 @@ var AddTaskComposer = class {
         borderColor: color.light
       });
     };
-    const hasOpenComposerPopover = () => !labelsPanel.hasClass("is-hidden") || Boolean(deadlineWrap.querySelector(".slate-composer-popover:not(.is-hidden)")) || projectMenu.isConnected || Boolean(dueDateWrap.querySelector(".slate-date-popover:not(.is-hidden)"));
+    const hasOpenComposerPopover = () => !labelsPanel.hasClass("is-hidden") || Boolean(deadlineWrap.querySelector(".graphite-composer-popover:not(.is-hidden)")) || projectMenu.isConnected || Boolean(dueDateWrap.querySelector(".graphite-date-popover:not(.is-hidden)"));
     projectPicker.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -3922,9 +3922,9 @@ var AddTaskComposer = class {
     });
     renderProjectMenu();
     updateProjectDot();
-    const actions = createSlateActionRow(footer, { className: "slate-composer-actions" });
-    const cancelButton = createSlateButton(actions, { text: "Cancel" });
-    const addButton = createSlateButton(actions, {
+    const actions = createGraphiteActionRow(footer, { className: "graphite-composer-actions" });
+    const cancelButton = createGraphiteButton(actions, { text: "Cancel" });
+    const addButton = createGraphiteButton(actions, {
       text: "Add task",
       variant: "primary",
       attr: {
@@ -3975,17 +3975,17 @@ var AddTaskComposer = class {
       dueDateWrap.empty();
       const hasDate = Boolean(selectedDue);
       const dueDateButton = dueDateWrap.createEl("button", {
-        cls: `slate-chip-button slate-date-chip${hasDate ? " is-active is-selected" : ""}`,
+        cls: `graphite-chip-button graphite-date-chip${hasDate ? " is-active is-selected" : ""}`,
         attr: { type: "button", "aria-label": "Set due date" }
       });
-      createSlateIcon(dueDateButton, "calendar", { className: "slate-chip-icon" });
-      dueDateButton.createSpan({ cls: "slate-chip-label", text: formatDueDateChip(selectedDue) });
+      createGraphiteIcon(dueDateButton, "calendar", { className: "graphite-chip-icon" });
+      dueDateButton.createSpan({ cls: "graphite-chip-label", text: formatDueDateChip(selectedDue) });
       if (hasDate) {
         const clearBtn = dueDateWrap.createEl("button", {
-          cls: "slate-date-chip-clear",
+          cls: "graphite-date-chip-clear",
           attr: { type: "button", "aria-label": "Clear due date" }
         });
-        createSlateIcon(clearBtn, "close");
+        createGraphiteIcon(clearBtn, "close");
         clearBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           if (selectedRepeat) new import_obsidian8.Notice("Date and repeat rule removed.");
@@ -3996,7 +3996,7 @@ var AddTaskComposer = class {
           renderRepeatChip();
         });
       }
-      const datePopover = dueDateWrap.createDiv({ cls: "slate-composer-popover slate-date-popover is-hidden" });
+      const datePopover = dueDateWrap.createDiv({ cls: "graphite-composer-popover graphite-date-popover is-hidden" });
       closeDueDatePopover = () => {
         datePopover.addClass("is-hidden");
         datePopover.removeClass("is-calendar-open");
@@ -4010,7 +4010,7 @@ var AddTaskComposer = class {
       };
       const addPreset = (label, value) => {
         const btn = datePopover.createEl("button", {
-          cls: "slate-date-preset",
+          cls: "graphite-date-preset",
           text: label,
           attr: { type: "button" }
         });
@@ -4025,18 +4025,18 @@ var AddTaskComposer = class {
       addPreset("Next week", addDaysIso(7));
       addPreset("Next weekend", nextWeekdayIso(6));
       renderComposerCustomDatePicker(datePopover, selectedDue, selectDate);
-      datePopover.createDiv({ cls: "slate-date-divider" });
-      const repeatHeader = datePopover.createDiv({ cls: "slate-repeat-header" });
-      createSlateIcon(repeatHeader, "recurring", { className: "slate-chip-icon" });
+      datePopover.createDiv({ cls: "graphite-date-divider" });
+      const repeatHeader = datePopover.createDiv({ cls: "graphite-repeat-header" });
+      createGraphiteIcon(repeatHeader, "recurring", { className: "graphite-chip-icon" });
       repeatHeader.createSpan({ text: "Repeat" });
       const presetDue = selectedDue || todayIso();
       const presets = getRepeatPresets(presetDue);
       for (const preset of presets) {
         const btn = datePopover.createEl("button", {
-          cls: "slate-date-preset",
+          cls: "graphite-date-preset",
           attr: { type: "button" }
         });
-        createSlateIcon(btn, "recurring", { className: "slate-chip-icon" });
+        createGraphiteIcon(btn, "recurring", { className: "graphite-chip-icon" });
         btn.createSpan({ text: preset.label });
         btn.toggleClass("is-active", repeatRulesEqual(preset.rule, selectedRepeat));
         btn.addEventListener("click", (e) => {
@@ -4050,7 +4050,7 @@ var AddTaskComposer = class {
         });
       }
       const customRepeatBtn = datePopover.createEl("button", {
-        cls: "slate-date-preset",
+        cls: "graphite-date-preset",
         text: "Custom...",
         attr: { type: "button" }
       });
@@ -4079,16 +4079,16 @@ var AddTaskComposer = class {
       if (!selectedRepeat) return;
       const fullLabel = getRepeatLabel(selectedRepeat);
       const chip = repeatChipWrap.createEl("button", {
-        cls: "slate-chip-button slate-repeat-chip is-active is-selected",
+        cls: "graphite-chip-button graphite-repeat-chip is-active is-selected",
         attr: { type: "button", title: fullLabel, "aria-label": fullLabel }
       });
-      createSlateIcon(chip, "recurring", { className: "slate-chip-icon" });
-      chip.createSpan({ cls: "slate-chip-label", text: getRepeatChipLabel(selectedRepeat) });
+      createGraphiteIcon(chip, "recurring", { className: "graphite-chip-icon" });
+      chip.createSpan({ cls: "graphite-chip-label", text: getRepeatChipLabel(selectedRepeat) });
       chip.addEventListener("click", () => {
-        const shouldOpen = dueDateWrap.querySelector(".slate-date-popover:not(.is-hidden)") === null;
+        const shouldOpen = dueDateWrap.querySelector(".graphite-date-popover:not(.is-hidden)") === null;
         closeComposerPopovers();
         if (shouldOpen) {
-          const popover = dueDateWrap.querySelector(".slate-date-popover");
+          const popover = dueDateWrap.querySelector(".graphite-date-popover");
           if (popover) {
             popover.removeClass("is-hidden");
             watchLocalPopover(dueDateWrap, popover, { preferredSide: mobilePanelSide });
@@ -4096,10 +4096,10 @@ var AddTaskComposer = class {
         }
       });
       const clearRepeat = repeatChipWrap.createEl("button", {
-        cls: "slate-date-chip-clear",
+        cls: "graphite-date-chip-clear",
         attr: { type: "button", "aria-label": "Clear repeat" }
       });
-      createSlateIcon(clearRepeat, "close");
+      createGraphiteIcon(clearRepeat, "close");
       clearRepeat.addEventListener("click", (e) => {
         e.stopPropagation();
         selectedRepeat = void 0;
@@ -4131,7 +4131,7 @@ var AddTaskComposer = class {
 };
 function createChipButton(parent, label, iconName, ariaLabel) {
   const button = parent.createEl("button", {
-    cls: "slate-chip-button",
+    cls: "graphite-chip-button",
     attr: {
       type: "button"
     }
@@ -4144,43 +4144,43 @@ function createChipButton(parent, label, iconName, ariaLabel) {
   }
   createIcon(button, iconName);
   if (label) {
-    button.createSpan({ cls: "slate-chip-label", text: label });
+    button.createSpan({ cls: "graphite-chip-label", text: label });
   }
   return button;
 }
-function createIcon(parent, iconName, className = "slate-chip-icon") {
-  return createSlateIcon(parent, iconName, { className });
+function createIcon(parent, iconName, className = "graphite-chip-icon") {
+  return createGraphiteIcon(parent, iconName, { className });
 }
 function renderComposerCustomDatePicker(parent, currentValue, onSelect) {
   const today = todayIso();
   const initialDate = currentValue ? /* @__PURE__ */ new Date(`${currentValue}T00:00:00`) : /* @__PURE__ */ new Date();
   let viewYear = initialDate.getFullYear();
   let viewMonth = initialDate.getMonth();
-  const container = parent.createDiv({ cls: "slate-date-custom-wrap" });
+  const container = parent.createDiv({ cls: "graphite-date-custom-wrap" });
   const trigger = container.createEl("button", {
-    cls: "slate-date-preset slate-cal-trigger",
+    cls: "graphite-date-preset graphite-cal-trigger",
     attr: { type: "button" }
   });
   trigger.createSpan({ text: currentValue ? formatDueDateChip(currentValue) : "Custom date..." });
   trigger.toggleClass("is-active", Boolean(currentValue));
-  const calendarWrap = container.createDiv({ cls: "slate-cal-wrap is-hidden" });
+  const calendarWrap = container.createDiv({ cls: "graphite-cal-wrap is-hidden" });
   const renderCalendar = () => {
     calendarWrap.empty();
-    const header = calendarWrap.createDiv({ cls: "slate-cal-header" });
+    const header = calendarWrap.createDiv({ cls: "graphite-cal-header" });
     const previousButton = header.createEl("button", {
-      cls: "slate-cal-nav",
+      cls: "graphite-cal-nav",
       text: "\u2039",
       attr: { type: "button" }
     });
     header.createSpan({
-      cls: "slate-cal-title",
+      cls: "graphite-cal-title",
       text: new Date(viewYear, viewMonth, 1).toLocaleDateString(void 0, {
         month: "long",
         year: "numeric"
       })
     });
     const nextButton = header.createEl("button", {
-      cls: "slate-cal-nav",
+      cls: "graphite-cal-nav",
       text: "\u203A",
       attr: { type: "button" }
     });
@@ -4206,20 +4206,20 @@ function renderComposerCustomDatePicker(parent, currentValue, onSelect) {
       }
       renderCalendar();
     });
-    const grid = calendarWrap.createDiv({ cls: "slate-cal-grid" });
+    const grid = calendarWrap.createDiv({ cls: "graphite-cal-grid" });
     for (const dayName of ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]) {
-      grid.createSpan({ cls: "slate-cal-day-hdr", text: dayName });
+      grid.createSpan({ cls: "graphite-cal-day-hdr", text: dayName });
     }
     const firstDay = new Date(viewYear, viewMonth, 1).getDay();
     const leadingEmptyDays = firstDay === 0 ? 6 : firstDay - 1;
     for (let index = 0; index < leadingEmptyDays; index += 1) {
-      grid.createDiv({ cls: "slate-cal-day is-empty" });
+      grid.createDiv({ cls: "graphite-cal-day is-empty" });
     }
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     for (let day = 1; day <= daysInMonth; day += 1) {
       const iso = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
       const dayButton = grid.createEl("button", {
-        cls: "slate-cal-day",
+        cls: "graphite-cal-day",
         text: String(day),
         attr: { type: "button" }
       });
@@ -4233,7 +4233,7 @@ function renderComposerCustomDatePicker(parent, currentValue, onSelect) {
     const renderedCells = leadingEmptyDays + daysInMonth;
     const trailingEmptyDays = 42 - renderedCells;
     for (let index = 0; index < trailingEmptyDays; index += 1) {
-      grid.createDiv({ cls: "slate-cal-day is-empty" });
+      grid.createDiv({ cls: "graphite-cal-day is-empty" });
     }
   };
   trigger.addEventListener("click", (event) => {
@@ -4253,7 +4253,7 @@ function clampPopoverToViewport(popover) {
   const ownerWindow = popover.ownerDocument.defaultView || window;
   const margin = 12;
   const currentShift = Number.parseFloat(
-    ownerWindow.getComputedStyle(popover).getPropertyValue("--slate-popover-shift-x") || "0"
+    ownerWindow.getComputedStyle(popover).getPropertyValue("--graphite-popover-shift-x") || "0"
   ) || 0;
   const rect = popover.getBoundingClientRect();
   let nextShift = currentShift;
@@ -4265,7 +4265,7 @@ function clampPopoverToViewport(popover) {
     nextShift += margin - adjustedLeft;
   }
   if (nextShift !== currentShift) {
-    popover.setCssProps({ "--slate-popover-shift-x": `${Math.round(nextShift)}px` });
+    popover.setCssProps({ "--graphite-popover-shift-x": `${Math.round(nextShift)}px` });
   }
 }
 function isImageFile(file) {
@@ -4295,12 +4295,12 @@ var ImagePreviewModal = class extends import_obsidian9.Modal {
   }
   onOpen() {
     this.openedBody = activeDocument.body;
-    this.openedBody.classList.add("slate-image-preview-open");
-    this.containerEl.addClass("slate-image-lightbox-backdrop");
-    this.modalEl.addClass("slate-image-lightbox-modal");
+    this.openedBody.classList.add("graphite-image-preview-open");
+    this.containerEl.addClass("graphite-image-lightbox-backdrop");
+    this.modalEl.addClass("graphite-image-lightbox-modal");
     this.modalEl.addEventListener("keydown", this.handleEscape, true);
     this.contentEl.empty();
-    this.contentEl.addClass("slate-image-lightbox-content");
+    this.contentEl.addClass("graphite-image-lightbox-content");
     this.modalEl.addEventListener("click", (event) => {
       event.stopPropagation();
     });
@@ -4311,27 +4311,27 @@ var ImagePreviewModal = class extends import_obsidian9.Modal {
         this.close();
       }
     });
-    const shell = this.contentEl.createDiv({ cls: "slate-image-lightbox-shell" });
+    const shell = this.contentEl.createDiv({ cls: "graphite-image-lightbox-shell" });
     shell.createEl("img", {
-      cls: "slate-image-lightbox-img",
+      cls: "graphite-image-lightbox-img",
       attr: {
         src: this.app.vault.getResourcePath(this.file),
         alt: this.label
       }
     });
     const closeButton = shell.createEl("button", {
-      cls: "slate-image-lightbox-close",
+      cls: "graphite-image-lightbox-close",
       attr: {
         type: "button",
         "aria-label": "Close image preview"
       }
     });
-    createSlateIcon(closeButton, "close");
+    createGraphiteIcon(closeButton, "close");
     closeButton.addEventListener("click", () => this.close());
   }
   onClose() {
     var _a;
-    (_a = this.openedBody) == null ? void 0 : _a.classList.remove("slate-image-preview-open");
+    (_a = this.openedBody) == null ? void 0 : _a.classList.remove("graphite-image-preview-open");
     this.openedBody = null;
     this.modalEl.removeEventListener("keydown", this.handleEscape, true);
   }
@@ -4347,14 +4347,14 @@ var ConfirmModal = class extends import_obsidian10.Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-confirm-modal");
+    contentEl.addClass("graphite-confirm-modal");
     contentEl.createEl("h2", { text: this.options.title });
     if (this.options.message) {
-      contentEl.createEl("p", { text: this.options.message, cls: "slate-modal-desc" });
+      contentEl.createEl("p", { text: this.options.message, cls: "graphite-modal-desc" });
     }
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
-    createSlateButton(actions, { text: "Cancel" }).addEventListener("click", () => this.close());
-    createSlateButton(actions, {
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
+    createGraphiteButton(actions, { text: "Cancel" }).addEventListener("click", () => this.close());
+    createGraphiteButton(actions, {
       text: this.options.confirmText,
       variant: "destructive"
     }).addEventListener("click", () => {
@@ -4401,7 +4401,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         this.hideDescriptionToolbar();
         return;
       }
-      if (event.target instanceof HTMLElement && event.target.closest(".slate-detail-project-create")) {
+      if (event.target instanceof HTMLElement && event.target.closest(".graphite-detail-project-create")) {
         return;
       }
       event.preventDefault();
@@ -4420,44 +4420,44 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     var _a, _b;
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-root");
-    contentEl.addClass("slate-detail-modal");
-    this.modalEl.addClass("slate-modal-detail");
-    this.containerEl.addClass("slate-modal-detail-container");
+    contentEl.addClass("graphite-root");
+    contentEl.addClass("graphite-detail-modal");
+    this.modalEl.addClass("graphite-modal-detail");
+    this.containerEl.addClass("graphite-modal-detail-container");
     (_a = this.markdownRenderComponent) == null ? void 0 : _a.unload();
     this.markdownRenderComponent = new import_obsidian11.Component();
     this.markdownRenderComponent.load();
-    applySlateFontSettings(contentEl, this.options.settings);
+    applyGraphiteFontSettings(contentEl, this.options.settings);
     this.modalEl.addEventListener("keydown", this.handleEscape, true);
     const isSubTask = Boolean(this.draft.parentId);
     const parentTask = isSubTask ? this.options.store.getTasks().find((t) => t.id === this.draft.parentId) : void 0;
-    const mobileHeader = contentEl.createDiv({ cls: "slate-detail-mobile-header" });
+    const mobileHeader = contentEl.createDiv({ cls: "graphite-detail-mobile-header" });
     const mobileBackButton = mobileHeader.createEl("button", {
-      cls: "slate-detail-mobile-back",
+      cls: "graphite-detail-mobile-back",
       attr: { type: "button", "aria-label": "Back to task list" }
     });
-    createSlateIcon(mobileBackButton, "back");
+    createGraphiteIcon(mobileBackButton, "back");
     mobileBackButton.addEventListener("click", () => this.close());
     mobileHeader.createDiv({
-      cls: "slate-detail-mobile-title",
+      cls: "graphite-detail-mobile-title",
       text: isSubTask ? "Sub-task" : "Task details"
     });
-    const shell = contentEl.createDiv({ cls: "slate-detail-shell" });
-    const main = shell.createDiv({ cls: "slate-detail-main" });
-    const side = shell.createDiv({ cls: "slate-detail-side" });
+    const shell = contentEl.createDiv({ cls: "graphite-detail-shell" });
+    const main = shell.createDiv({ cls: "graphite-detail-main" });
+    const side = shell.createDiv({ cls: "graphite-detail-side" });
     this.sideEl = side;
     const closeButton = shell.createEl("button", {
-      cls: "slate-detail-close",
+      cls: "graphite-detail-close",
       attr: { type: "button", "aria-label": "Close task details" }
     });
-    createSlateIcon(closeButton, "close");
+    createGraphiteIcon(closeButton, "close");
     closeButton.addEventListener("click", () => this.close());
     if (isSubTask && parentTask) {
-      const contextBar = main.createDiv({ cls: "slate-subtask-context-bar" });
-      createSlateIcon(contextBar, "collapse", { className: "slate-subtask-context-arrow" });
-      contextBar.createSpan({ cls: "slate-subtask-context-label", text: "Sub-task of " });
+      const contextBar = main.createDiv({ cls: "graphite-subtask-context-bar" });
+      createGraphiteIcon(contextBar, "collapse", { className: "graphite-subtask-context-arrow" });
+      contextBar.createSpan({ cls: "graphite-subtask-context-label", text: "Sub-task of " });
       const parentLink = contextBar.createEl("button", {
-        cls: "slate-subtask-context-parent",
+        cls: "graphite-subtask-context-parent",
         text: `"${parentTask.title}"`,
         attr: { type: "button" }
       });
@@ -4473,9 +4473,9 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         }).open();
       });
     }
-    const titleRow = main.createDiv({ cls: "slate-detail-title-row" });
+    const titleRow = main.createDiv({ cls: "graphite-detail-title-row" });
     const checkbox = titleRow.createEl("button", {
-      cls: "slate-task-checkbox slate-detail-checkbox",
+      cls: "graphite-task-checkbox graphite-detail-checkbox",
       attr: { type: "button" }
     });
     checkbox.toggleClass("is-checked", this.draft.completed);
@@ -4485,7 +4485,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       checkbox.toggleClass("is-checked", this.draft.completed);
     });
     const titleInput = titleRow.createEl("input", {
-      cls: "slate-detail-title",
+      cls: "graphite-detail-title",
       attr: { type: "text", value: this.draft.title }
     });
     titleInput.addEventListener("input", () => {
@@ -4513,7 +4513,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         }
       }
     });
-    const descRendered = main.createDiv({ cls: "slate-detail-description-rendered markdown-rendered" });
+    const descRendered = main.createDiv({ cls: "graphite-detail-description-rendered markdown-rendered" });
     let renderRequest = 0;
     const refreshRendered = async () => {
       const request = ++renderRequest;
@@ -4529,7 +4529,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         descRendered.setText(markdown);
         return;
       }
-      const renderTarget = descRendered.createDiv({ cls: "slate-detail-description-content" });
+      const renderTarget = descRendered.createDiv({ cls: "graphite-detail-description-content" });
       try {
         await import_obsidian11.MarkdownRenderer.render(
           this.app,
@@ -4540,11 +4540,11 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         );
       } catch (error) {
         renderTarget.remove();
-        console.warn("slate: failed to render task description markdown", error);
+        console.warn("graphite: failed to render task description markdown", error);
         if (request === renderRequest) {
           descRendered.empty();
           descRendered.createEl("pre", {
-            cls: "slate-detail-description-fallback",
+            cls: "graphite-detail-description-fallback",
             text: markdown
           });
         }
@@ -4557,7 +4557,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     };
     void refreshRendered();
     const descriptionInput = main.createEl("textarea", {
-      cls: "slate-detail-description",
+      cls: "graphite-detail-description",
       attr: { placeholder: "Description" }
     });
     descriptionInput.value = this.draft.description || "";
@@ -4627,8 +4627,8 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     this.renderSubTasks(main);
     this.renderAttachments(main);
     this.renderSidePanel(side);
-    const footer = contentEl.createDiv({ cls: "slate-detail-footer" });
-    createSlateButton(footer, {
+    const footer = contentEl.createDiv({ cls: "graphite-detail-footer" });
+    createGraphiteButton(footer, {
       text: "Delete task",
       variant: "destructive"
     }).addEventListener("click", () => {
@@ -4644,10 +4644,10 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       }).open();
     });
     if (this.draft.repeat && !this.draft.completed) {
-      createSlateButton(footer, {
+      createGraphiteButton(footer, {
         text: "Complete permanently",
         variant: "danger",
-        className: "slate-detail-complete-perm"
+        className: "graphite-detail-complete-perm"
       }).addEventListener("click", () => {
         void (async () => {
           await this.options.store.updateTask(this.draft.id, {
@@ -4661,9 +4661,9 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         })();
       });
     }
-    const footerActions = createSlateActionRow(footer, { className: "slate-detail-actions" });
-    createSlateButton(footerActions, { text: "Cancel" }).addEventListener("click", () => this.close());
-    createSlateButton(footerActions, { text: "Save", variant: "primary" }).addEventListener("click", () => {
+    const footerActions = createGraphiteActionRow(footer, { className: "graphite-detail-actions" });
+    createGraphiteButton(footerActions, { text: "Cancel" }).addEventListener("click", () => this.close());
+    createGraphiteButton(footerActions, { text: "Save", variant: "primary" }).addEventListener("click", () => {
       void this.save();
     });
     if (!import_obsidian11.Platform.isMobile) {
@@ -4694,7 +4694,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       };
     }
     const toolbar = doc.body.createDiv({
-      cls: "slate-description-toolbar is-hidden",
+      cls: "graphite-description-toolbar is-hidden",
       attr: { role: "toolbar", "aria-label": "Description formatting" }
     });
     const hide = () => {
@@ -4815,7 +4815,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     if (isSubTask && parentTask) {
       const field = this.createField(parent, "Parent");
       const parentBtn = field.createEl("button", {
-        cls: "slate-subtask-parent-field",
+        cls: "graphite-subtask-parent-field",
         text: parentTask.title,
         attr: { type: "button" }
       });
@@ -4838,10 +4838,10 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     this.renderLabels(parent);
   }
   renderAttachments(parent) {
-    const section = parent.createDiv({ cls: "slate-attachments-section" });
-    const header = section.createDiv({ cls: "slate-attachments-header" });
+    const section = parent.createDiv({ cls: "graphite-attachments-section" });
+    const header = section.createDiv({ cls: "graphite-attachments-header" });
     header.createEl("h3", { text: "Attachments" });
-    const list = section.createDiv({ cls: "slate-attachments-list" });
+    const list = section.createDiv({ cls: "graphite-attachments-list" });
     const renderList = () => {
       list.empty();
       const imagePaths = this.draft.attachments.filter((path) => {
@@ -4850,7 +4850,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       });
       if (this.draft.attachments.length === 0) {
         list.createDiv({
-          cls: "slate-attachments-empty",
+          cls: "graphite-attachments-empty",
           text: "No attachments yet."
         });
       }
@@ -4860,7 +4860,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       for (const path of this.draft.attachments.filter(
         (attachment) => !isImagePath(attachment)
       )) {
-        const item = list.createDiv({ cls: "slate-attachment-item" });
+        const item = list.createDiv({ cls: "graphite-attachment-item" });
         item.setAttr("role", "button");
         item.setAttr("tabindex", "0");
         const openAttachment = () => {
@@ -4881,31 +4881,31 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
             openAttachment();
           }
         });
-        createSlateIcon(item, "file", { className: "slate-attachment-file-icon" });
-        const text = item.createDiv({ cls: "slate-attachment-text" });
-        text.createDiv({ cls: "slate-attachment-name", text: attachmentName(path) });
-        const actions = item.createDiv({ cls: "slate-attachment-actions" });
+        createGraphiteIcon(item, "file", { className: "graphite-attachment-file-icon" });
+        const text = item.createDiv({ cls: "graphite-attachment-text" });
+        text.createDiv({ cls: "graphite-attachment-name", text: attachmentName(path) });
+        const actions = item.createDiv({ cls: "graphite-attachment-actions" });
         const downloadButton = actions.createEl("button", {
-          cls: "slate-attachment-action slate-attachment-download",
+          cls: "graphite-attachment-action graphite-attachment-download",
           attr: {
             type: "button",
             "aria-label": `Download ${attachmentName(path)}`
           }
         });
-        createSlateIcon(downloadButton, "download");
+        createGraphiteIcon(downloadButton, "download");
         downloadButton.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
           void this.downloadAttachment(path);
         });
         const removeButton = actions.createEl("button", {
-          cls: "slate-attachment-action slate-attachment-remove",
+          cls: "graphite-attachment-action graphite-attachment-remove",
           attr: {
             type: "button",
             "aria-label": `Remove ${attachmentName(path)}`
           }
         });
-        createSlateIcon(removeButton, "close");
+        createGraphiteIcon(removeButton, "close");
         removeButton.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -4938,10 +4938,10 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       })();
     });
     const addAttachmentButton = section.createEl("button", {
-      cls: "slate-add-attachment-inline",
+      cls: "graphite-add-attachment-inline",
       attr: { type: "button" }
     });
-    createSlateIcon(addAttachmentButton, "add");
+    createGraphiteIcon(addAttachmentButton, "add");
     addAttachmentButton.createSpan({ text: "Add attachment" });
     addAttachmentButton.addEventListener("click", () => {
       fileInput.click();
@@ -4950,49 +4950,49 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
   }
   renderImagePreviews(parent, imagePaths, onChange) {
     const gallery = parent.createDiv({
-      cls: imagePaths.length === 1 ? "slate-attachment-image-grid is-single" : "slate-attachment-image-grid is-grid"
+      cls: imagePaths.length === 1 ? "graphite-attachment-image-grid is-single" : "graphite-attachment-image-grid is-grid"
     });
     for (const path of imagePaths) {
       const file = this.app.vault.getAbstractFileByPath(path);
       if (!(file instanceof import_obsidian11.TFile)) {
         continue;
       }
-      const preview = gallery.createDiv({ cls: "slate-image-attachment-card" });
+      const preview = gallery.createDiv({ cls: "graphite-image-attachment-card" });
       preview.setAttr("role", "button");
       preview.setAttr("tabindex", "0");
       preview.setAttr("aria-label", `Preview ${attachmentName(path)}`);
       preview.setAttr("title", attachmentName(path));
       preview.createEl("img", {
-        cls: "slate-image-attachment-img",
+        cls: "graphite-image-attachment-img",
         attr: {
           src: this.app.vault.getResourcePath(file),
           alt: attachmentName(path)
         }
       });
       const actions = preview.createDiv({
-        cls: "slate-image-attachment-actions slate-attachment-card-actions"
+        cls: "graphite-image-attachment-actions graphite-attachment-card-actions"
       });
       const downloadButton = actions.createEl("button", {
-        cls: "slate-image-attachment-action slate-attachment-download",
+        cls: "graphite-image-attachment-action graphite-attachment-download",
         attr: {
           type: "button",
           "aria-label": `Download ${attachmentName(path)}`
         }
       });
-      createSlateIcon(downloadButton, "download");
+      createGraphiteIcon(downloadButton, "download");
       downloadButton.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
         void this.downloadAttachment(path);
       });
       const removeButton = actions.createEl("button", {
-        cls: "slate-image-attachment-action slate-attachment-remove",
+        cls: "graphite-image-attachment-action graphite-attachment-remove",
         attr: {
           type: "button",
           "aria-label": `Remove ${attachmentName(path)}`
         }
       });
-      createSlateIcon(removeButton, "close");
+      createGraphiteIcon(removeButton, "close");
       removeButton.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -5001,7 +5001,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         );
         onChange();
       });
-      preview.createDiv({ cls: "slate-image-attachment-name", text: attachmentName(path) });
+      preview.createDiv({ cls: "graphite-image-attachment-name", text: attachmentName(path) });
       preview.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -5043,15 +5043,15 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     const allTasks = this.options.store.getTasks();
     const subTasks = allTasks.filter((t) => t.parentId === this.draft.id);
     const doneCount = subTasks.filter((t) => t.completed).length;
-    const section = parent.createDiv({ cls: "slate-subtasks-section" });
-    const header = section.createDiv({ cls: "slate-attachments-header" });
-    const titleEl = header.createEl("h3", { cls: "slate-subtasks-title" });
+    const section = parent.createDiv({ cls: "graphite-subtasks-section" });
+    const header = section.createDiv({ cls: "graphite-attachments-header" });
+    const titleEl = header.createEl("h3", { cls: "graphite-subtasks-title" });
     titleEl.createSpan({ text: "Sub-tasks" });
     const countEl = titleEl.createSpan({
-      cls: "slate-subtasks-count",
+      cls: "graphite-subtasks-count",
       text: subTasks.length > 0 ? ` ${doneCount}/${subTasks.length}` : ""
     });
-    const list = section.createDiv({ cls: "slate-subtasks-list" });
+    const list = section.createDiv({ cls: "graphite-subtasks-list" });
     let draggedSubTaskId = null;
     const clearDropState = () => {
       list.querySelectorAll(".is-dragging, .is-drop-before, .is-drop-after").forEach((row) => {
@@ -5069,17 +5069,17 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       const all = this.options.store.getTasks().filter((t) => t.parentId === this.draft.id);
       const current = [...all].sort((a, b) => a.order - b.order);
       current.forEach((sub) => {
-        const row = list.createDiv({ cls: "slate-subtask-row" });
+        const row = list.createDiv({ cls: "graphite-subtask-row" });
         row.dataset.subtaskId = sub.id;
         const dragHandle = row.createEl("button", {
-          cls: "slate-subtask-drag-handle",
+          cls: "graphite-subtask-drag-handle",
           attr: {
             type: "button",
             draggable: "true",
             "aria-label": `Reorder ${sub.title}`
           }
         });
-        createSlateIcon(dragHandle, "dragHandle");
+        createGraphiteIcon(dragHandle, "dragHandle");
         dragHandle.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -5090,7 +5090,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
           draggedSubTaskId = sub.id;
           row.addClass("is-dragging");
           const dragImage = this.createSubTaskDragImage(row);
-          (_a = event.dataTransfer) == null ? void 0 : _a.setData("application/x-slate-subtask-id", sub.id);
+          (_a = event.dataTransfer) == null ? void 0 : _a.setData("application/x-graphite-subtask-id", sub.id);
           (_b = event.dataTransfer) == null ? void 0 : _b.setData("text/plain", sub.id);
           if (event.dataTransfer) {
             event.dataTransfer.effectAllowed = "move";
@@ -5123,7 +5123,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         });
         row.addEventListener("drop", (event) => {
           var _a, _b;
-          const taskId = draggedSubTaskId || ((_a = event.dataTransfer) == null ? void 0 : _a.getData("application/x-slate-subtask-id")) || ((_b = event.dataTransfer) == null ? void 0 : _b.getData("text/plain"));
+          const taskId = draggedSubTaskId || ((_a = event.dataTransfer) == null ? void 0 : _a.getData("application/x-graphite-subtask-id")) || ((_b = event.dataTransfer) == null ? void 0 : _b.getData("text/plain"));
           if (!taskId || taskId === sub.id) {
             return;
           }
@@ -5138,7 +5138,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
           });
         });
         const checkbox = row.createEl("button", {
-          cls: "slate-task-checkbox slate-subtask-checkbox",
+          cls: "graphite-task-checkbox graphite-subtask-checkbox",
           attr: { type: "button" }
         });
         checkbox.toggleClass("is-checked", sub.completed);
@@ -5150,9 +5150,9 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
             countEl.setText(updated.length > 0 ? ` ${done}/${updated.length}` : "");
           });
         });
-        const info = row.createDiv({ cls: "slate-subtask-info" });
-        const titleLine = info.createDiv({ cls: "slate-subtask-title-line" });
-        const titleEl2 = titleLine.createSpan({ cls: `slate-subtask-title${sub.completed ? " is-completed" : ""}`, text: sub.title });
+        const info = row.createDiv({ cls: "graphite-subtask-info" });
+        const titleLine = info.createDiv({ cls: "graphite-subtask-title-line" });
+        const titleEl2 = titleLine.createSpan({ cls: `graphite-subtask-title${sub.completed ? " is-completed" : ""}`, text: sub.title });
         titleEl2.addEventListener("click", () => {
           new _TaskDetailModal(this.app, {
             task: sub,
@@ -5167,10 +5167,10 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
           }).open();
         });
         const deleteBtn = titleLine.createSpan({
-          cls: "slate-subtask-delete",
+          cls: "graphite-subtask-delete",
           attr: { role: "button", tabindex: "0", "aria-label": "Delete sub-task" }
         });
-        createSlateIcon(deleteBtn, "delete");
+        createGraphiteIcon(deleteBtn, "delete");
         deleteBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           new ConfirmModal(this.app, {
@@ -5185,19 +5185,19 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
             }
           }).open();
         });
-        const meta = info.createDiv({ cls: "slate-subtask-meta" });
+        const meta = info.createDiv({ cls: "graphite-subtask-meta" });
         if (sub.due) {
-          meta.createSpan({ cls: "slate-subtask-due", text: formatDueDateChip(sub.due) });
+          meta.createSpan({ cls: "graphite-subtask-due", text: formatDueDateChip(sub.due) });
         }
         if (hasVisiblePriority(sub.priority)) {
           const pc = getPriorityColor(sub.priority);
-          const badge = meta.createSpan({ cls: "slate-subtask-priority", text: getPriorityDisplayLabel(sub.priority) });
+          const badge = meta.createSpan({ cls: "graphite-subtask-priority", text: getPriorityDisplayLabel(sub.priority) });
           badge.setCssStyles({ color: pc.color });
         }
       });
     };
     renderList();
-    const addRow = section.createDiv({ cls: "slate-subtask-add-row" });
+    const addRow = section.createDiv({ cls: "graphite-subtask-add-row" });
     const updateHeader = () => {
       const current = this.options.store.getTasks().filter((t) => t.parentId === this.draft.id);
       const done = current.filter((t) => t.completed).length;
@@ -5209,11 +5209,11 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       let composerPriority = "P4";
       let expandedPanel = null;
       const input = addRow.createEl("input", {
-        cls: "slate-subtask-input",
+        cls: "graphite-subtask-input",
         attr: { type: "text", placeholder: "Sub-task title" }
       });
-      const chipsRow = addRow.createDiv({ cls: "slate-subtask-chips" });
-      const expandPanel = addRow.createDiv({ cls: "slate-subtask-expand-panel is-hidden" });
+      const chipsRow = addRow.createDiv({ cls: "graphite-subtask-chips" });
+      const expandPanel = addRow.createDiv({ cls: "graphite-subtask-expand-panel is-hidden" });
       const closePanel = () => {
         expandPanel.addClass("is-hidden");
         expandPanel.empty();
@@ -5232,7 +5232,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         ];
         for (const [label, value] of presets) {
           const btn = expandPanel.createEl("button", {
-            cls: "slate-subtask-preset" + (value === composerDue ? " is-active" : ""),
+            cls: "graphite-subtask-preset" + (value === composerDue ? " is-active" : ""),
             text: label,
             attr: { type: "button" }
           });
@@ -5242,7 +5242,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
           });
         }
         const customInput = expandPanel.createEl("input", {
-          cls: "slate-subtask-preset-date",
+          cls: "graphite-subtask-preset-date",
           attr: { type: "date", title: "Custom date" }
         });
         if (composerDue) customInput.value = composerDue;
@@ -5259,7 +5259,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         expandPanel.removeClass("is-hidden");
         for (const p of PRIORITIES.filter((priority) => priority !== "none")) {
           const btn = expandPanel.createEl("button", {
-            cls: "slate-subtask-preset" + (p === composerPriority ? " is-active" : ""),
+            cls: "graphite-subtask-preset" + (p === composerPriority ? " is-active" : ""),
             text: getPriorityDropdownLabel(p),
             attr: { type: "button" }
           });
@@ -5273,13 +5273,13 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       const renderChips = () => {
         chipsRow.empty();
         const dateChip = chipsRow.createEl("button", {
-          cls: "slate-subtask-chip" + (composerDue ? " is-active" : "") + (expandedPanel === "date" ? " is-open" : ""),
+          cls: "graphite-subtask-chip" + (composerDue ? " is-active" : "") + (expandedPanel === "date" ? " is-open" : ""),
           attr: { type: "button" }
         });
-        createSlateIcon(dateChip, "calendar", { className: "slate-chip-icon" });
+        createGraphiteIcon(dateChip, "calendar", { className: "graphite-chip-icon" });
         dateChip.createSpan({ text: composerDue ? formatDueDateChip(composerDue) : "Date" });
         if (composerDue) {
-          const clr = createSlateIcon(dateChip, "close", { className: "slate-subtask-chip-clear" });
+          const clr = createGraphiteIcon(dateChip, "close", { className: "graphite-subtask-chip-clear" });
           clr.addEventListener("click", (e) => {
             e.stopPropagation();
             composerDue = "";
@@ -5296,13 +5296,13 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
           }
         });
         const priChip = chipsRow.createEl("button", {
-          cls: "slate-subtask-chip" + (hasVisiblePriority(composerPriority) ? " is-active" : "") + (expandedPanel === "priority" ? " is-open" : ""),
+          cls: "graphite-subtask-chip" + (hasVisiblePriority(composerPriority) ? " is-active" : "") + (expandedPanel === "priority" ? " is-open" : ""),
           attr: { type: "button" }
         });
         if (hasVisiblePriority(composerPriority)) {
           priChip.setCssStyles({ color: getPriorityColor(composerPriority).color });
         }
-        createSlateIcon(priChip, "priority", { className: "slate-chip-icon" });
+        createGraphiteIcon(priChip, "priority", { className: "graphite-chip-icon" });
         priChip.createSpan({ text: getPriorityDisplayLabel(composerPriority) });
         priChip.addEventListener("click", () => {
           if (expandedPanel === "priority") {
@@ -5314,9 +5314,9 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         });
       };
       renderChips();
-      const btnRow = addRow.createDiv({ cls: "slate-subtask-btn-row" });
-      const addBtn = createSlateButton(btnRow, { text: "Add task", variant: "primary" });
-      const cancelBtn = createSlateButton(btnRow, { text: "Cancel" });
+      const btnRow = addRow.createDiv({ cls: "graphite-subtask-btn-row" });
+      const addBtn = createGraphiteButton(btnRow, { text: "Add task", variant: "primary" });
+      const cancelBtn = createGraphiteButton(btnRow, { text: "Cancel" });
       const submit = () => {
         const title = input.value.trim();
         if (!title) return;
@@ -5338,7 +5338,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
           renderChips();
           input.focus();
         }).catch((err) => {
-          console.error("[slate] Failed to create sub-task", err);
+          console.error("[graphite] Failed to create sub-task", err);
         });
       };
       addBtn.addEventListener("click", submit);
@@ -5358,10 +5358,10 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     const showAddButton = () => {
       addRow.empty();
       const btn = addRow.createEl("button", {
-        cls: "slate-subtask-add-btn",
+        cls: "graphite-subtask-add-btn",
         attr: { type: "button" }
       });
-      createSlateIcon(btn, "add");
+      createGraphiteIcon(btn, "add");
       btn.createSpan({ text: "Add sub-task" });
       btn.addEventListener("click", showComposer);
     };
@@ -5369,7 +5369,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
   }
   createSubTaskDragImage(row) {
     const dragImage = row.cloneNode(true);
-    dragImage.addClass("slate-subtask-drag-preview");
+    dragImage.addClass("graphite-subtask-drag-preview");
     dragImage.setCssStyles({
       position: "absolute",
       top: "-9999px",
@@ -5381,30 +5381,30 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
   }
   renderProject(parent) {
     const field = this.createField(parent, "Project");
-    const projectPicker = field.createDiv({ cls: "slate-project-picker slate-detail-project-picker" });
+    const projectPicker = field.createDiv({ cls: "graphite-project-picker graphite-detail-project-picker" });
     const projectDot = projectPicker.createSpan({
-      cls: "slate-project-dot slate-detail-project-dot"
+      cls: "graphite-project-dot graphite-detail-project-dot"
     });
-    const projectLabel = projectPicker.createSpan({ cls: "slate-detail-project-label" });
-    const createRow = field.createDiv({ cls: "slate-detail-project-create is-hidden" });
+    const projectLabel = projectPicker.createSpan({ cls: "graphite-detail-project-label" });
+    const createRow = field.createDiv({ cls: "graphite-detail-project-create is-hidden" });
     const createInput = createRow.createEl("input", {
-      cls: "slate-detail-project-create-input",
+      cls: "graphite-detail-project-create-input",
       attr: {
         type: "text",
         placeholder: "Project name"
       }
     });
     const createButton = createRow.createEl("button", {
-      cls: "slate-detail-project-create-button",
+      cls: "graphite-detail-project-create-button",
       text: "Create",
       attr: { type: "button" }
     });
     const cancelCreateButton = createRow.createEl("button", {
-      cls: "slate-detail-project-cancel-button",
+      cls: "graphite-detail-project-cancel-button",
       text: "Cancel",
       attr: { type: "button" }
     });
-    const createValue = "__slate_create_project__";
+    const createValue = "__graphite_create_project__";
     const getProjects = () => uniqueRealProjects([
       this.options.settings.defaultProject,
       ...this.options.projects,
@@ -5415,10 +5415,10 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       const project = normalizeTaskProject(this.draft.project);
       projectLabel.setText(project || "No project");
       if (!project) {
-        projectDot.setCssStyles({ backgroundColor: "var(--slate-faint)" });
+        projectDot.setCssStyles({ backgroundColor: "var(--graphite-faint)" });
         projectPicker.setCssStyles({
-          backgroundColor: "var(--slate-hover)",
-          borderColor: "var(--slate-border)"
+          backgroundColor: "var(--graphite-hover)",
+          borderColor: "var(--graphite-border)"
         });
         return;
       }
@@ -5429,7 +5429,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         borderColor: color.light
       });
     };
-    const dropdown = new SlateDropdown({
+    const dropdown = new GraphiteDropdown({
       trigger: projectPicker,
       ariaLabel: "Project",
       getValue: () => normalizeTaskProject(this.draft.project) || "",
@@ -5491,30 +5491,30 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
   }
   renderDueDatePicker(parent) {
     const field = this.createField(parent, "Date");
-    const wrap = field.createDiv({ cls: "slate-date-picker-wrap slate-date-picker-inline" });
+    const wrap = field.createDiv({ cls: "graphite-date-picker-wrap graphite-date-picker-inline" });
     let detachOutside;
     const closePopover = () => {
       var _a;
-      (_a = wrap.querySelector(".slate-date-popover-inline")) == null ? void 0 : _a.addClass("is-hidden");
+      (_a = wrap.querySelector(".graphite-date-popover-inline")) == null ? void 0 : _a.addClass("is-hidden");
       detachOutside == null ? void 0 : detachOutside();
       detachOutside = void 0;
     };
     const renderPicker = () => {
       wrap.empty();
       const hasDate = Boolean(this.draft.due);
-      const btnRow = wrap.createDiv({ cls: "slate-date-btn-row" });
+      const btnRow = wrap.createDiv({ cls: "graphite-date-btn-row" });
       const btn = btnRow.createEl("button", {
-        cls: `slate-detail-date-btn${hasDate ? " is-active" : ""}`,
+        cls: `graphite-detail-date-btn${hasDate ? " is-active" : ""}`,
         attr: { type: "button" }
       });
-      createSlateIcon(btn, "calendar", { className: "slate-chip-icon" });
+      createGraphiteIcon(btn, "calendar", { className: "graphite-chip-icon" });
       btn.createSpan({ text: formatDueDateChip(this.draft.due) });
       if (hasDate) {
         const clearBtn = btnRow.createEl("button", {
-          cls: "slate-date-chip-clear",
+          cls: "graphite-date-chip-clear",
           attr: { type: "button", "aria-label": "Clear date" }
         });
-        createSlateIcon(clearBtn, "close");
+        createGraphiteIcon(clearBtn, "close");
         clearBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           if (this.draft.repeat) new import_obsidian11.Notice("Date and repeat rule removed.");
@@ -5524,7 +5524,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
           renderPicker();
         });
       }
-      const popover = wrap.createDiv({ cls: "slate-date-popover slate-date-popover-inline is-hidden" });
+      const popover = wrap.createDiv({ cls: "graphite-date-popover graphite-date-popover-inline is-hidden" });
       const selectDate = (value) => {
         this.draft.due = value || void 0;
         closePopover();
@@ -5532,7 +5532,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       };
       const addPreset = (label, value) => {
         const presetBtn = popover.createEl("button", {
-          cls: "slate-date-preset",
+          cls: "graphite-date-preset",
           text: label,
           attr: { type: "button" }
         });
@@ -5546,20 +5546,20 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       addPreset("Tomorrow", addDaysIso(1));
       addPreset("Next week", addDaysIso(7));
       addPreset("Next weekend", nextWeekdayIso(6));
-      popover.createDiv({ cls: "slate-date-divider" });
+      popover.createDiv({ cls: "graphite-date-divider" });
       renderCustomDatePicker(popover, this.draft.due, "calendar", selectDate);
-      popover.createDiv({ cls: "slate-date-divider" });
-      const repeatHeader = popover.createDiv({ cls: "slate-repeat-header" });
-      createSlateIcon(repeatHeader, "recurring", { className: "slate-chip-icon" });
+      popover.createDiv({ cls: "graphite-date-divider" });
+      const repeatHeader = popover.createDiv({ cls: "graphite-repeat-header" });
+      createGraphiteIcon(repeatHeader, "recurring", { className: "graphite-chip-icon" });
       repeatHeader.createSpan({ text: "Repeat" });
       const presetDue = this.draft.due || todayIso();
       const presets = getRepeatPresets(presetDue);
       for (const preset of presets) {
         const presetBtn = popover.createEl("button", {
-          cls: "slate-date-preset",
+          cls: "graphite-date-preset",
           attr: { type: "button" }
         });
-        createSlateIcon(presetBtn, "recurring", { className: "slate-chip-icon" });
+        createGraphiteIcon(presetBtn, "recurring", { className: "graphite-chip-icon" });
         presetBtn.createSpan({ text: preset.label });
         presetBtn.toggleClass("is-active", repeatRulesEqual(preset.rule, this.draft.repeat));
         presetBtn.addEventListener("click", (e) => {
@@ -5571,7 +5571,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
         });
       }
       const customRepeatBtn = popover.createEl("button", {
-        cls: "slate-date-preset",
+        cls: "graphite-date-preset",
         text: "Custom...",
         attr: { type: "button" }
       });
@@ -5600,13 +5600,13 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       });
       if (this.draft.repeat) {
         const fullRepeatLabel = getRepeatLabel(this.draft.repeat);
-        const repeatRow = wrap.createDiv({ cls: "slate-date-btn-row slate-detail-repeat-row" });
+        const repeatRow = wrap.createDiv({ cls: "graphite-date-btn-row graphite-detail-repeat-row" });
         const repeatChip = repeatRow.createEl("button", {
-          cls: "slate-detail-date-btn is-active slate-repeat-active-btn",
+          cls: "graphite-detail-date-btn is-active graphite-repeat-active-btn",
           attr: { type: "button", title: fullRepeatLabel, "aria-label": fullRepeatLabel }
         });
-        createSlateIcon(repeatChip, "recurring", { className: "slate-chip-icon" });
-        repeatChip.createSpan({ cls: "slate-repeat-chip-label", text: getRepeatChipLabel(this.draft.repeat) });
+        createGraphiteIcon(repeatChip, "recurring", { className: "graphite-chip-icon" });
+        repeatChip.createSpan({ cls: "graphite-repeat-chip-label", text: getRepeatChipLabel(this.draft.repeat) });
         repeatChip.addEventListener("click", (e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -5618,10 +5618,10 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
           }).open();
         });
         const clearRepeat = repeatRow.createEl("button", {
-          cls: "slate-date-chip-clear",
+          cls: "graphite-date-chip-clear",
           attr: { type: "button", "aria-label": "Clear repeat" }
         });
-        createSlateIcon(clearRepeat, "close");
+        createGraphiteIcon(clearRepeat, "close");
         clearRepeat.addEventListener("click", (e) => {
           e.stopPropagation();
           this.draft.repeat = void 0;
@@ -5633,30 +5633,30 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
   }
   renderDeadlinePicker(parent) {
     const field = this.createField(parent, "Deadline");
-    const wrap = field.createDiv({ cls: "slate-date-picker-wrap slate-date-picker-inline" });
+    const wrap = field.createDiv({ cls: "graphite-date-picker-wrap graphite-date-picker-inline" });
     let detachOutside;
     const closePopover = () => {
       var _a;
-      (_a = wrap.querySelector(".slate-date-popover-inline")) == null ? void 0 : _a.addClass("is-hidden");
+      (_a = wrap.querySelector(".graphite-date-popover-inline")) == null ? void 0 : _a.addClass("is-hidden");
       detachOutside == null ? void 0 : detachOutside();
       detachOutside = void 0;
     };
     const renderPicker = () => {
       wrap.empty();
       const hasDate = Boolean(this.draft.deadline);
-      const btnRow = wrap.createDiv({ cls: "slate-date-btn-row" });
+      const btnRow = wrap.createDiv({ cls: "graphite-date-btn-row" });
       const btn = btnRow.createEl("button", {
-        cls: `slate-detail-date-btn${hasDate ? " is-active" : ""}`,
+        cls: `graphite-detail-date-btn${hasDate ? " is-active" : ""}`,
         attr: { type: "button" }
       });
-      createSlateIcon(btn, "deadline", { className: "slate-chip-icon" });
+      createGraphiteIcon(btn, "deadline", { className: "graphite-chip-icon" });
       btn.createSpan({ text: hasDate ? formatDueDateChip(this.draft.deadline) : "No deadline" });
       if (hasDate) {
         const clearBtn = btnRow.createEl("button", {
-          cls: "slate-date-chip-clear",
+          cls: "graphite-date-chip-clear",
           attr: { type: "button", "aria-label": "Clear deadline" }
         });
-        createSlateIcon(clearBtn, "close");
+        createGraphiteIcon(clearBtn, "close");
         clearBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           this.draft.deadline = void 0;
@@ -5664,7 +5664,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
           renderPicker();
         });
       }
-      const popover = wrap.createDiv({ cls: "slate-date-popover slate-date-popover-inline is-hidden" });
+      const popover = wrap.createDiv({ cls: "graphite-date-popover graphite-date-popover-inline is-hidden" });
       const selectDate = (value) => {
         this.draft.deadline = value || void 0;
         closePopover();
@@ -5672,7 +5672,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       };
       const addPreset = (label, value) => {
         const presetBtn = popover.createEl("button", {
-          cls: "slate-date-preset",
+          cls: "graphite-date-preset",
           text: label,
           attr: { type: "button" }
         });
@@ -5703,22 +5703,22 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
   }
   renderPriority(parent) {
     const field = this.createField(parent, "Priority");
-    const priorityWrap = field.createDiv({ cls: "slate-priority-select-wrap slate-detail-priority-wrap" });
-    const indicator = priorityWrap.createSpan({ cls: "slate-priority-indicator" });
-    const display = priorityWrap.createSpan({ cls: "slate-priority-display" });
+    const priorityWrap = field.createDiv({ cls: "graphite-priority-select-wrap graphite-detail-priority-wrap" });
+    const indicator = priorityWrap.createSpan({ cls: "graphite-priority-indicator" });
+    const display = priorityWrap.createSpan({ cls: "graphite-priority-display" });
     const priorities = PRIORITIES.filter((priority) => priority !== "none");
     const updatePriorityStyle = () => {
       const color = getPriorityColor(this.draft.priority);
       priorityWrap.setCssProps({
-        "--slate-priority-text": color.color,
-        "--slate-priority-bg": color.light,
-        "--slate-priority-border": color.color
+        "--graphite-priority-text": color.color,
+        "--graphite-priority-bg": color.light,
+        "--graphite-priority-border": color.color
       });
       priorityWrap.toggleClass("has-priority", hasVisiblePriority(this.draft.priority));
       indicator.setCssStyles({ backgroundColor: color.color });
       display.setText(getPriorityDisplayLabel(this.draft.priority));
     };
-    const priorityDropdown = new SlateDropdown({
+    const priorityDropdown = new GraphiteDropdown({
       trigger: priorityWrap,
       ariaLabel: "Priority",
       getValue: () => isDefaultPriority(this.draft.priority) ? "P4" : this.draft.priority,
@@ -5738,15 +5738,15 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
   }
   renderLabels(parent) {
     const field = this.createField(parent, "Labels");
-    const chips = field.createDiv({ cls: "slate-detail-labels" });
+    const chips = field.createDiv({ cls: "graphite-detail-labels" });
     const input = field.createEl("input", {
-      cls: "slate-detail-input",
+      cls: "graphite-detail-input",
       attr: {
         type: "text",
         placeholder: "#label"
       }
     });
-    const suggestions = field.createDiv({ cls: "slate-label-suggestions" });
+    const suggestions = field.createDiv({ cls: "graphite-label-suggestions" });
     const addLabel = (value) => {
       const label = normalizeLabelName(value);
       if (!label) {
@@ -5763,7 +5763,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       chips.empty();
       for (const label of this.draft.labels) {
         const chip = chips.createEl("button", {
-          cls: "slate-selected-label slate-detail-label-chip",
+          cls: "graphite-selected-label graphite-detail-label-chip",
           attr: { type: "button" }
         });
         const color = this.getLabelColor(label);
@@ -5771,17 +5771,17 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
           backgroundColor: color.light,
           borderColor: color.light
         });
-        chip.createSpan({ cls: "slate-label-dot" }).setCssStyles({ backgroundColor: color.regular });
+        chip.createSpan({ cls: "graphite-label-dot" }).setCssStyles({ backgroundColor: color.regular });
         chip.createSpan({ text: displayLabel(label) });
         chip.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
         });
         const removeLabel = chip.createSpan({
-          cls: "slate-label-chip-remove",
+          cls: "graphite-label-chip-remove",
           attr: { "aria-hidden": "true" }
         });
-        createSlateIcon(removeLabel, "close");
+        createGraphiteIcon(removeLabel, "close");
         removeLabel.addEventListener("click", (event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -5792,14 +5792,14 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       suggestions.empty();
       const query = normalizeLabelName(input.value);
       if (!query) {
-        suggestions.createDiv({ cls: "slate-label-empty", text: "Type a label name" });
+        suggestions.createDiv({ cls: "graphite-label-empty", text: "Type a label name" });
         return;
       }
       const labels = dedupeLabels(this.options.labels);
       const matches = labels.filter((label) => label.includes(query) && !this.draft.labels.includes(label)).slice(0, 8);
       for (const label of matches) {
         const suggestion = suggestions.createEl("button", {
-          cls: "slate-label-suggestion",
+          cls: "graphite-label-suggestion",
           text: displayLabel(label),
           attr: { type: "button" }
         });
@@ -5807,7 +5807,7 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
       }
       if (!labels.includes(query) && !this.draft.labels.includes(query)) {
         const create = suggestions.createEl("button", {
-          cls: "slate-label-suggestion",
+          cls: "graphite-label-suggestion",
           text: `Create label: ${displayLabel(query)}`,
           attr: { type: "button" }
         });
@@ -5841,8 +5841,8 @@ var TaskDetailModal = class _TaskDetailModal extends import_obsidian11.Modal {
     renderLabels();
   }
   createField(parent, label) {
-    const field = parent.createDiv({ cls: "slate-detail-field" });
-    field.createDiv({ cls: "slate-detail-label", text: label });
+    const field = parent.createDiv({ cls: "graphite-detail-field" });
+    field.createDiv({ cls: "graphite-detail-label", text: label });
     return field;
   }
   ensureLabelColor(label) {
@@ -5878,24 +5878,24 @@ function renderCustomDatePicker(parent, currentValue, _iconName, onSelect) {
   const initDate = currentValue ? /* @__PURE__ */ new Date(currentValue + "T00:00:00") : /* @__PURE__ */ new Date();
   let viewYear = initDate.getFullYear();
   let viewMonth = initDate.getMonth();
-  const container = parent.createDiv({ cls: "slate-date-custom-wrap" });
+  const container = parent.createDiv({ cls: "graphite-date-custom-wrap" });
   const trigger = container.createEl("button", {
-    cls: "slate-date-preset slate-cal-trigger",
+    cls: "graphite-date-preset graphite-cal-trigger",
     attr: { type: "button" }
   });
   trigger.createSpan({ text: currentValue ? formatDueDateChip(currentValue) : "Custom date\u2026" });
   if (currentValue) trigger.addClass("is-active");
-  const calWrap = container.createDiv({ cls: "slate-cal-wrap is-hidden" });
+  const calWrap = container.createDiv({ cls: "graphite-cal-wrap is-hidden" });
   function renderCal() {
     calWrap.empty();
-    const header = calWrap.createDiv({ cls: "slate-cal-header" });
-    const prevBtn = header.createEl("button", { cls: "slate-cal-nav", attr: { type: "button" } });
+    const header = calWrap.createDiv({ cls: "graphite-cal-header" });
+    const prevBtn = header.createEl("button", { cls: "graphite-cal-nav", attr: { type: "button" } });
     prevBtn.setText("\u2039");
     header.createSpan({
-      cls: "slate-cal-title",
+      cls: "graphite-cal-title",
       text: new Date(viewYear, viewMonth, 1).toLocaleDateString(void 0, { month: "long", year: "numeric" })
     });
-    const nextBtn = header.createEl("button", { cls: "slate-cal-nav", attr: { type: "button" } });
+    const nextBtn = header.createEl("button", { cls: "graphite-cal-nav", attr: { type: "button" } });
     nextBtn.setText("\u203A");
     prevBtn.addEventListener("click", (e) => {
       e.preventDefault();
@@ -5917,20 +5917,20 @@ function renderCustomDatePicker(parent, currentValue, _iconName, onSelect) {
       }
       renderCal();
     });
-    const grid = calWrap.createDiv({ cls: "slate-cal-grid" });
+    const grid = calWrap.createDiv({ cls: "graphite-cal-grid" });
     for (const d of ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]) {
-      grid.createSpan({ cls: "slate-cal-day-hdr", text: d });
+      grid.createSpan({ cls: "graphite-cal-day-hdr", text: d });
     }
     const firstDow = new Date(viewYear, viewMonth, 1).getDay();
     const leadingEmpties = firstDow === 0 ? 6 : firstDow - 1;
     for (let i = 0; i < leadingEmpties; i++) {
-      grid.createDiv({ cls: "slate-cal-day is-empty" });
+      grid.createDiv({ cls: "graphite-cal-day is-empty" });
     }
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     for (let d = 1; d <= daysInMonth; d++) {
       const iso = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
       const cell = grid.createEl("button", {
-        cls: "slate-cal-day",
+        cls: "graphite-cal-day",
         text: String(d),
         attr: { type: "button" }
       });
@@ -5944,7 +5944,7 @@ function renderCustomDatePicker(parent, currentValue, _iconName, onSelect) {
     const renderedCells = leadingEmpties + daysInMonth;
     const trailingEmpties = 42 - renderedCells;
     for (let i = 0; i < trailingEmpties; i++) {
-      grid.createDiv({ cls: "slate-cal-day is-empty" });
+      grid.createDiv({ cls: "graphite-cal-day is-empty" });
     }
   }
   trigger.addEventListener("click", (e) => {
@@ -6047,7 +6047,7 @@ function getTextareaSelectionAnchor(textarea) {
     return { left: rect.left, top: rect.top, bottom: rect.bottom };
   }
   const computed = win.getComputedStyle(textarea);
-  const mirror = doc.body.createDiv({ cls: "slate-textarea-selection-mirror" });
+  const mirror = doc.body.createDiv({ cls: "graphite-textarea-selection-mirror" });
   mirror.setCssStyles({
     boxSizing: computed.boxSizing,
     borderTopWidth: computed.borderTopWidth,
@@ -6293,25 +6293,25 @@ var RenameProjectModal = class extends import_obsidian12.Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-project-rename-modal");
+    contentEl.addClass("graphite-project-rename-modal");
     contentEl.createEl("h2", { text: "Rename project" });
     const input = contentEl.createEl("input", {
-      cls: "slate-label-prompt-input",
+      cls: "graphite-label-prompt-input",
       attr: { type: "text", value: this.currentName }
     });
     input.select();
     let errorEl = null;
     const showError = (msg) => {
       if (!errorEl) {
-        errorEl = contentEl.createDiv({ cls: "slate-modal-error" });
+        errorEl = contentEl.createDiv({ cls: "graphite-modal-error" });
         actions.before(errorEl);
       }
       errorEl.setText(msg);
     };
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
-    actions.createEl("button", { cls: "slate-button", text: "Cancel", attr: { type: "button" } }).addEventListener("click", () => this.close());
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
+    actions.createEl("button", { cls: "graphite-button", text: "Cancel", attr: { type: "button" } }).addEventListener("click", () => this.close());
     const submitButton = actions.createEl("button", {
-      cls: "slate-button slate-button-primary",
+      cls: "graphite-button graphite-button-primary",
       text: "Rename",
       attr: { type: "button" }
     });
@@ -6351,14 +6351,14 @@ var DeleteProjectModal = class extends import_obsidian12.Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-project-delete-modal");
+    contentEl.addClass("graphite-project-delete-modal");
     contentEl.createEl("h2", { text: `Delete "${this.projectName}"?` });
     const desc = this.taskCount > 0 ? `This will delete the project only. ${this.taskCount} task${this.taskCount === 1 ? "" : "s"} will be moved to Inbox. Tasks will not be deleted.` : "This will delete the project. It has no tasks.";
-    contentEl.createEl("p", { text: desc, cls: "slate-modal-desc" });
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
-    actions.createEl("button", { cls: "slate-button", text: "Cancel", attr: { type: "button" } }).addEventListener("click", () => this.close());
+    contentEl.createEl("p", { text: desc, cls: "graphite-modal-desc" });
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
+    actions.createEl("button", { cls: "graphite-button", text: "Cancel", attr: { type: "button" } }).addEventListener("click", () => this.close());
     actions.createEl("button", {
-      cls: "slate-button slate-button-destructive",
+      cls: "graphite-button graphite-button-destructive",
       text: "Delete project",
       attr: { type: "button" }
     }).addEventListener("click", () => {
@@ -6377,32 +6377,32 @@ var CreateProjectModal = class extends import_obsidian12.Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-project-rename-modal");
-    contentEl.addClass("slate-project-create-modal");
+    contentEl.addClass("graphite-project-rename-modal");
+    contentEl.addClass("graphite-project-create-modal");
     contentEl.createEl("h2", { text: "New project" });
     const input = contentEl.createEl("input", {
-      cls: "slate-label-prompt-input",
+      cls: "graphite-label-prompt-input",
       attr: { type: "text", placeholder: "Project name" }
     });
-    const appearance = contentEl.createDiv({ cls: "slate-project-create-appearance" });
-    const preview = appearance.createDiv({ cls: "slate-project-create-preview" });
-    const previewChip = preview.createDiv({ cls: "slate-project-create-preview-chip" });
-    const previewDot = previewChip.createSpan({ cls: "slate-project-dot" });
-    const previewName = previewChip.createSpan({ cls: "slate-project-create-preview-name" });
-    const colorControl = appearance.createDiv({ cls: "slate-project-create-color-control" });
+    const appearance = contentEl.createDiv({ cls: "graphite-project-create-appearance" });
+    const preview = appearance.createDiv({ cls: "graphite-project-create-preview" });
+    const previewChip = preview.createDiv({ cls: "graphite-project-create-preview-chip" });
+    const previewDot = previewChip.createSpan({ cls: "graphite-project-dot" });
+    const previewName = previewChip.createSpan({ cls: "graphite-project-create-preview-name" });
+    const colorControl = appearance.createDiv({ cls: "graphite-project-create-color-control" });
     const autoButton = colorControl.createEl("button", {
-      cls: "slate-project-color-auto is-selected",
+      cls: "graphite-project-color-auto is-selected",
       attr: { type: "button", "aria-label": "Automatic project color", "aria-pressed": "true" }
     });
-    const autoDot = autoButton.createSpan({ cls: "slate-project-color-dot" });
-    const autoText = autoButton.createSpan({ cls: "slate-project-color-auto-text", text: "\u2713 Auto" });
+    const autoDot = autoButton.createSpan({ cls: "graphite-project-color-dot" });
+    const autoText = autoButton.createSpan({ cls: "graphite-project-color-auto-text", text: "\u2713 Auto" });
     const randomButton = colorControl.createEl("button", {
-      cls: "slate-project-color-random",
+      cls: "graphite-project-color-random",
       attr: { type: "button", "aria-label": "Choose another project color" }
     });
-    createSlateIcon(randomButton, "randomize");
-    const customColor = colorControl.createEl("label", { cls: "slate-project-color-custom" });
-    const customDot = customColor.createSpan({ cls: "slate-project-color-custom-dot" });
+    createGraphiteIcon(randomButton, "randomize");
+    const customColor = colorControl.createEl("label", { cls: "graphite-project-color-custom" });
+    const customDot = customColor.createSpan({ cls: "graphite-project-color-custom-dot" });
     const colorInput = customColor.createEl("input", {
       attr: { type: "color", "aria-label": "Custom project color" }
     });
@@ -6421,8 +6421,8 @@ var CreateProjectModal = class extends import_obsidian12.Modal {
     });
     randomButton.addEventListener("click", () => {
       const currentColor = (this.selectedColor || getProjectColor(this.autoPreviewName, {}).regular).toLowerCase();
-      const candidates = SLATE_COLOR_PALETTE.map((color) => color.regular).filter((color) => color.toLowerCase() !== currentColor);
-      const nextColor = candidates[Math.floor(Math.random() * candidates.length)] || SLATE_COLOR_PALETTE[0].regular;
+      const candidates = GRAPHITE_COLOR_PALETTE.map((color) => color.regular).filter((color) => color.toLowerCase() !== currentColor);
+      const nextColor = candidates[Math.floor(Math.random() * candidates.length)] || GRAPHITE_COLOR_PALETTE[0].regular;
       selectColor(nextColor);
     });
     colorInput.addEventListener("input", () => selectColor(colorInput.value));
@@ -6432,12 +6432,12 @@ var CreateProjectModal = class extends import_obsidian12.Modal {
       const generatedColor = getProjectColor(this.autoPreviewName, {});
       const previewColor = this.selectedColor ? getProjectColor(previewProjectName, { [previewProjectName]: this.selectedColor }) : generatedColor;
       previewChip.setCssProps({
-        "--slate-project-bg": previewColor.light,
-        "--slate-project-color": previewColor.regular
+        "--graphite-project-bg": previewColor.light,
+        "--graphite-project-color": previewColor.regular
       });
       previewDot.setCssStyles({ backgroundColor: previewColor.regular });
       autoDot.setCssStyles({ backgroundColor: generatedColor.regular });
-      customColor.setCssProps({ "--slate-custom-color": previewColor.regular });
+      customColor.setCssProps({ "--graphite-custom-color": previewColor.regular });
       customDot.setCssStyles({ backgroundColor: previewColor.regular });
       colorInput.value = this.selectedColor || generatedColor.regular;
       previewName.setText(previewProjectName);
@@ -6445,15 +6445,15 @@ var CreateProjectModal = class extends import_obsidian12.Modal {
     let errorEl = null;
     const showError = (msg) => {
       if (!errorEl) {
-        errorEl = contentEl.createDiv({ cls: "slate-modal-error" });
+        errorEl = contentEl.createDiv({ cls: "graphite-modal-error" });
         actions.before(errorEl);
       }
       errorEl.setText(msg);
     };
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
-    actions.createEl("button", { cls: "slate-button", text: "Cancel", attr: { type: "button" } }).addEventListener("click", () => this.close());
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
+    actions.createEl("button", { cls: "graphite-button", text: "Cancel", attr: { type: "button" } }).addEventListener("click", () => this.close());
     const submitButton = actions.createEl("button", {
-      cls: "slate-button slate-button-primary",
+      cls: "graphite-button graphite-button-primary",
       text: "Create",
       attr: { type: "button" }
     });
@@ -6494,12 +6494,12 @@ var CreateProjectModal = class extends import_obsidian12.Modal {
 
 // src/views/projects/projectActions.ts
 function renderProjectActionsMenu(options) {
-  const wrapper = options.header.createDiv({ cls: "slate-project-actions-wrap" });
+  const wrapper = options.header.createDiv({ cls: "graphite-project-actions-wrap" });
   const button = wrapper.createEl("button", {
-    cls: "slate-project-actions-button",
+    cls: "graphite-project-actions-button",
     attr: { type: "button", "aria-label": "Project actions" }
   });
-  createSlateIcon(button, "more");
+  createGraphiteIcon(button, "more");
   button.addEventListener("click", (event) => {
     event.preventDefault();
     event.stopPropagation();
@@ -6508,11 +6508,11 @@ function renderProjectActionsMenu(options) {
   if (!options.isOpen) return null;
   const ownerDocument = options.header.ownerDocument;
   const ownerWindow = ownerDocument.defaultView || window;
-  const menu = ownerDocument.body.createDiv({ cls: "slate-project-menu" });
+  const menu = ownerDocument.body.createDiv({ cls: "graphite-project-menu" });
   options.onMenuCreated(menu);
   menu.setCssStyles({ visibility: "hidden" });
   const renameItem = menu.createEl("button", {
-    cls: "slate-project-option",
+    cls: "graphite-project-option",
     text: "Rename project",
     attr: { type: "button" }
   });
@@ -6521,7 +6521,7 @@ function renderProjectActionsMenu(options) {
     options.onRename();
   });
   const archiveItem = menu.createEl("button", {
-    cls: "slate-project-option",
+    cls: "graphite-project-option",
     text: "Archive project",
     attr: { type: "button" }
   });
@@ -6530,7 +6530,7 @@ function renderProjectActionsMenu(options) {
     options.onArchive();
   });
   const deleteItem = menu.createEl("button", {
-    cls: "slate-project-option is-destructive",
+    cls: "graphite-project-option is-destructive",
     text: "Delete project",
     attr: { type: "button" }
   });
@@ -6588,7 +6588,7 @@ function renderProjectActionsMenu(options) {
 }
 
 // src/views/TaskBoardView.ts
-var VIEW_TYPE_SLATE = "slate-task-board";
+var VIEW_TYPE_GRAPHITE = "graphite-task-board";
 function markdownPreviewText(text) {
   return text.replace(/```[a-zA-Z0-9_-]*\n?([\s\S]*?)```/g, "$1").split(/\r?\n/).map(
     (line) => line.replace(/^\s{0,3}#{1,6}\s+/, "").replace(/^\s{0,3}>\s?/, "").replace(/^\s*(?:[-*+]|\d+\.)\s+/, "").trim()
@@ -6641,13 +6641,13 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     this.dropdowns = [];
     this.handleRootClick = (event) => {
       const target = event.target;
-      if (this.taskActionsOpenId && target instanceof HTMLElement && target.closest(".slate-task-actions, .slate-task-action-menu")) {
+      if (this.taskActionsOpenId && target instanceof HTMLElement && target.closest(".graphite-task-actions, .graphite-task-action-menu")) {
         return;
       }
       if (this.taskActionsOpenId) {
         this.removeTaskActionMenu();
       }
-      if (this.labelActionsOpen && target instanceof HTMLElement && target.closest(".slate-label-actions-button, .slate-label-menu")) {
+      if (this.labelActionsOpen && target instanceof HTMLElement && target.closest(".graphite-label-actions-button, .graphite-label-menu")) {
         return;
       }
       if (this.labelActionsOpen) {
@@ -6675,7 +6675,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         return;
       }
       const openProjectInput = this.containerEl.querySelector(
-        ".slate-custom-project-wrap:not(.is-hidden)"
+        ".graphite-custom-project-wrap:not(.is-hidden)"
       );
       if (openProjectInput) {
         this.stopEscape(event);
@@ -6683,7 +6683,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         return;
       }
       const openPopover = this.containerEl.querySelector(
-        ".slate-composer-popover:not(.is-hidden)"
+        ".graphite-composer-popover:not(.is-hidden)"
       );
       if (openPopover) {
         this.stopEscape(event);
@@ -6691,7 +6691,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         return;
       }
       const openMenu = this.containerEl.querySelector(
-        ".slate-composer-menu:not(.is-hidden)"
+        ".graphite-composer-menu:not(.is-hidden)"
       );
       if (openMenu) {
         this.stopEscape(event);
@@ -6726,10 +6726,10 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     };
   }
   getViewType() {
-    return VIEW_TYPE_SLATE;
+    return VIEW_TYPE_GRAPHITE;
   }
   getDisplayText() {
-    return "Tasks \xB7 slate";
+    return "Tasks \xB7 graphite";
   }
   getIcon() {
     return "check-circle-2";
@@ -6840,15 +6840,15 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     this.removeLabelMenu();
     this.removeTaskActionMenu();
     const { containerEl } = this;
-    const sidebarScrollLeft = (_c = (_b = containerEl.querySelector(".slate-sidebar")) == null ? void 0 : _b.scrollLeft) != null ? _c : this.sidebarScrollLeft;
+    const sidebarScrollLeft = (_c = (_b = containerEl.querySelector(".graphite-sidebar")) == null ? void 0 : _b.scrollLeft) != null ? _c : this.sidebarScrollLeft;
     containerEl.empty();
-    containerEl.addClass("slate-root");
-    containerEl.addClass("slate-view");
+    containerEl.addClass("graphite-root");
+    containerEl.addClass("graphite-view");
     containerEl.toggleClass("is-mobile", import_obsidian13.Platform.isMobile);
-    applySlateFontSettings(containerEl, this.settings);
+    applyGraphiteFontSettings(containerEl, this.settings);
     containerEl.addEventListener("keydown", this.handleRootKeyDown, true);
     containerEl.addEventListener("click", this.handleRootClick, true);
-    const shell = containerEl.createDiv({ cls: "slate-shell" });
+    const shell = containerEl.createDiv({ cls: "graphite-shell" });
     this.renderSidebar(shell);
     this.renderMain(shell);
     if (this.searchOpen) {
@@ -6858,7 +6858,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     this.restoreSidebarScroll(sidebarScrollLeft);
   }
   getMainScrollSnapshot() {
-    const main = this.containerEl.querySelector(".slate-main");
+    const main = this.containerEl.querySelector(".graphite-main");
     if (!main) {
       return null;
     }
@@ -6885,7 +6885,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
   restoreMainScrollSnapshot(snapshot) {
     const ownerWindow = this.containerEl.ownerDocument.defaultView || window;
     const restore = () => {
-      const main = this.containerEl.querySelector(".slate-main");
+      const main = this.containerEl.querySelector(".graphite-main");
       if (main) {
         main.scrollTop = snapshot.top;
         main.scrollLeft = snapshot.left;
@@ -6898,7 +6898,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
   }
   restoreSidebarScroll(scrollLeft) {
     window.requestAnimationFrame(() => {
-      const sidebar = this.containerEl.querySelector(".slate-sidebar");
+      const sidebar = this.containerEl.querySelector(".graphite-sidebar");
       if (!sidebar) {
         return;
       }
@@ -6907,22 +6907,22 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     });
   }
   renderSidebar(parent) {
-    const sidebar = parent.createEl("aside", { cls: "slate-sidebar" });
+    const sidebar = parent.createEl("aside", { cls: "graphite-sidebar" });
     sidebar.scrollLeft = this.sidebarScrollLeft;
     sidebar.addEventListener("scroll", () => {
       this.sidebarScrollLeft = sidebar.scrollLeft;
     });
     if (this.shouldShowContextualAddTask()) {
-      const sidebarAdd = sidebar.createEl("button", { cls: "slate-add-sidebar" });
-      createSlateIcon(sidebarAdd, "add", { className: "slate-add-plus", size: 18 });
-      sidebarAdd.createSpan({ cls: "slate-add-text", text: "Add task" });
+      const sidebarAdd = sidebar.createEl("button", { cls: "graphite-add-sidebar" });
+      createGraphiteIcon(sidebarAdd, "add", { className: "graphite-add-plus", size: 18 });
+      sidebarAdd.createSpan({ cls: "graphite-add-text", text: "Add task" });
       sidebarAdd.addEventListener("click", () => {
         this.openAddComposer();
       });
     }
     const tasks = this.store.getTasks();
     const activeTopLevel = this.getActiveTopLevelTasks(tasks);
-    const nav = sidebar.createDiv({ cls: "slate-nav" });
+    const nav = sidebar.createDiv({ cls: "graphite-nav" });
     this.renderNavButton(nav, "Search", "search", void 0, "search");
     this.renderNavButton(nav, "Inbox", "inbox", this.getInboxTasks(activeTopLevel).length, "inbox");
     this.renderNavButton(nav, "Today", "today", this.getTodayTasks(activeTopLevel).length, "today");
@@ -6930,15 +6930,15 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     this.renderNavButton(nav, "Filters & Labels", "filters", void 0, "filters");
     this.renderNavButton(nav, "Projects", "projects", void 0, "projects");
     this.renderNavButton(nav, "Activity", "activity", void 0, "activity");
-    const projectsSection = sidebar.createDiv({ cls: "slate-sidebar-section" });
-    const projectsHeadingRow = projectsSection.createDiv({ cls: "slate-sidebar-heading-row" });
-    projectsHeadingRow.createDiv({ cls: "slate-sidebar-heading", text: "Projects" });
+    const projectsSection = sidebar.createDiv({ cls: "graphite-sidebar-section" });
+    const projectsHeadingRow = projectsSection.createDiv({ cls: "graphite-sidebar-heading-row" });
+    projectsHeadingRow.createDiv({ cls: "graphite-sidebar-heading", text: "Projects" });
     const addProjectBtn = projectsHeadingRow.createEl("button", {
-      cls: "slate-sidebar-add-project",
+      cls: "graphite-sidebar-add-project",
       attr: { type: "button", "aria-label": "New project" }
     });
-    createSlateIcon(addProjectBtn, "add");
-    addProjectBtn.createSpan({ cls: "slate-sidebar-add-project-label", text: "Project" });
+    createGraphiteIcon(addProjectBtn, "add");
+    addProjectBtn.createSpan({ cls: "graphite-sidebar-add-project-label", text: "Project" });
     addProjectBtn.addEventListener("click", () => {
       new CreateProjectModal(this.app, this.getKnownProjects(), (project) => {
         this.ensureProjectInRegistry(project.name);
@@ -6953,7 +6953,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     for (const cleanProject of this.getActiveProjects()) {
       const count = activeTopLevel.filter((task) => normalizeTaskProject(task.project) === cleanProject).length;
       const button = projectsSection.createEl("button", {
-        cls: "slate-project-button"
+        cls: "graphite-project-button"
       });
       button.toggleClass(
         "is-active",
@@ -6961,12 +6961,12 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       );
       const color = getProjectColor(cleanProject, this.settings.projectColors);
       button.setCssProps({
-        "--slate-project-bg": color.light,
-        "--slate-project-color": color.regular
+        "--graphite-project-bg": color.light,
+        "--graphite-project-color": color.regular
       });
-      button.createSpan({ cls: "slate-project-dot" }).setCssStyles({ backgroundColor: color.regular });
-      button.createEl("span", { cls: "slate-nav-label", text: cleanProject });
-      button.createEl("span", { cls: "slate-count", text: String(count) });
+      button.createSpan({ cls: "graphite-project-dot" }).setCssStyles({ backgroundColor: color.regular });
+      button.createEl("span", { cls: "graphite-nav-label", text: cleanProject });
+      button.createEl("span", { cls: "graphite-count", text: String(count) });
       this.enableProjectDrop(button, cleanProject);
       button.addEventListener("click", () => {
         this.mode = "projects";
@@ -6981,12 +6981,12 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     }
     if (this.settings.archivedProjects.length > 0) {
       const archiveButton = projectsSection.createEl("button", {
-        cls: "slate-project-button slate-archived-button"
+        cls: "graphite-project-button graphite-archived-button"
       });
       archiveButton.toggleClass("is-active", this.mode === "archived");
-      createSlateIcon(archiveButton, "archive", { className: "slate-nav-icon", size: 18 });
-      archiveButton.createEl("span", { cls: "slate-nav-label", text: "Archived" });
-      archiveButton.createEl("span", { cls: "slate-count", text: String(this.settings.archivedProjects.length) });
+      createGraphiteIcon(archiveButton, "archive", { className: "graphite-nav-icon", size: 18 });
+      archiveButton.createEl("span", { cls: "graphite-nav-label", text: "Archived" });
+      archiveButton.createEl("span", { cls: "graphite-count", text: String(this.settings.archivedProjects.length) });
       archiveButton.addEventListener("click", () => {
         this.mode = "archived";
         this.selectedProject = null;
@@ -7007,16 +7007,16 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     );
   }
   renderNavButton(parent, label, mode, count, iconKey) {
-    const button = parent.createEl("button", { cls: "slate-nav-button" });
+    const button = parent.createEl("button", { cls: "graphite-nav-button" });
     const active = label === "Search" ? false : label === "Projects" ? this.mode === "projects" && this.selectedProject === null : this.mode === mode;
     button.toggleClass("is-active", active);
-    const iconEl = button.createEl("span", { cls: "slate-nav-icon" });
+    const iconEl = button.createEl("span", { cls: "graphite-nav-icon" });
     if (iconKey) {
-      createSlateIcon(iconEl, iconKey, { size: 18 });
+      createGraphiteIcon(iconEl, iconKey, { size: 18 });
     }
-    button.createEl("span", { cls: "slate-nav-label", text: label });
+    button.createEl("span", { cls: "graphite-nav-label", text: label });
     if (count !== void 0) {
-      button.createEl("span", { cls: "slate-count", text: String(count) });
+      button.createEl("span", { cls: "graphite-count", text: String(count) });
     }
     button.addEventListener("click", () => {
       if (label === "Search") {
@@ -7041,43 +7041,43 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     });
   }
   renderMain(parent) {
-    const main = parent.createEl("main", { cls: "slate-main" });
+    const main = parent.createEl("main", { cls: "graphite-main" });
     const tasks = this.store.getTasks();
     const visible = this.getVisibleTasks(tasks);
     const activityData = this.mode === "activity" ? this.getActivityData(tasks) : null;
-    const header = main.createDiv({ cls: "slate-main-header" });
+    const header = main.createDiv({ cls: "graphite-main-header" });
     const titleWrap = header.createDiv();
     titleWrap.createEl("h1", { text: this.getTitle() });
     titleWrap.createDiv({
-      cls: "slate-subtitle",
+      cls: "graphite-subtitle",
       text: activityData ? `${activityData.allTimeCount} completed task${activityData.allTimeCount === 1 ? "" : "s"}` : `${visible.length} task${visible.length === 1 ? "" : "s"}`
     });
     if (this.mode !== "activity" && this.mode !== "daily-note") {
       this.renderSortingControl(header);
     }
-    const sections = main.createDiv({ cls: "slate-sections" });
+    const sections = main.createDiv({ cls: "graphite-sections" });
     this.renderTaskSections(sections, tasks);
     if (!this.shouldShowContextualAddTask()) {
       return;
     }
-    const addArea = main.createDiv({ cls: "slate-add-area" });
+    const addArea = main.createDiv({ cls: "graphite-add-area" });
     if (this.composerOpen) {
       this.renderAddTaskComposer(addArea, () => {
         this.composerOpen = false;
         this.render();
       });
     } else {
-      const inlineAdd = addArea.createEl("button", { cls: "slate-add-inline" });
-      createSlateIcon(inlineAdd, "add", { className: "slate-add-plus", size: 18 });
-      inlineAdd.createSpan({ cls: "slate-add-text", text: "Add task" });
+      const inlineAdd = addArea.createEl("button", { cls: "graphite-add-inline" });
+      createGraphiteIcon(inlineAdd, "add", { className: "graphite-add-plus", size: 18 });
+      inlineAdd.createSpan({ cls: "graphite-add-text", text: "Add task" });
       inlineAdd.addEventListener("click", () => {
         this.openAddComposer();
       });
     }
     if (tasks.length === 0) {
       main.createDiv({
-        cls: "slate-empty",
-        text: `No tasks yet. Add one and slate will write it to ${this.store.dataDir}/YYYY-MM.md.`
+        cls: "graphite-empty",
+        text: `No tasks yet. Add one and graphite will write it to ${this.store.dataDir}/YYYY-MM.md.`
       });
     }
   }
@@ -7150,32 +7150,32 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       return;
     }
     if (this.mobileComposerOpen) {
-      const screen = parent.createDiv({ cls: "slate-mobile-quick-add-screen" });
-      const header = screen.createDiv({ cls: "slate-mobile-quick-add-screen-header" });
+      const screen = parent.createDiv({ cls: "graphite-mobile-quick-add-screen" });
+      const header = screen.createDiv({ cls: "graphite-mobile-quick-add-screen-header" });
       const backButton = header.createEl("button", {
-        cls: "slate-mobile-quick-add-back",
+        cls: "graphite-mobile-quick-add-back",
         attr: { type: "button", "aria-label": "Back to tasks" }
       });
-      createSlateIcon(backButton, "back");
+      createGraphiteIcon(backButton, "back");
       backButton.addEventListener("click", () => this.closeMobileComposer());
-      header.createDiv({ cls: "slate-mobile-quick-add-title", text: "Add task" });
+      header.createDiv({ cls: "graphite-mobile-quick-add-title", text: "Add task" });
       const closeButton = header.createEl("button", {
-        cls: "slate-mobile-quick-add-close",
+        cls: "graphite-mobile-quick-add-close",
         attr: { type: "button", "aria-label": "Close add task" }
       });
-      createSlateIcon(closeButton, "close");
+      createGraphiteIcon(closeButton, "close");
       closeButton.addEventListener("click", () => this.closeMobileComposer());
-      const body = screen.createDiv({ cls: "slate-mobile-quick-add-body" });
+      const body = screen.createDiv({ cls: "graphite-mobile-quick-add-body" });
       this.renderAddTaskComposer(body, () => {
         this.closeMobileComposer();
       });
       return;
     }
     const button = parent.createEl("button", {
-      cls: "slate-mobile-quick-add-button",
+      cls: "graphite-mobile-quick-add-button",
       attr: { type: "button", "aria-label": "Add task" }
     });
-    createSlateIcon(button, "add");
+    createGraphiteIcon(button, "add");
     button.addEventListener("click", () => this.openAddComposer());
   }
   shouldShowContextualAddTask() {
@@ -7225,16 +7225,16 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     return result;
   }
   renderSortingControl(parent) {
-    const wrapper = parent.createDiv({ cls: "slate-sorting" });
+    const wrapper = parent.createDiv({ cls: "graphite-sorting" });
     const button = wrapper.createEl("button", {
-      cls: "slate-sorting-button",
+      cls: "graphite-sorting-button",
       attr: {
         type: "button",
         "aria-haspopup": "menu",
         "aria-expanded": String(this.sortPopoverOpen)
       }
     });
-    createSlateIcon(button, "sorting", { className: "slate-sorting-icon" });
+    createGraphiteIcon(button, "sorting", { className: "graphite-sorting-icon" });
     button.createSpan({ text: "Sorting" });
     button.addEventListener("click", (event) => {
       event.preventDefault();
@@ -7245,11 +7245,11 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     if (!this.sortPopoverOpen) {
       return;
     }
-    const popover = wrapper.createDiv({ cls: "slate-sorting-popover" });
-    popover.createDiv({ cls: "slate-sorting-title", text: "Sort by" });
+    const popover = wrapper.createDiv({ cls: "graphite-sorting-popover" });
+    popover.createDiv({ cls: "graphite-sorting-title", text: "Sort by" });
     for (const option of SORT_OPTIONS) {
       const item = popover.createEl("button", {
-        cls: "slate-sorting-option",
+        cls: "graphite-sorting-option",
         attr: {
           type: "button",
           role: "menuitemradio",
@@ -7258,7 +7258,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       });
       item.toggleClass("is-active", this.settings.sortMode === option.mode);
       item.createSpan({
-        cls: "slate-sorting-check",
+        cls: "graphite-sorting-check",
         text: this.settings.sortMode === option.mode ? "\u2713" : ""
       });
       item.createSpan({ text: option.label });
@@ -7274,8 +7274,8 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       });
     }
     if (this.mode === "projects") {
-      popover.createDiv({ cls: "slate-sorting-divider" });
-      popover.createDiv({ cls: "slate-sorting-title", text: "Group by" });
+      popover.createDiv({ cls: "graphite-sorting-divider" });
+      popover.createDiv({ cls: "graphite-sorting-title", text: "Group by" });
       const GROUP_OPTIONS = [
         { label: "None", value: "none" },
         { label: "Label", value: "label" },
@@ -7283,11 +7283,11 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       ];
       for (const opt of GROUP_OPTIONS) {
         const item = popover.createEl("button", {
-          cls: "slate-sorting-option",
+          cls: "graphite-sorting-option",
           attr: { type: "button", role: "menuitemradio", "aria-checked": String(this.settings.groupBy === opt.value) }
         });
         item.toggleClass("is-active", this.settings.groupBy === opt.value);
-        item.createSpan({ cls: "slate-sorting-check", text: this.settings.groupBy === opt.value ? "\u2713" : "" });
+        item.createSpan({ cls: "graphite-sorting-check", text: this.settings.groupBy === opt.value ? "\u2713" : "" });
         item.createSpan({ text: opt.label });
         item.addEventListener("click", (event) => {
           event.preventDefault();
@@ -7357,8 +7357,8 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
           this.enableProjectDrop(projectSection, project);
           const groups = this.groupTasks(projectTasks);
           for (const [groupName, groupTasks] of groups) {
-            const sub = projectSection.createDiv({ cls: "slate-task-group" });
-            sub.createDiv({ cls: "slate-task-group-label", text: groupName });
+            const sub = projectSection.createDiv({ cls: "graphite-task-group" });
+            sub.createDiv({ cls: "graphite-task-group-label", text: groupName });
             this.renderTaskList(sub, groupTasks);
           }
         }
@@ -7421,33 +7421,33 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     const data = this.getActivityData(allTasks);
     const selectedDate = this.activitySelectedDate || data.defaultSelectedDate || todayIso();
     const selectedTasks = data.byDate.get(selectedDate) || [];
-    const activity = parent.createDiv({ cls: "slate-activity" });
+    const activity = parent.createDiv({ cls: "graphite-activity" });
     if (data.allTimeCount === 0) {
       activity.createDiv({
-        cls: "slate-activity-empty",
+        cls: "graphite-activity-empty",
         text: "No completed tasks yet. Complete a task and your activity will appear here."
       });
       return;
     }
-    const dashboard = activity.createDiv({ cls: "slate-activity-dashboard" });
-    const dashboardTop = dashboard.createDiv({ cls: "slate-activity-dashboard-top" });
-    dashboardTop.createSpan({ cls: "slate-activity-tab is-active", text: "Overview" });
-    const summary = dashboard.createDiv({ cls: "slate-activity-summary" });
+    const dashboard = activity.createDiv({ cls: "graphite-activity-dashboard" });
+    const dashboardTop = dashboard.createDiv({ cls: "graphite-activity-dashboard-top" });
+    dashboardTop.createSpan({ cls: "graphite-activity-tab is-active", text: "Overview" });
+    const summary = dashboard.createDiv({ cls: "graphite-activity-summary" });
     this.renderActivitySummaryCard(summary, "Today", data.todayCount);
     this.renderActivitySummaryCard(summary, "Yesterday", data.yesterdayCount);
     this.renderActivitySummaryCard(summary, "This week", data.weekCount);
     this.renderActivitySummaryCard(summary, "This month", data.monthCount);
     this.renderActivitySummaryCard(summary, "All time", data.allTimeCount);
     this.renderActivitySummaryCard(summary, "Current streak", `${data.currentStreak}d`);
-    const heatmapSection = dashboard.createDiv({ cls: "slate-activity-panel" });
-    const heatmapHeader = heatmapSection.createDiv({ cls: "slate-activity-panel-header" });
+    const heatmapSection = dashboard.createDiv({ cls: "graphite-activity-panel" });
+    const heatmapHeader = heatmapSection.createDiv({ cls: "graphite-activity-panel-header" });
     heatmapHeader.createEl("h2", { text: "Completed tasks" });
     heatmapHeader.createSpan({ text: "Last 26 weeks" });
-    const heatmapScroller = heatmapSection.createDiv({ cls: "slate-activity-heatmap-scroll" });
-    const heatmap = heatmapScroller.createDiv({ cls: "slate-activity-heatmap" });
+    const heatmapScroller = heatmapSection.createDiv({ cls: "graphite-activity-heatmap-scroll" });
+    const heatmap = heatmapScroller.createDiv({ cls: "graphite-activity-heatmap" });
     for (const day of data.heatmapDays) {
       const cell = heatmap.createEl("button", {
-        cls: `slate-activity-day level-${day.level}`,
+        cls: `graphite-activity-day level-${day.level}`,
         attr: {
           type: "button",
           title: `${formatActivityDate(day.date)} \xB7 ${day.count} completed`,
@@ -7460,36 +7460,36 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         this.renderPreservingMainScroll();
       });
     }
-    const feed = activity.createDiv({ cls: "slate-activity-feed" });
-    const feedHeader = feed.createDiv({ cls: "slate-activity-feed-header" });
+    const feed = activity.createDiv({ cls: "graphite-activity-feed" });
+    const feedHeader = feed.createDiv({ cls: "graphite-activity-feed-header" });
     feedHeader.createEl("h2", {
       text: formatActivityDayHeading(selectedDate, selectedTasks.length)
     });
     if (selectedTasks.length === 0) {
       feed.createDiv({
-        cls: "slate-empty slate-empty-small",
+        cls: "graphite-empty graphite-empty-small",
         text: "No tasks completed on this day."
       });
       return;
     }
-    const list = feed.createDiv({ cls: "slate-activity-list" });
+    const list = feed.createDiv({ cls: "graphite-activity-list" });
     for (const task of selectedTasks) {
       this.renderActivityFeedRow(list, task);
     }
   }
   renderDailyNoteView(parent) {
     const date = this.dailyNoteDate;
-    const daily = parent.createDiv({ cls: "slate-daily-note" });
+    const daily = parent.createDiv({ cls: "graphite-daily-note" });
     if (!date) {
       daily.createDiv({
-        cls: "slate-empty slate-empty-small",
-        text: "Open a daily note and run the slate Daily Notes command to see completed tasks."
+        cls: "graphite-empty graphite-empty-small",
+        text: "Open a daily note and run the graphite Daily Notes command to see completed tasks."
       });
       return;
     }
     const tasks = this.store.getCompletedTasksForDate(date);
-    const panel = daily.createDiv({ cls: "slate-daily-note-panel" });
-    const header = panel.createDiv({ cls: "slate-daily-note-header" });
+    const panel = daily.createDiv({ cls: "graphite-daily-note-panel" });
+    const header = panel.createDiv({ cls: "graphite-daily-note-header" });
     header.createEl("h2", {
       text: formatActivityDayHeading(date, tasks.length)
     });
@@ -7498,32 +7498,32 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     });
     if (this.dailyNoteSourcePath) {
       panel.createDiv({
-        cls: "slate-daily-note-source",
+        cls: "graphite-daily-note-source",
         text: this.dailyNoteSourcePath
       });
     }
     if (tasks.length === 0) {
       panel.createDiv({
-        cls: "slate-empty slate-empty-small",
+        cls: "graphite-empty graphite-empty-small",
         text: "No tasks completed on this daily note date."
       });
       return;
     }
-    const list = panel.createDiv({ cls: "slate-activity-list" });
+    const list = panel.createDiv({ cls: "graphite-activity-list" });
     for (const task of tasks) {
       this.renderActivityFeedRow(list, task);
     }
   }
   renderActivitySummaryCard(parent, label, value) {
-    const card = parent.createDiv({ cls: "slate-activity-card" });
-    card.createDiv({ cls: "slate-activity-card-count", text: String(value) });
+    const card = parent.createDiv({ cls: "graphite-activity-card" });
+    card.createDiv({ cls: "graphite-activity-card-count", text: String(value) });
     card.createDiv({
-      cls: "slate-activity-card-label",
+      cls: "graphite-activity-card-label",
       text: label
     });
   }
   renderActivityFeedRow(parent, task) {
-    const row = parent.createDiv({ cls: "slate-activity-row" });
+    const row = parent.createDiv({ cls: "graphite-activity-row" });
     row.setAttr("role", "button");
     row.setAttr("tabindex", "0");
     row.addEventListener("click", (event) => {
@@ -7541,29 +7541,29 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         this.openTaskDetail(task);
       }
     });
-    const title = row.createDiv({ cls: "slate-activity-row-title" });
+    const title = row.createDiv({ cls: "graphite-activity-row-title" });
     title.createSpan({ text: "You completed " });
-    renderLinkedText(task.title, title.createSpan({ cls: "slate-activity-task-title" }), {
+    renderLinkedText(task.title, title.createSpan({ cls: "graphite-activity-task-title" }), {
       app: this.app,
       sourcePath: task.sourcePath
     });
-    const meta = row.createDiv({ cls: "slate-activity-row-meta" });
+    const meta = row.createDiv({ cls: "graphite-activity-row-meta" });
     const project = normalizeTaskProject(task.project);
     if (project) {
       const projectColor = getProjectColor(project, this.settings.projectColors);
-      const projectChip = meta.createSpan({ cls: "slate-activity-project-chip" });
+      const projectChip = meta.createSpan({ cls: "graphite-activity-project-chip" });
       projectChip.setCssStyles({ backgroundColor: projectColor.light });
-      projectChip.createSpan({ cls: "slate-project-dot" }).setCssStyles({ backgroundColor: projectColor.regular });
+      projectChip.createSpan({ cls: "graphite-project-dot" }).setCssStyles({ backgroundColor: projectColor.regular });
       projectChip.createSpan({ text: project });
     }
     if (hasVisiblePriority(task.priority)) {
       meta.createSpan({
-        cls: `slate-activity-priority ${getPriorityClass(task.priority)}`,
+        cls: `graphite-activity-priority ${getPriorityClass(task.priority)}`,
         text: getPriorityDisplayLabel(task.priority)
       });
     }
     for (const label of task.labels) {
-      const chip = meta.createSpan({ cls: "slate-activity-label", text: displayLabel(label) });
+      const chip = meta.createSpan({ cls: "graphite-activity-label", text: displayLabel(label) });
       const labelColor = getLabelColor(label, this.settings.labelColors);
       chip.setCssStyles({
         borderColor: labelColor.light,
@@ -7605,9 +7605,9 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       this.renderTaskList(section, tasks);
       return;
     }
-    const filtersSection = parent.createDiv({ cls: "slate-filter-section" });
+    const filtersSection = parent.createDiv({ cls: "graphite-filter-section" });
     filtersSection.createEl("h2", { text: "My Filters" });
-    const filterList = filtersSection.createDiv({ cls: "slate-filter-list" });
+    const filterList = filtersSection.createDiv({ cls: "graphite-filter-list" });
     for (const filter of this.getFilterDefinitions(allTasks)) {
       this.renderFilterRow(filterList, filter.name, filter.count, filter.icon, () => {
         this.activeFilter = filter.id;
@@ -7615,21 +7615,21 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         this.render();
       });
     }
-    const labelsSection = parent.createDiv({ cls: "slate-filter-section" });
-    const labelsHeader = labelsSection.createDiv({ cls: "slate-labels-header" });
+    const labelsSection = parent.createDiv({ cls: "graphite-filter-section" });
+    const labelsHeader = labelsSection.createDiv({ cls: "graphite-labels-header" });
     labelsHeader.createEl("h2", { text: "Labels" });
     const labelAddButton = labelsHeader.createEl("button", {
-      cls: "slate-label-add",
+      cls: "graphite-label-add",
       attr: { type: "button", "aria-label": "Create label" }
     });
-    createSlateIcon(labelAddButton, "add");
+    createGraphiteIcon(labelAddButton, "add");
     labelAddButton.addEventListener("click", () => {
       this.createLabelFromPrompt();
     });
-    const labelList = labelsSection.createDiv({ cls: "slate-filter-list" });
+    const labelList = labelsSection.createDiv({ cls: "graphite-filter-list" });
     const labels = this.getAllLabels();
     if (labels.length === 0) {
-      labelList.createDiv({ cls: "slate-empty slate-empty-small", text: "No labels yet." });
+      labelList.createDiv({ cls: "graphite-empty graphite-empty-small", text: "No labels yet." });
       return;
     }
     for (const label of labels) {
@@ -7638,37 +7638,37 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     }
   }
   renderBackToFilters(parent) {
-    parent.createEl("button", { cls: "slate-back-button", text: "Back to Filters & Labels" }).addEventListener("click", () => {
+    parent.createEl("button", { cls: "graphite-back-button", text: "Back to Filters & Labels" }).addEventListener("click", () => {
       this.activeFilter = null;
       this.activeLabel = null;
       this.render();
     });
   }
   renderFilterRow(parent, name, count, icon, onClick, color) {
-    const row = parent.createEl("button", { cls: "slate-filter-row", attr: { type: "button" } });
-    row.toggleClass("slate-label-row", Boolean(color));
-    const dot = row.createSpan({ cls: "slate-filter-dot" });
+    const row = parent.createEl("button", { cls: "graphite-filter-row", attr: { type: "button" } });
+    row.toggleClass("graphite-label-row", Boolean(color));
+    const dot = row.createSpan({ cls: "graphite-filter-dot" });
     if (color) {
-      dot.addClass("slate-label-dot");
+      dot.addClass("graphite-label-dot");
       dot.setCssStyles({ backgroundColor: color });
     } else if (icon) {
-      createSlateIcon(dot, icon);
+      createGraphiteIcon(dot, icon);
     }
-    row.createSpan({ cls: "slate-filter-name", text: name });
-    row.createSpan({ cls: "slate-row-count", text: String(count) });
+    row.createSpan({ cls: "graphite-filter-name", text: name });
+    row.createSpan({ cls: "graphite-row-count", text: String(count) });
     row.addEventListener("click", onClick);
   }
   renderLabelRow(parent, label, count) {
     const color = getLabelColor(label, this.settings.labelColors).regular;
-    const row = parent.createDiv({ cls: "slate-filter-row slate-label-row slate-filter-row-with-actions" });
+    const row = parent.createDiv({ cls: "graphite-filter-row graphite-label-row graphite-filter-row-with-actions" });
     const main = row.createEl("button", {
-      cls: "slate-filter-row-main",
+      cls: "graphite-filter-row-main",
       attr: { type: "button" }
     });
-    const dot = main.createSpan({ cls: "slate-filter-dot slate-label-dot" });
+    const dot = main.createSpan({ cls: "graphite-filter-dot graphite-label-dot" });
     dot.setCssStyles({ backgroundColor: color });
-    main.createSpan({ cls: "slate-filter-name", text: displayLabel(label) });
-    main.createSpan({ cls: "slate-row-count", text: String(count) });
+    main.createSpan({ cls: "graphite-filter-name", text: displayLabel(label) });
+    main.createSpan({ cls: "graphite-row-count", text: String(count) });
     main.addEventListener("click", () => {
       this.activeLabel = label;
       this.activeFilter = null;
@@ -7679,10 +7679,10 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
   }
   renderLabelActionsButton(parent, label, taskCount) {
     const button = parent.createEl("button", {
-      cls: "slate-label-actions-button",
+      cls: "graphite-label-actions-button",
       attr: { type: "button", "aria-label": `Actions for ${displayLabel(label)}` }
     });
-    createSlateIcon(button, "more");
+    createGraphiteIcon(button, "more");
     button.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -7701,11 +7701,11 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     this.labelActionsOpen = label;
     const ownerDocument = button.ownerDocument;
     const ownerWindow = ownerDocument.defaultView || window;
-    const menu = ownerDocument.body.createDiv({ cls: "slate-project-menu slate-label-menu" });
+    const menu = ownerDocument.body.createDiv({ cls: "graphite-project-menu graphite-label-menu" });
     this.labelMenuEl = menu;
     menu.setCssStyles({ visibility: "hidden" });
     const renameItem = menu.createEl("button", {
-      cls: "slate-project-option slate-label-option",
+      cls: "graphite-project-option graphite-label-option",
       text: "Rename label",
       attr: { type: "button" }
     });
@@ -7717,7 +7717,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       }).open();
     });
     const deleteItem = menu.createEl("button", {
-      cls: "slate-project-option slate-label-option is-destructive",
+      cls: "graphite-project-option graphite-label-option is-destructive",
       text: "Delete label",
       attr: { type: "button" }
     });
@@ -7760,10 +7760,10 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     });
   }
   createSection(parent, title, count, renderHeaderAction) {
-    const section = parent.createDiv({ cls: "slate-section" });
-    const header = section.createDiv({ cls: "slate-section-header" });
+    const section = parent.createDiv({ cls: "graphite-section" });
+    const header = section.createDiv({ cls: "graphite-section-header" });
     header.createEl("h2", { text: title });
-    header.createSpan({ cls: "slate-section-count", text: String(count) });
+    header.createSpan({ cls: "graphite-section-count", text: String(count) });
     renderHeaderAction == null ? void 0 : renderHeaderAction(header);
     return section;
   }
@@ -7858,10 +7858,10 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         (task) => normalizeTaskProject(task.project) === project
       );
       const section = this.createSection(parent, project, projectTasks.length, (header) => {
-        const badge = header.createSpan({ cls: "slate-archived-badge", text: "Archived" });
+        const badge = header.createSpan({ cls: "graphite-archived-badge", text: "Archived" });
         badge.setCssStyles({ marginLeft: "auto" });
         const restoreBtn = header.createEl("button", {
-          cls: "slate-button slate-restore-button",
+          cls: "graphite-button graphite-restore-button",
           text: "Restore",
           attr: { type: "button" }
         });
@@ -7875,9 +7875,9 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     }
   }
   renderOverdueRangeSelect(parent) {
-    const overdueDropdown = new SlateDropdown({
+    const overdueDropdown = new GraphiteDropdown({
       triggerParent: parent,
-      triggerClassName: "slate-overdue-range-trigger",
+      triggerClassName: "graphite-overdue-range-trigger",
       ariaLabel: "Overdue range",
       getOptions: () => OVERDUE_RANGES.map((range) => ({ value: range, label: overdueRangeLabel(range) })),
       getValue: () => this.settings.defaultOverdueRange,
@@ -7892,7 +7892,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     this.dropdowns.push(overdueDropdown);
   }
   enableTodayDrop(section) {
-    section.addClass("slate-drop-zone");
+    section.addClass("graphite-drop-zone");
     section.addEventListener("dragover", (event) => {
       const task = this.getDraggedTask(event);
       if (!task || task.completed || isToday(task.due) || !isBeforeToday(task.due)) {
@@ -7922,7 +7922,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     });
   }
   enableProjectDrop(button, project) {
-    button.addClass("slate-project-drop-zone");
+    button.addClass("graphite-project-drop-zone");
     button.dataset.project = project;
     button.addEventListener("dragover", (event) => {
       const task = this.getDraggedTask(event);
@@ -7953,7 +7953,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     });
   }
   enableDueDateDrop(section, due) {
-    section.addClass("slate-date-drop-zone");
+    section.addClass("graphite-date-drop-zone");
     section.dataset.due = due;
     section.addEventListener("dragover", (event) => {
       const task = this.getDraggedTask(event);
@@ -7993,17 +7993,17 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     var _a;
     this.clearDropTargets();
     for (const projectTarget of Array.from(
-      this.containerEl.querySelectorAll(".slate-project-drop-zone")
+      this.containerEl.querySelectorAll(".graphite-project-drop-zone")
     )) {
       if (normalizeTaskProject(task.project) !== projectTarget.dataset.project) {
         projectTarget.addClass("is-drop-available");
       }
     }
     if (!task.completed && !isToday(task.due) && isBeforeToday(task.due)) {
-      (_a = this.containerEl.querySelector(".slate-drop-zone")) == null ? void 0 : _a.addClass("is-drop-available");
+      (_a = this.containerEl.querySelector(".graphite-drop-zone")) == null ? void 0 : _a.addClass("is-drop-available");
     }
     for (const dateTarget of Array.from(
-      this.containerEl.querySelectorAll(".slate-date-drop-zone")
+      this.containerEl.querySelectorAll(".graphite-date-drop-zone")
     )) {
       if (task.due !== dateTarget.dataset.due) {
         dateTarget.addClass("is-drop-available");
@@ -8012,7 +8012,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
   }
   createDragImage(row) {
     const dragImage = row.cloneNode(true);
-    dragImage.addClass("slate-drag-preview");
+    dragImage.addClass("graphite-drag-preview");
     dragImage.setCssStyles({
       position: "absolute",
       top: "-9999px",
@@ -8024,7 +8024,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
   }
   getDraggedTask(event) {
     var _a, _b;
-    const taskId = this.draggedTaskId || ((_a = event.dataTransfer) == null ? void 0 : _a.getData("application/x-slate-task-id")) || ((_b = event.dataTransfer) == null ? void 0 : _b.getData("text/plain"));
+    const taskId = this.draggedTaskId || ((_a = event.dataTransfer) == null ? void 0 : _a.getData("application/x-graphite-task-id")) || ((_b = event.dataTransfer) == null ? void 0 : _b.getData("text/plain"));
     if (!taskId) {
       return void 0;
     }
@@ -8041,13 +8041,13 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     return canMoveToToday || canMoveToUpcomingDate || canMoveToProject;
   }
   renderEmptySection(parent, text) {
-    const section = parent.createDiv({ cls: "slate-section" });
-    section.createDiv({ cls: "slate-empty", text });
+    const section = parent.createDiv({ cls: "graphite-section" });
+    section.createDiv({ cls: "graphite-empty", text });
   }
   renderTaskList(parent, tasks) {
-    const list = parent.createDiv({ cls: "slate-task-list" });
+    const list = parent.createDiv({ cls: "graphite-task-list" });
     if (tasks.length === 0) {
-      list.createDiv({ cls: "slate-empty slate-empty-small", text: "Nothing here." });
+      list.createDiv({ cls: "graphite-empty graphite-empty-small", text: "Nothing here." });
       return;
     }
     const subTasksByParent = /* @__PURE__ */ new Map();
@@ -8063,7 +8063,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     }
   }
   renderTaskItem(parent, task, subTasks) {
-    const item = parent.createDiv({ cls: "slate-task-item" });
+    const item = parent.createDiv({ cls: "graphite-task-item" });
     item.toggleClass("has-subtasks", subTasks.length > 0);
     item.toggleClass("is-subtasks-expanded", this.expandedSubtaskPreviewIds.has(task.id));
     this.renderTaskRow(item, task, subTasks);
@@ -8072,7 +8072,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     }
   }
   renderTaskRow(parent, task, subTasks = []) {
-    const row = parent.createDiv({ cls: "slate-task-row" });
+    const row = parent.createDiv({ cls: "graphite-task-row" });
     row.dataset.taskId = task.id;
     row.toggleClass("is-completed", task.completed);
     row.toggleClass("is-highlighted", this.highlightedTaskId === task.id);
@@ -8084,13 +8084,13 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       this.openTaskDetail(task);
     });
     const dragHandle = row.createEl("button", {
-      cls: "slate-task-drag-handle",
+      cls: "graphite-task-drag-handle",
       attr: {
         type: "button",
         "aria-label": `Drag ${task.title}`
       }
     });
-    createSlateIcon(dragHandle, "dragHandle");
+    createGraphiteIcon(dragHandle, "dragHandle");
     if (task.completed || !this.hasDragTarget(task)) {
       dragHandle.addClass("is-disabled");
       dragHandle.setAttr("disabled", "true");
@@ -8106,7 +8106,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         this.draggedTaskId = task.id;
         const dragImage = this.createDragImage(row);
         row.addClass("is-dragging");
-        (_a = event.dataTransfer) == null ? void 0 : _a.setData("application/x-slate-task-id", task.id);
+        (_a = event.dataTransfer) == null ? void 0 : _a.setData("application/x-graphite-task-id", task.id);
         (_b = event.dataTransfer) == null ? void 0 : _b.setData("text/plain", task.id);
         if (event.dataTransfer) {
           event.dataTransfer.effectAllowed = "move";
@@ -8122,7 +8122,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       });
     }
     const checkbox = row.createEl("button", {
-      cls: `slate-task-checkbox ${getPriorityClass(task.priority)}`,
+      cls: `graphite-task-checkbox ${getPriorityClass(task.priority)}`,
       attr: {
         type: "button",
         "aria-label": task.completed ? "Mark task incomplete" : "Complete task"
@@ -8130,48 +8130,48 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     });
     const checkboxPriorityColor = getPriorityColor(task.priority);
     checkbox.setCssProps({
-      "--slate-priority-text": checkboxPriorityColor.color,
-      "--slate-priority-bg": checkboxPriorityColor.light
+      "--graphite-priority-text": checkboxPriorityColor.color,
+      "--graphite-priority-bg": checkboxPriorityColor.light
     });
     checkbox.toggleClass("is-checked", task.completed);
     checkbox.addEventListener("click", (event) => {
       event.stopPropagation();
       void this.store.toggleComplete(task.id);
     });
-    const content = row.createDiv({ cls: "slate-task-content" });
-    renderLinkedText(task.title, content.createDiv({ cls: "slate-task-title" }), {
+    const content = row.createDiv({ cls: "graphite-task-content" });
+    renderLinkedText(task.title, content.createDiv({ cls: "graphite-task-title" }), {
       app: this.app,
       sourcePath: task.sourcePath
     });
     if (task.description) {
       renderLinkedText(
         markdownPreviewText(task.description),
-        content.createDiv({ cls: "slate-task-description" }),
+        content.createDiv({ cls: "graphite-task-description" }),
         {
           app: this.app,
           sourcePath: task.sourcePath
         }
       );
     }
-    const meta = content.createDiv({ cls: "slate-task-meta" });
+    const meta = content.createDiv({ cls: "graphite-task-meta" });
     if (task.due) {
       const dateSpan = meta.createSpan({
-        cls: `slate-task-date${isBeforeToday(task.due) ? " is-overdue" : ""}`,
+        cls: `graphite-task-date${isBeforeToday(task.due) ? " is-overdue" : ""}`,
         text: formatDueChip(task.due)
       });
       if (task.repeat) {
-        createSlateIcon(dateSpan, "recurring", { className: "slate-task-repeat-icon" });
+        createGraphiteIcon(dateSpan, "recurring", { className: "graphite-task-repeat-icon" });
       }
     }
     if (task.deadline) {
       meta.createSpan({
-        cls: `slate-task-deadline${isBeforeToday(task.deadline) ? " is-overdue" : ""}`,
+        cls: `graphite-task-deadline${isBeforeToday(task.deadline) ? " is-overdue" : ""}`,
         text: `Deadline ${formatShortDate2(task.deadline)}`
       });
     }
     if (task.labels.length > 0) {
       for (const label of task.labels) {
-        const chip = meta.createSpan({ cls: "slate-task-label", text: displayLabel(label) });
+        const chip = meta.createSpan({ cls: "graphite-task-label", text: displayLabel(label) });
         const labelColor = getLabelColor(label, this.settings.labelColors);
         chip.setCssStyles({
           borderColor: labelColor.light,
@@ -8188,15 +8188,15 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       }
     }
     if (task.attachments.length > 0) {
-      const attachmentEl = meta.createSpan({ cls: "slate-task-attachments" });
-      createSlateIcon(attachmentEl, "attachment", { className: "slate-chip-icon" });
+      const attachmentEl = meta.createSpan({ cls: "graphite-task-attachments" });
+      createGraphiteIcon(attachmentEl, "attachment", { className: "graphite-chip-icon" });
       attachmentEl.createSpan({ text: String(task.attachments.length) });
     }
     if (subTasks.length > 0) {
       const isExpanded = this.expandedSubtaskPreviewIds.has(task.id);
       const done = subTasks.filter((t) => t.completed).length;
       const counterEl = meta.createEl("button", {
-        cls: "slate-task-subtask-counter",
+        cls: "graphite-task-subtask-counter",
         attr: {
           type: "button",
           "aria-label": isExpanded ? "Collapse sub-tasks" : "Expand sub-tasks",
@@ -8204,7 +8204,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         }
       });
       counterEl.toggleClass("is-expanded", isExpanded);
-      createSlateIcon(counterEl, "subtasks", { className: "slate-chip-icon" });
+      createGraphiteIcon(counterEl, "subtasks", { className: "graphite-chip-icon" });
       counterEl.createSpan({ text: `${done}/${subTasks.length}` });
       counterEl.addEventListener("click", (event) => {
         event.preventDefault();
@@ -8214,27 +8214,27 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     }
     if (!task.completed && task.completedOccurrences && task.completedOccurrences.length > 0) {
       const last = task.completedOccurrences[task.completedOccurrences.length - 1];
-      const lastSpan = meta.createSpan({ cls: "slate-task-last-completed" });
-      createSlateIcon(lastSpan, "completed", { className: "slate-chip-icon" });
+      const lastSpan = meta.createSpan({ cls: "graphite-task-last-completed" });
+      createGraphiteIcon(lastSpan, "completed", { className: "graphite-chip-icon" });
       lastSpan.createSpan({ text: formatDueChip(last) });
     }
     const project = normalizeTaskProject(task.project);
     if (project) {
       const projectColor = getProjectColor(project, this.settings.projectColors);
-      const projectChip = row.createDiv({ cls: "slate-task-project" });
+      const projectChip = row.createDiv({ cls: "graphite-task-project" });
       projectChip.setCssStyles({ backgroundColor: projectColor.light });
-      projectChip.createSpan({ cls: "slate-project-dot" }).setCssStyles({ backgroundColor: projectColor.regular });
+      projectChip.createSpan({ cls: "graphite-project-dot" }).setCssStyles({ backgroundColor: projectColor.regular });
       projectChip.createSpan({ text: project });
     }
-    const actions = row.createDiv({ cls: "slate-task-actions" });
+    const actions = row.createDiv({ cls: "graphite-task-actions" });
     const actionButton = actions.createEl("button", {
-      cls: "slate-task-actions-button",
+      cls: "graphite-task-actions-button",
       attr: {
         type: "button",
         "aria-label": "Task actions"
       }
     });
-    createSlateIcon(actionButton, "more");
+    createGraphiteIcon(actionButton, "more");
     actionButton.addEventListener("click", (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -8247,13 +8247,13 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       this.taskActionMenuEl = this.renderTaskActionMenu(task, actionButton);
     });
     const deleteButton = actions.createEl("button", {
-      cls: "slate-task-delete",
+      cls: "graphite-task-delete",
       attr: {
         type: "button",
         "aria-label": "Delete task"
       }
     });
-    createSlateIcon(deleteButton, "delete");
+    createGraphiteIcon(deleteButton, "delete");
     deleteButton.addEventListener("click", (event) => {
       event.stopPropagation();
       new ConfirmModal(this.app, {
@@ -8274,15 +8274,15 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     }
     if (item && subTasks) {
       item.toggleClass("is-subtasks-expanded", willExpand);
-      (_a = item.querySelector(":scope > .slate-task-subtask-preview")) == null ? void 0 : _a.remove();
-      const expandButton = item.querySelector(".slate-task-expand-toggle");
+      (_a = item.querySelector(":scope > .graphite-task-subtask-preview")) == null ? void 0 : _a.remove();
+      const expandButton = item.querySelector(".graphite-task-expand-toggle");
       if (expandButton) {
         expandButton.empty();
         expandButton.setAttr("aria-label", willExpand ? "Collapse sub-tasks" : "Expand sub-tasks");
         expandButton.setAttr("aria-expanded", String(willExpand));
-        createSlateIcon(expandButton, willExpand ? "expand" : "collapse");
+        createGraphiteIcon(expandButton, willExpand ? "expand" : "collapse");
       }
-      const counterEl = item.querySelector(".slate-task-subtask-counter");
+      const counterEl = item.querySelector(".graphite-task-subtask-counter");
       if (counterEl) {
         counterEl.toggleClass("is-expanded", willExpand);
         counterEl.setAttr("aria-label", willExpand ? "Collapse sub-tasks" : "Expand sub-tasks");
@@ -8296,9 +8296,9 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     this.renderPreservingMainScroll();
   }
   renderSubtaskPreview(parent, subTasks) {
-    const preview = parent.createDiv({ cls: "slate-task-subtask-preview" });
+    const preview = parent.createDiv({ cls: "graphite-task-subtask-preview" });
     for (const subTask of subTasks) {
-      const row = preview.createDiv({ cls: "slate-task-subtask-preview-row" });
+      const row = preview.createDiv({ cls: "graphite-task-subtask-preview-row" });
       row.dataset.taskId = subTask.id;
       row.toggleClass("is-completed", subTask.completed);
       row.addEventListener("click", (event) => {
@@ -8309,7 +8309,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         this.openTaskDetail(subTask);
       });
       const checkbox = row.createEl("button", {
-        cls: `slate-task-checkbox slate-subtask-preview-checkbox ${getPriorityClass(subTask.priority)}`,
+        cls: `graphite-task-checkbox graphite-subtask-preview-checkbox ${getPriorityClass(subTask.priority)}`,
         attr: {
           type: "button",
           "aria-label": subTask.completed ? "Mark sub-task incomplete" : "Complete sub-task"
@@ -8317,8 +8317,8 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       });
       const checkboxPriorityColor = getPriorityColor(subTask.priority);
       checkbox.setCssProps({
-        "--slate-priority-text": checkboxPriorityColor.color,
-        "--slate-priority-bg": checkboxPriorityColor.light
+        "--graphite-priority-text": checkboxPriorityColor.color,
+        "--graphite-priority-bg": checkboxPriorityColor.light
       });
       checkbox.toggleClass("is-checked", subTask.completed);
       checkbox.addEventListener("click", (event) => {
@@ -8330,26 +8330,26 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         this.updateSubtaskPreviewCounter(parent);
         this.suppressNextStoreRender = true;
         void this.store.toggleComplete(subTask.id).catch((error) => {
-          console.error("[slate] Failed to toggle sub-task completion.", error);
+          console.error("[graphite] Failed to toggle sub-task completion.", error);
           this.suppressNextStoreRender = false;
           this.renderPreservingMainScroll();
         });
       });
-      const content = row.createDiv({ cls: "slate-subtask-preview-content" });
-      renderLinkedText(subTask.title, content.createDiv({ cls: "slate-subtask-preview-title" }), {
+      const content = row.createDiv({ cls: "graphite-subtask-preview-content" });
+      renderLinkedText(subTask.title, content.createDiv({ cls: "graphite-subtask-preview-title" }), {
         app: this.app,
         sourcePath: subTask.sourcePath
       });
-      const meta = content.createDiv({ cls: "slate-subtask-preview-meta" });
+      const meta = content.createDiv({ cls: "graphite-subtask-preview-meta" });
       if (subTask.due) {
         meta.createSpan({
-          cls: `slate-task-date${isBeforeToday(subTask.due) ? " is-overdue" : ""}`,
+          cls: `graphite-task-date${isBeforeToday(subTask.due) ? " is-overdue" : ""}`,
           text: formatDueChip(subTask.due)
         });
       }
       if (subTask.labels.length > 0) {
         for (const label of subTask.labels.slice(0, 3)) {
-          const chip = meta.createSpan({ cls: "slate-task-label", text: displayLabel(label) });
+          const chip = meta.createSpan({ cls: "graphite-task-label", text: displayLabel(label) });
           const labelColor = getLabelColor(label, this.settings.labelColors);
           chip.setCssStyles({
             borderColor: labelColor.light,
@@ -8360,17 +8360,17 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     }
   }
   updateSubtaskPreviewCounter(item) {
-    const counterEl = item.querySelector(".slate-task-subtask-counter");
+    const counterEl = item.querySelector(".graphite-task-subtask-counter");
     if (!counterEl) return;
-    const total = item.querySelectorAll(".slate-task-subtask-preview-row").length;
-    const done = item.querySelectorAll(".slate-task-subtask-preview-row.is-completed").length;
+    const total = item.querySelectorAll(".graphite-task-subtask-preview-row").length;
+    const done = item.querySelectorAll(".graphite-task-subtask-preview-row.is-completed").length;
     const textEl = counterEl.querySelector("span:last-child");
     if (textEl) {
       textEl.textContent = `${done}/${total}`;
     }
   }
   renderTaskActionMenu(task, trigger) {
-    const menu = this.containerEl.createDiv({ cls: "slate-task-action-menu" });
+    const menu = this.containerEl.createDiv({ cls: "graphite-task-action-menu" });
     menu.addEventListener("click", (event) => event.stopPropagation());
     if (!task.completed && task.due !== todayIso()) {
       this.createTaskActionMenuButton(menu, "Move to Today", () => {
@@ -8384,10 +8384,10 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       });
     }
     if (!task.completed) {
-      const pickDateItem = menu.createEl("label", { cls: "slate-task-action-menu-item" });
+      const pickDateItem = menu.createEl("label", { cls: "graphite-task-action-menu-item" });
       pickDateItem.createSpan({ text: "Pick date" });
       const dateInput = pickDateItem.createEl("input", {
-        cls: "slate-task-action-date-input",
+        cls: "graphite-task-action-date-input",
         attr: {
           type: "date",
           value: task.due || todayIso(),
@@ -8439,7 +8439,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
   }
   createTaskActionMenuButton(parent, label, onClick) {
     parent.createEl("button", {
-      cls: "slate-task-action-menu-item",
+      cls: "graphite-task-action-menu-item",
       text: label,
       attr: { type: "button" }
     }).addEventListener("click", (event) => {
@@ -8701,10 +8701,10 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
     }));
   }
   renderSearchOverlay(parent) {
-    const backdrop = parent.createDiv({ cls: "slate-search-backdrop" });
-    const modal = backdrop.createDiv({ cls: "slate-search-modal" });
+    const backdrop = parent.createDiv({ cls: "graphite-search-backdrop" });
+    const modal = backdrop.createDiv({ cls: "graphite-search-modal" });
     const input = modal.createEl("input", {
-      cls: "slate-search-input",
+      cls: "graphite-search-input",
       attr: {
         type: "search",
         placeholder: "Search tasks...",
@@ -8712,7 +8712,7 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
         autofocus: "true"
       }
     });
-    const results = modal.createDiv({ cls: "slate-search-results" });
+    const results = modal.createDiv({ cls: "graphite-search-results" });
     let matches = [];
     let selectedIndex = 0;
     const close = () => {
@@ -8764,30 +8764,30 @@ var TaskBoardView = class extends import_obsidian13.ItemView {
       const query = this.searchQuery.trim().toLowerCase();
       if (!query) {
         matches = [];
-        results.createDiv({ cls: "slate-search-empty", text: "Type to search tasks" });
+        results.createDiv({ cls: "graphite-search-empty", text: "Type to search tasks" });
         return;
       }
       matches = this.store.getTasks().filter((task) => searchableText(task).includes(query)).slice(0, 25);
       selectedIndex = Math.min(selectedIndex, Math.max(matches.length - 1, 0));
       if (matches.length === 0) {
-        results.createDiv({ cls: "slate-search-empty", text: "No matching tasks." });
+        results.createDiv({ cls: "graphite-search-empty", text: "No matching tasks." });
         return;
       }
       for (const [index, task] of matches.entries()) {
-        const result = results.createEl("button", { cls: "slate-search-result" });
+        const result = results.createEl("button", { cls: "graphite-search-result" });
         result.toggleClass("is-selected", index === selectedIndex);
-        result.createDiv({ cls: "slate-search-title", text: task.title });
+        result.createDiv({ cls: "graphite-search-title", text: task.title });
         if (task.description) {
           renderLinkedText(
             markdownPreviewText(task.description),
-            result.createDiv({ cls: "slate-search-description" }),
+            result.createDiv({ cls: "graphite-search-description" }),
             {
               app: this.app,
               sourcePath: task.sourcePath
             }
           );
         }
-        const meta = result.createDiv({ cls: "slate-search-meta" });
+        const meta = result.createDiv({ cls: "graphite-search-meta" });
         meta.createSpan({ text: projectDisplayName(task.project) });
         if (task.due) {
           meta.createSpan({ text: formatDueChip(task.due) });
@@ -8927,23 +8927,23 @@ var LabelPromptModal = class extends import_obsidian13.Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-label-prompt");
+    contentEl.addClass("graphite-label-prompt");
     contentEl.createEl("h2", { text: "Create label" });
     const input = contentEl.createEl("input", {
-      cls: "slate-label-prompt-input",
+      cls: "graphite-label-prompt-input",
       attr: {
         type: "text",
         placeholder: "#label"
       }
     });
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
     actions.createEl("button", {
-      cls: "slate-button",
+      cls: "graphite-button",
       text: "Cancel",
       attr: { type: "button" }
     }).addEventListener("click", () => this.close());
     const submitButton = actions.createEl("button", {
-      cls: "slate-button slate-button-primary",
+      cls: "graphite-button graphite-button-primary",
       text: "Create",
       attr: { type: "button" }
     });
@@ -9070,27 +9070,27 @@ var QuickAddModal = class extends import_obsidian14.Modal {
   onOpen() {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-quick-add-modal");
+    contentEl.addClass("graphite-quick-add-modal");
     contentEl.createEl("h2", { text: "Quick add task" });
     contentEl.createEl("p", {
-      cls: "slate-quick-add-desc",
+      cls: "graphite-quick-add-desc",
       text: "Capture a task now. It will appear in Inbox."
     });
     const input = contentEl.createEl("input", {
-      cls: "slate-quick-add-input",
+      cls: "graphite-quick-add-input",
       attr: {
         type: "text",
         placeholder: "Task title"
       }
     });
-    const actions = contentEl.createDiv({ cls: "slate-quick-add-actions" });
+    const actions = contentEl.createDiv({ cls: "graphite-quick-add-actions" });
     actions.createEl("button", {
-      cls: "slate-button",
+      cls: "graphite-button",
       text: "Cancel",
       attr: { type: "button" }
     }).addEventListener("click", () => this.close());
     const addButton = actions.createEl("button", {
-      cls: "slate-button slate-button-primary",
+      cls: "graphite-button graphite-button-primary",
       text: "Add task",
       attr: { type: "button" }
     });
@@ -9153,79 +9153,79 @@ var DailyNoteCompletedBlock = class extends import_obsidian15.MarkdownRenderChil
   }
   render() {
     this.containerEl.empty();
-    const root = this.containerEl.createDiv({ cls: "slate-daily-codeblock" });
+    const root = this.containerEl.createDiv({ cls: "graphite-daily-codeblock" });
     if (!this.settings.dailyNotesIntegrationEnabled) {
       root.createDiv({
-        cls: "slate-empty slate-empty-small",
-        text: "slate Daily Notes integration is disabled in settings."
+        cls: "graphite-empty graphite-empty-small",
+        text: "graphite Daily Notes integration is disabled in settings."
       });
       return;
     }
     const date = this.resolveDate();
     if (!date) {
       root.createDiv({
-        cls: "slate-empty slate-empty-small",
-        text: "slate could not detect a date for this note."
+        cls: "graphite-empty graphite-empty-small",
+        text: "graphite could not detect a date for this note."
       });
       return;
     }
     const tasks = this.store.getCompletedTasksForDate(date);
-    const header = root.createDiv({ cls: "slate-daily-codeblock-header" });
+    const header = root.createDiv({ cls: "graphite-daily-codeblock-header" });
     const heading = header.createDiv();
     heading.createDiv({
-      cls: "slate-daily-codeblock-title",
+      cls: "graphite-daily-codeblock-title",
       text: formatDailyBlockTitle(date)
     });
     heading.createDiv({
-      cls: "slate-daily-codeblock-subtitle",
+      cls: "graphite-daily-codeblock-subtitle",
       text: tasks.length === 1 ? "1 completed task" : `${tasks.length} completed tasks`
     });
     const openButton = header.createEl("button", {
-      cls: "slate-daily-codeblock-open",
-      text: "Open in slate"
+      cls: "graphite-daily-codeblock-open",
+      text: "Open in graphite"
     });
     openButton.addEventListener("click", () => {
       this.openDailyNote(date, this.sourcePath);
     });
     if (tasks.length === 0) {
       root.createDiv({
-        cls: "slate-empty slate-empty-small",
+        cls: "graphite-empty graphite-empty-small",
         text: "No tasks completed on this day."
       });
       return;
     }
-    const list = root.createDiv({ cls: "slate-daily-codeblock-list" });
+    const list = root.createDiv({ cls: "graphite-daily-codeblock-list" });
     for (const task of tasks) {
       this.renderTaskRow(list, task);
     }
   }
   renderTaskRow(parent, task) {
-    const row = parent.createDiv({ cls: "slate-daily-codeblock-row" });
-    renderLinkedText(task.title, row.createDiv({ cls: "slate-daily-codeblock-task-title" }), {
+    const row = parent.createDiv({ cls: "graphite-daily-codeblock-row" });
+    renderLinkedText(task.title, row.createDiv({ cls: "graphite-daily-codeblock-task-title" }), {
       app: this.app,
       sourcePath: task.sourcePath || this.sourcePath
     });
-    const meta = row.createDiv({ cls: "slate-daily-codeblock-meta" });
+    const meta = row.createDiv({ cls: "graphite-daily-codeblock-meta" });
     const project = normalizeTaskProject(task.project);
     if (project) {
       const color = getProjectColor(project, this.settings.projectColors);
-      const chip = meta.createSpan({ cls: "slate-daily-codeblock-chip" });
+      const chip = meta.createSpan({ cls: "graphite-daily-codeblock-chip" });
       chip.setCssStyles({ backgroundColor: color.light });
-      chip.createSpan({ cls: "slate-project-dot" }).setCssStyles({
+      chip.createSpan({ cls: "graphite-project-dot" }).setCssStyles({
         backgroundColor: color.regular
       });
       chip.createSpan({ text: project });
     }
     if (hasVisiblePriority(task.priority)) {
       meta.createSpan({
-        cls: `slate-daily-codeblock-chip slate-activity-priority ${getPriorityClass(task.priority)}`,
+        cls: `graphite-daily-codeblock-chip graphite-activity-priority ${getPriorityClass(task.priority)}`,
         text: getPriorityDisplayLabel(task.priority)
       });
     }
     for (const label of task.labels) {
       const color = getLabelColor(label, this.settings.labelColors);
       const chip = meta.createSpan({
-        cls: "slate-daily-codeblock-chip slate-daily-codeblock-label",
+        cls: "graphite-daily-codeblock-chip graphite-daily-codeblock-label",
         text: displayLabel(label)
       });
       chip.setCssStyles({
@@ -9263,9 +9263,9 @@ function formatDailyBlockTitle(date) {
 }
 
 // src/main.ts
-var SLATE_COMPLETED_CODE_BLOCK = "```slate-completed\n```";
-var SLATE_COMPLETED_CODE_BLOCK_RE = /```slate-completed\b[\s\S]*?```/i;
-var SlatePlugin = class extends import_obsidian16.Plugin {
+var GRAPHITE_COMPLETED_CODE_BLOCK = "```graphite-completed\n```";
+var GRAPHITE_COMPLETED_CODE_BLOCK_RE = /```graphite-completed\b[\s\S]*?```/i;
+var GraphitePlugin = class extends import_obsidian16.Plugin {
   constructor() {
     super(...arguments);
     this.reloadDebounceTimer = null;
@@ -9277,10 +9277,10 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
     this.dataFolderVisibility = new DataFolderVisibility(this.app);
     this.applyDataFolderVisibility();
     this.registerView(
-      VIEW_TYPE_SLATE,
+      VIEW_TYPE_GRAPHITE,
       (leaf) => new TaskBoardView(leaf, this.store, this.settings, () => this.saveSettings())
     );
-    this.addRibbonIcon("check-circle-2", "Open slate", () => {
+    this.addRibbonIcon("check-circle-2", "Open graphite", () => {
       void this.activateView();
     });
     this.addCommand({
@@ -9331,7 +9331,7 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
           ...Object.keys(this.settings.labelColors)
         ]);
         await this.saveSettings();
-        new import_obsidian16.Notice("slate labels normalized.");
+        new import_obsidian16.Notice("graphite labels normalized.");
       }
     });
     this.addCommand({
@@ -9340,13 +9340,13 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
       callback: async () => {
         const migratedCount = await this.store.migrateOldTaskFile();
         if (migratedCount === 0) {
-          new import_obsidian16.Notice("slate found no old tasks to migrate.");
+          new import_obsidian16.Notice("graphite found no old tasks to migrate.");
           return;
         }
-        new import_obsidian16.Notice(`slate migrated ${migratedCount} task${migratedCount === 1 ? "" : "s"}.`);
+        new import_obsidian16.Notice(`graphite migrated ${migratedCount} task${migratedCount === 1 ? "" : "s"}.`);
       }
     });
-    this.addSettingTab(new SlateSettingTab(this.app, this));
+    this.addSettingTab(new GraphiteSettingTab(this.app, this));
     this.registerEvent(
       this.app.vault.on("modify", (file) => {
         void this.refreshIfTaskFile(file);
@@ -9376,7 +9376,7 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
         void this.handleDailyNoteFileOpen(file);
       })
     );
-    this.registerMarkdownCodeBlockProcessor("slate-completed", (source, el, ctx) => {
+    this.registerMarkdownCodeBlockProcessor("graphite-completed", (source, el, ctx) => {
       this.renderCompletedTasksCodeBlock(source, el, ctx);
     });
     void this.initializeStore();
@@ -9444,12 +9444,12 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
     try {
       await this.store.reloadFromDisk();
     } catch (error) {
-      new import_obsidian16.Notice("slate could not reload task data.");
+      new import_obsidian16.Notice("graphite could not reload task data.");
       console.error(error);
     }
   }
-  refreshSlateViews() {
-    for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_SLATE)) {
+  refreshGraphiteViews() {
+    for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_GRAPHITE)) {
       const view = leaf.view;
       if (view instanceof TaskBoardView) {
         view.refresh();
@@ -9501,7 +9501,7 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
       newNormalized
     ]);
     await this.saveSettings();
-    this.refreshSlateViews();
+    this.refreshGraphiteViews();
   }
   async deleteLabel(label) {
     const normalized = normalizeLabelName(label);
@@ -9514,10 +9514,10 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
       (candidate) => normalizeLabelName(candidate) !== normalized
     );
     await this.saveSettings();
-    this.refreshSlateViews();
+    this.refreshGraphiteViews();
   }
   async activateView() {
-    const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_SLATE);
+    const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_GRAPHITE);
     if (leaves.length > 0) {
       const view = leaves[0].view;
       if (view instanceof TaskBoardView) {
@@ -9527,11 +9527,11 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
       return;
     }
     const leaf = this.app.workspace.getLeaf(true);
-    await leaf.setViewState({ type: VIEW_TYPE_SLATE, active: true });
+    await leaf.setViewState({ type: VIEW_TYPE_GRAPHITE, active: true });
     this.app.workspace.setActiveLeaf(leaf, { focus: true });
   }
   async activateDailyNoteView(date, sourcePath) {
-    const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_SLATE);
+    const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_GRAPHITE);
     if (leaves.length > 0) {
       const view2 = leaves[0].view;
       if (view2 instanceof TaskBoardView) {
@@ -9541,7 +9541,7 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
       return;
     }
     const leaf = this.app.workspace.getLeaf(true);
-    await leaf.setViewState({ type: VIEW_TYPE_SLATE, active: true });
+    await leaf.setViewState({ type: VIEW_TYPE_GRAPHITE, active: true });
     const view = leaf.view;
     if (view instanceof TaskBoardView) {
       view.openDailyNote(date, sourcePath);
@@ -9550,7 +9550,7 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
   }
   async openActiveDailyNoteCompletedTasks() {
     if (!this.settings.dailyNotesIntegrationEnabled) {
-      new import_obsidian16.Notice("slate Daily Notes integration is disabled in settings.");
+      new import_obsidian16.Notice("graphite Daily Notes integration is disabled in settings.");
       return;
     }
     const file = this.app.workspace.getActiveFile();
@@ -9560,14 +9560,14 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
     }
     const date = this.dateFromDailyNoteFile(file);
     if (!date) {
-      new import_obsidian16.Notice("slate could not detect a date from the active note.");
+      new import_obsidian16.Notice("graphite could not detect a date from the active note.");
       return;
     }
     await this.activateDailyNoteView(date, file.path);
   }
   async insertActiveDailyNoteCompletedBlock() {
     if (!this.settings.dailyNotesIntegrationEnabled) {
-      new import_obsidian16.Notice("slate Daily Notes integration is disabled in settings.");
+      new import_obsidian16.Notice("graphite Daily Notes integration is disabled in settings.");
       return;
     }
     const file = this.app.workspace.getActiveFile();
@@ -9576,14 +9576,14 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
       return;
     }
     if (!this.dateFromDailyNoteFile(file)) {
-      new import_obsidian16.Notice("slate could not detect a date from the active note.");
+      new import_obsidian16.Notice("graphite could not detect a date from the active note.");
       return;
     }
     const result = await this.ensureDailyNoteCompletedBlock(file);
     if (result === "inserted") {
-      new import_obsidian16.Notice("slate completed tasks block added.");
+      new import_obsidian16.Notice("graphite completed tasks block added.");
     } else if (result === "exists") {
-      new import_obsidian16.Notice("This note already has a slate completed tasks block.");
+      new import_obsidian16.Notice("This note already has a graphite completed tasks block.");
     }
   }
   async handleDailyNoteFileOpen(file) {
@@ -9605,7 +9605,7 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
     if (!date) {
       return;
     }
-    for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_SLATE)) {
+    for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_GRAPHITE)) {
       const view = leaf.view;
       if (view instanceof TaskBoardView) {
         view.openDailyNote(date, file.path);
@@ -9617,11 +9617,11 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
       return "skipped";
     }
     const content = await this.app.vault.read(file);
-    if (SLATE_COMPLETED_CODE_BLOCK_RE.test(content)) {
+    if (GRAPHITE_COMPLETED_CODE_BLOCK_RE.test(content)) {
       return "exists";
     }
     const separator = content.trim().length > 0 ? content.endsWith("\n") ? "\n" : "\n\n" : "";
-    await this.app.vault.modify(file, `${content}${separator}${SLATE_COMPLETED_CODE_BLOCK}
+    await this.app.vault.modify(file, `${content}${separator}${GRAPHITE_COMPLETED_CODE_BLOCK}
 `);
     return "inserted";
   }
@@ -9659,8 +9659,8 @@ var SlatePlugin = class extends import_obsidian16.Plugin {
     try {
       await this.store.load();
     } catch (error) {
-      new import_obsidian16.Notice("slate could not initialize task storage. Open the developer console for details.");
-      console.error("[slate] Failed to initialize task storage.", error, {
+      new import_obsidian16.Notice("graphite could not initialize task storage. Open the developer console for details.");
+      console.error("[graphite] Failed to initialize task storage.", error, {
         dataFolderPath: this.settings.dataFolderPath,
         tasksFilePath: this.settings.tasksFilePath
       });

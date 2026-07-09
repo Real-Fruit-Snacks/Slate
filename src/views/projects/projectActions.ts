@@ -1,4 +1,4 @@
-import { createSlateIcon } from "../../ui/components/SlateIcon";
+import { createGraphiteIcon } from "../../ui/components/GraphiteIcon";
 
 interface ProjectActionsMenuOptions {
   header: HTMLElement;
@@ -12,12 +12,12 @@ interface ProjectActionsMenuOptions {
 }
 
 export function renderProjectActionsMenu(options: ProjectActionsMenuOptions): (() => void) | null {
-  const wrapper = options.header.createDiv({ cls: "slate-project-actions-wrap" });
+  const wrapper = options.header.createDiv({ cls: "graphite-project-actions-wrap" });
   const button = wrapper.createEl("button", {
-    cls: "slate-project-actions-button",
+    cls: "graphite-project-actions-button",
     attr: { type: "button", "aria-label": "Project actions" }
   });
-  createSlateIcon(button, "more");
+  createGraphiteIcon(button, "more");
 
   button.addEventListener("click", (event) => {
     event.preventDefault();
@@ -30,12 +30,12 @@ export function renderProjectActionsMenu(options: ProjectActionsMenuOptions): ((
   // Appended to body so Obsidian panel transforms don't trap it.
   const ownerDocument = options.header.ownerDocument;
   const ownerWindow = ownerDocument.defaultView || window;
-  const menu = ownerDocument.body.createDiv({ cls: "slate-project-menu" });
+  const menu = ownerDocument.body.createDiv({ cls: "graphite-project-menu" });
   options.onMenuCreated(menu);
   menu.setCssStyles({ visibility: "hidden" });
 
   const renameItem = menu.createEl("button", {
-    cls: "slate-project-option",
+    cls: "graphite-project-option",
     text: "Rename project",
     attr: { type: "button" }
   });
@@ -45,7 +45,7 @@ export function renderProjectActionsMenu(options: ProjectActionsMenuOptions): ((
   });
 
   const archiveItem = menu.createEl("button", {
-    cls: "slate-project-option",
+    cls: "graphite-project-option",
     text: "Archive project",
     attr: { type: "button" }
   });
@@ -55,7 +55,7 @@ export function renderProjectActionsMenu(options: ProjectActionsMenuOptions): ((
   });
 
   const deleteItem = menu.createEl("button", {
-    cls: "slate-project-option is-destructive",
+    cls: "graphite-project-option is-destructive",
     text: "Delete project",
     attr: { type: "button" }
   });

@@ -13,33 +13,33 @@ export class QuickAddModal extends Modal {
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-quick-add-modal");
+    contentEl.addClass("graphite-quick-add-modal");
 
     contentEl.createEl("h2", { text: "Quick add task" });
     contentEl.createEl("p", {
-      cls: "slate-quick-add-desc",
+      cls: "graphite-quick-add-desc",
       text: "Capture a task now. It will appear in Inbox."
     });
 
     const input = contentEl.createEl("input", {
-      cls: "slate-quick-add-input",
+      cls: "graphite-quick-add-input",
       attr: {
         type: "text",
         placeholder: "Task title"
       }
     });
 
-    const actions = contentEl.createDiv({ cls: "slate-quick-add-actions" });
+    const actions = contentEl.createDiv({ cls: "graphite-quick-add-actions" });
     actions
       .createEl("button", {
-        cls: "slate-button",
+        cls: "graphite-button",
         text: "Cancel",
         attr: { type: "button" }
       })
       .addEventListener("click", () => this.close());
 
     const addButton = actions.createEl("button", {
-      cls: "slate-button slate-button-primary",
+      cls: "graphite-button graphite-button-primary",
       text: "Add task",
       attr: { type: "button" }
     });

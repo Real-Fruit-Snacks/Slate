@@ -1,5 +1,5 @@
 import { App, Modal } from "obsidian";
-import { createSlateButton } from "../ui";
+import { createGraphiteButton } from "../ui";
 
 export interface ConfirmModalOptions {
   title: string;
@@ -21,15 +21,15 @@ export class ConfirmModal extends Modal {
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-confirm-modal");
+    contentEl.addClass("graphite-confirm-modal");
     contentEl.createEl("h2", { text: this.options.title });
     if (this.options.message) {
-      contentEl.createEl("p", { text: this.options.message, cls: "slate-modal-desc" });
+      contentEl.createEl("p", { text: this.options.message, cls: "graphite-modal-desc" });
     }
 
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
-    createSlateButton(actions, { text: "Cancel" }).addEventListener("click", () => this.close());
-    createSlateButton(actions, {
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
+    createGraphiteButton(actions, { text: "Cancel" }).addEventListener("click", () => this.close());
+    createGraphiteButton(actions, {
       text: this.options.confirmText,
       variant: "destructive"
     }).addEventListener("click", () => {

@@ -2,7 +2,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner-dark.svg" />
-  <img alt="Slate" src="docs/assets/banner-light.svg" width="760" />
+  <img alt="Graphite" src="docs/assets/banner-light.svg" width="760" />
 </picture>
 
 <br/>
@@ -15,7 +15,7 @@ A calm, Todoist-like task manager for Obsidian — every task is a line in a pla
 &nbsp;![Version](https://img.shields.io/badge/version-0.1.0-6bdcff?style=flat-square)
 &nbsp;![Obsidian](https://img.shields.io/badge/Obsidian-1.6.6%2B-63f2ab?style=flat-square)
 
-[Website](https://real-fruit-snacks.github.io/Slate/) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/Real-Fruit-Snacks/Slate/issues)
+[Website](https://real-fruit-snacks.github.io/Graphite/) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/Real-Fruit-Snacks/Graphite/issues)
 
 </div>
 
@@ -23,9 +23,9 @@ A calm, Todoist-like task manager for Obsidian — every task is a line in a pla
 
 ## Overview
 
-Slate sits between lightweight checkbox plugins and heavy task-note systems: structured enough to run your day, small enough to stay quiet. Tasks live entirely inside your vault as human-readable Markdown, organized into one file per month — so your task history is greppable, portable, and yours forever.
+Graphite sits between lightweight checkbox plugins and heavy task-note systems: structured enough to run your day, small enough to stay quiet. Tasks live entirely inside your vault as human-readable Markdown, organized into one file per month — so your task history is greppable, portable, and yours forever.
 
-> Slate is **not** a Todoist integration. It never connects to Todoist or any external service.
+> Graphite is **not** a Todoist integration. It never connects to Todoist or any external service.
 
 ---
 
@@ -36,7 +36,7 @@ Slate sits between lightweight checkbox plugins and heavy task-note systems: str
 - **Sub-tasks** — nested under any task, with an inline completion counter and quick complete.
 - **Recurring tasks** — daily, weekly (multi-weekday), weekdays, monthly, yearly, and custom rules; calendar- or completion-based.
 - **Quick capture** — add from the board, a full-screen mobile composer, or the command palette (with `#label` and `//project` inline tokens).
-- **Daily Notes** — surface a day's completed tasks in a panel or a `slate-completed` code block.
+- **Daily Notes** — surface a day's completed tasks in a panel or a `graphite-completed` code block.
 - **Confirm before delete** — task and sub-task deletions always ask first.
 - **Theme-driven** — colors, surfaces, and accents inherit from your active Obsidian theme; the UI speaks the [Terminal Workbench](https://github.com/Real-Fruit-Snacks/terminal-workbench-design-system) design language.
 - **Private** — no telemetry, no network calls, no account.
@@ -52,20 +52,20 @@ Slate sits between lightweight checkbox plugins and heavy task-note systems: str
 ### BRAT (beta)
 
 1. Install the **BRAT** plugin from Community plugins.
-2. Run **BRAT: Add a beta plugin** and enter `Real-Fruit-Snacks/Slate`.
-3. Enable **Slate** in Settings → Community plugins.
+2. Run **BRAT: Add a beta plugin** and enter `Real-Fruit-Snacks/Graphite`.
+3. Enable **Graphite** in Settings → Community plugins.
 
 ### Manual
 
-1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/Real-Fruit-Snacks/Slate/releases).
-2. Copy them into `<your-vault>/.obsidian/plugins/slate/`.
-3. Reload Obsidian and enable **Slate** in Settings → Community plugins.
+1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/Real-Fruit-Snacks/Graphite/releases).
+2. Copy them into `<your-vault>/.obsidian/plugins/graphite/`.
+3. Reload Obsidian and enable **Graphite** in Settings → Community plugins.
 
 ---
 
 ## Getting started
 
-1. Run **`Slate: Open`** from the command palette (or click the ribbon icon).
+1. Run **`Graphite: Open`** from the command palette (or click the ribbon icon).
 2. Click **+ Add task**, or press the Quick Add hotkey, and give it a title.
 3. Add a date, project, label, priority, or repeat rule. Tasks with no project land in **Inbox**.
 
@@ -73,12 +73,12 @@ Slate sits between lightweight checkbox plugins and heavy task-note systems: str
 
 | Command | Default hotkey |
 |---|---|
-| `Slate: Open` | — |
-| `Slate: Quick Add Task` | `Ctrl`/`Cmd` + `Shift` + `A` |
-| `Slate: Show Completed Tasks for Active Daily Note` | — |
-| `Slate: Insert Completed Tasks Block in Active Daily Note` | — |
-| `Slate: Normalize Labels` | — |
-| `Slate: Migrate old task file` | — |
+| `Graphite: Open` | — |
+| `Graphite: Quick Add Task` | `Ctrl`/`Cmd` + `Shift` + `A` |
+| `Graphite: Show Completed Tasks for Active Daily Note` | — |
+| `Graphite: Insert Completed Tasks Block in Active Daily Note` | — |
+| `Graphite: Normalize Labels` | — |
+| `Graphite: Migrate old task file` | — |
 
 ### Inline tokens
 
@@ -88,10 +88,10 @@ While typing a task title, use `#label` to attach a label and `//project` to set
 
 ## How a task is stored
 
-Slate keeps task data in a configurable folder (default `_slate_files/`), one Markdown file per month, with attachments beside them:
+Graphite keeps task data in a configurable folder (default `_graphite_files/`), one Markdown file per month, with attachments beside them:
 
 ```text
-_slate_files/
+_graphite_files/
 ├─ Data/
 │  └─ 2026-07.md
 └─ Attachments/
@@ -112,7 +112,7 @@ Each task is a Markdown list item with `key:: value` metadata:
   labels:: writing, portfolio
 ```
 
-Tasks without a project omit `project::` and appear in Inbox. Completed tasks use `[x]` with a `completed::` date. Slate reads and writes **only** its own data folder, and preserves any lines or properties it doesn't recognize — so hand-editing is safe.
+Tasks without a project omit `project::` and appear in Inbox. Completed tasks use `[x]` with a `completed::` date. Graphite reads and writes **only** its own data folder, and preserves any lines or properties it doesn't recognize — so hand-editing is safe.
 
 ---
 
@@ -131,7 +131,7 @@ src/
 
 - **Non-destructive storage** — the parser keeps a document of raw + task blocks, so edits never clobber surrounding content or unknown metadata.
 - **Serialized writes** — task writes run through a queue and reconcile only the files they touch, so rapid, cross-file edits can't race or drop data.
-- **Theme-driven styling** — namespaced `.slate-*` CSS with tokens mapped to Obsidian's theme variables; monospace "manifest" labels for structural chrome.
+- **Theme-driven styling** — namespaced `.graphite-*` CSS with tokens mapped to Obsidian's theme variables; monospace "manifest" labels for structural chrome.
 
 The pure data layer (parser, serializer, recurring math, sorting, store) is covered by a [Vitest](https://vitest.dev) suite.
 
@@ -146,20 +146,20 @@ npm run test     # data-layer test suite
 npm run verify   # tests + typecheck + production build (pre-commit gate)
 ```
 
-To auto-copy each build into a vault's plugin folder, set the `SLATE_PLUGIN_DIR` environment variable or a gitignored `.plugin-target` file to that folder's path.
+To auto-copy each build into a vault's plugin folder, set the `GRAPHITE_PLUGIN_DIR` environment variable or a gitignored `.plugin-target` file to that folder's path.
 
 ---
 
 ## Contributing
 
-Bug reports and feature requests are welcome in [Issues](https://github.com/Real-Fruit-Snacks/Slate/issues). If you're opening a pull request, run `npm run verify` first.
+Bug reports and feature requests are welcome in [Issues](https://github.com/Real-Fruit-Snacks/Graphite/issues). If you're opening a pull request, run `npm run verify` first.
 
 ---
 
 ## Credits
 
-Slate is a fork of the [belki](https://github.com/aribuga/obsidian-belki-tasks) task manager by Yasin Aribuga, rebuilt and extended under the [Terminal Workbench](https://github.com/Real-Fruit-Snacks/terminal-workbench-design-system) design language.
+Graphite is a fork of the [belki](https://github.com/aribuga/obsidian-belki-tasks) task manager by Yasin Aribuga, rebuilt and extended under the [Terminal Workbench](https://github.com/Real-Fruit-Snacks/terminal-workbench-design-system) design language.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Copyright © Yasin Aribuga (original belki project) and Real-Fruit-Snacks (Slate fork).
+MIT — see [LICENSE](LICENSE). Copyright © Yasin Aribuga (original belki project) and Real-Fruit-Snacks (Graphite fork).

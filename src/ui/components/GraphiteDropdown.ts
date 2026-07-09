@@ -1,6 +1,6 @@
 import { alignLocalPopover } from "../popover";
 
-export interface SlateDropdownOption {
+export interface GraphiteDropdownOption {
   value: string;
   label: string;
   /** Optional colored dot shown beside the option (and the default trigger). */
@@ -9,8 +9,8 @@ export interface SlateDropdownOption {
   section?: string;
 }
 
-export interface SlateDropdownConfig {
-  getOptions: () => SlateDropdownOption[];
+export interface GraphiteDropdownConfig {
+  getOptions: () => GraphiteDropdownOption[];
   getValue: () => string;
   onSelect: (value: string) => void;
   ariaLabel?: string;
@@ -27,7 +27,7 @@ export interface SlateDropdownConfig {
    * Called after the value changes so callers using a custom `trigger` can
    * update its visuals. `option` is the currently selected option, if any.
    */
-  onRenderTrigger?: (option: SlateDropdownOption | null) => void;
+  onRenderTrigger?: (option: GraphiteDropdownOption | null) => void;
 }
 
 /**
@@ -36,20 +36,20 @@ export interface SlateDropdownConfig {
  * popovers, so it never falls back to the OS's white dropdown. Supports colored
  * dots, section headings, keyboard navigation, and outside-click dismissal.
  */
-export class SlateDropdown {
+export class GraphiteDropdown {
   readonly triggerEl: HTMLElement;
   private labelEl: HTMLElement | null = null;
   private dotEl: HTMLElement | null = null;
   private menuEl: HTMLElement | null = null;
   private detachOutside: () => void = () => undefined;
 
-  constructor(private config: SlateDropdownConfig) {
+  constructor(private config: GraphiteDropdownConfig) {
     if (config.trigger) {
       this.triggerEl = config.trigger;
     } else {
       const parent = config.triggerParent;
       if (!parent) {
-        throw new Error("SlateDropdown requires either `trigger` or `triggerParent`.");
+        throw new Error("GraphiteDropdown requires either `trigger` or `triggerParent`.");
       }
       this.triggerEl = this.buildDefaultTrigger(parent);
     }
@@ -113,7 +113,7 @@ export class SlateDropdown {
 
     const doc = this.triggerEl.ownerDocument;
     const menu = doc.createElement("div");
-    menu.className = "slate-dropdown-menu";
+    menu.className = "graphite-dropdown-menu";
     if (this.config.menuClassName) {
       menu.classList.add(this.config.menuClassName);
     }
@@ -140,7 +140,7 @@ export class SlateDropdown {
     doc.addEventListener("pointerdown", handleOutside, true);
     this.detachOutside = () => doc.removeEventListener("pointerdown", handleOutside, true);
 
-    const firstOption = menu.querySelector<HTMLElement>(".slate-dropdown-option");
+    const firstOption = menu.querySelector<HTMLElement>(".graphite-dropdown-option");
     firstOption?.focus({ preventScroll: true });
   }
 
@@ -161,19 +161,19 @@ export class SlateDropdown {
 
   private buildDefaultTrigger(parent: HTMLElement): HTMLElement {
     const trigger = parent.createEl("button", {
-      cls: "slate-dropdown-trigger",
+      cls: "graphite-dropdown-trigger",
       attr: { type: "button" }
     });
     if (this.config.triggerClassName) {
       trigger.addClass(this.config.triggerClassName);
     }
-    this.dotEl = trigger.createSpan({ cls: "slate-dropdown-dot is-hidden" });
-    this.labelEl = trigger.createSpan({ cls: "slate-dropdown-trigger-label" });
-    trigger.createSpan({ cls: "slate-dropdown-caret" });
+    this.dotEl = trigger.createSpan({ cls: "graphite-dropdown-dot is-hidden" });
+    this.labelEl = trigger.createSpan({ cls: "graphite-dropdown-trigger-label" });
+    trigger.createSpan({ cls: "graphite-dropdown-caret" });
     return trigger;
   }
 
-  private currentOption(): SlateDropdownOption | null {
+  private currentOption(): GraphiteDropdownOption | null {
     const value = this.config.getValue();
     return this.config.getOptions().find((option) => option.value === value) || null;
   }
@@ -190,13 +190,13 @@ export class SlateDropdown {
 
     for (const option of this.config.getOptions()) {
       if (option.section && option.section !== lastSection) {
-        menu.createDiv({ cls: "slate-dropdown-section", text: option.section });
+        menu.createDiv({ cls: "graphite-dropdown-section", text: option.section });
         lastSection = option.section;
       }
 
       const isSelected = option.value === selected;
       const item = menu.createEl("button", {
-        cls: "slate-dropdown-option",
+        cls: "graphite-dropdown-option",
         attr: {
           type: "button",
           role: "option",
@@ -206,15 +206,15 @@ export class SlateDropdown {
       });
       item.toggleClass("is-selected", isSelected);
       item.createSpan({
-        cls: "slate-dropdown-option-check",
+        cls: "graphite-dropdown-option-check",
         text: isSelected ? "✓" : ""
       });
       if (option.dotColor) {
         item
-          .createSpan({ cls: "slate-dropdown-option-dot" })
+          .createSpan({ cls: "graphite-dropdown-option-dot" })
           .setCssStyles({ backgroundColor: option.dotColor });
       }
-      item.createSpan({ cls: "slate-dropdown-option-label", text: option.label });
+      item.createSpan({ cls: "graphite-dropdown-option-label", text: option.label });
 
       item.addEventListener("click", (event) => {
         event.preventDefault();
@@ -248,7 +248,7 @@ export class SlateDropdown {
 
   private focusOption(start: HTMLElement | null, direction: "next" | "previous"): void {
     let candidate = start;
-    while (candidate && !candidate.classList.contains("slate-dropdown-option")) {
+    while (candidate && !candidate.classList.contains("graphite-dropdown-option")) {
       candidate = (direction === "next"
         ? candidate.nextElementSibling
         : candidate.previousElementSibling) as HTMLElement | null;

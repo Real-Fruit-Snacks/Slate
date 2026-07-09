@@ -11,11 +11,11 @@ const builtins = [
 
 // Optional local deploy target: after each successful build, copy the plugin
 // files into a vault's plugin folder so changes are live without a manual copy.
-// Configure the path via the SLATE_PLUGIN_DIR env var or a gitignored
+// Configure the path via the GRAPHITE_PLUGIN_DIR env var or a gitignored
 // `.plugin-target` file containing the path. If neither is set, deploy is
 // skipped — keeping this committed config free of machine-specific paths.
 function resolveDeployDir() {
-  const fromEnv = process.env.SLATE_PLUGIN_DIR?.trim();
+  const fromEnv = process.env.GRAPHITE_PLUGIN_DIR?.trim();
   if (fromEnv) {
     return fromEnv;
   }
@@ -34,21 +34,21 @@ function deployToVault() {
     return;
   }
   if (!existsSync(dir)) {
-    console.warn(`[slate] Deploy target not found, skipping copy: ${dir}`);
+    console.warn(`[graphite] Deploy target not found, skipping copy: ${dir}`);
     return;
   }
   for (const file of ["main.js", "manifest.json", "styles.css"]) {
     try {
       copyFileSync(file, join(dir, file));
     } catch (error) {
-      console.warn(`[slate] Failed to copy ${file} to ${dir}:`, error.message);
+      console.warn(`[graphite] Failed to copy ${file} to ${dir}:`, error.message);
     }
   }
-  console.log(`[slate] Deployed main.js, manifest.json, styles.css -> ${dir}`);
+  console.log(`[graphite] Deployed main.js, manifest.json, styles.css -> ${dir}`);
 }
 
 const deployPlugin = {
-  name: "slate-deploy",
+  name: "graphite-deploy",
   setup(build) {
     build.onEnd((result) => {
       if (result.errors.length === 0) {

@@ -1,4 +1,4 @@
-export type SlateIconName =
+export type GraphiteIconName =
   | "activity"
   | "add"
   | "archive"
@@ -31,9 +31,9 @@ export type SlateIconName =
   | "today"
   | "upcoming";
 
-export type SlateIconInput = SlateIconName | (string & {});
+export type GraphiteIconInput = GraphiteIconName | (string & {});
 
-export const SLATE_ICON_MAP: Record<SlateIconName, string> = {
+export const GRAPHITE_ICON_MAP: Record<GraphiteIconName, string> = {
   activity: "chart-no-axes-column",
   add: "plus",
   archive: "archive",
@@ -67,6 +67,6 @@ export const SLATE_ICON_MAP: Record<SlateIconName, string> = {
   upcoming: "calendar-clock"
 };
 
-export function resolveSlateIcon(icon: SlateIconInput): string {
-  return SLATE_ICON_MAP[icon as SlateIconName] || icon;
+export function resolveGraphiteIcon(icon: GraphiteIconInput): string {
+  return GRAPHITE_ICON_MAP[icon as GraphiteIconName] || icon;
 }

@@ -24,12 +24,12 @@ export const PRIORITY_COLORS: Record<Priority, PriorityColor> = {
   },
   P4: {
     name: "Priority 4",
-    color: "var(--slate-muted)",
+    color: "var(--graphite-muted)",
     light: "transparent"
   },
   none: {
     name: "Priority",
-    color: "var(--slate-muted)",
+    color: "var(--graphite-muted)",
     light: "transparent"
   }
 };

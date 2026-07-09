@@ -14,9 +14,9 @@ import { getRepeatChipLabel, getRepeatLabel, getRepeatPresets, repeatRulesEqual 
 import { CustomRepeatModal } from "./CustomRepeatModal";
 import { attachWikilinkAutocomplete } from "./wikilinkAutocomplete";
 import { attachQuickAddAutocomplete, parseQuickAddTokens } from "./quickAddAutocomplete";
-import { createSlateActionRow, createSlateButton } from "../ui";
-import { createSlateIcon } from "../ui/components/SlateIcon";
-import { SlateDropdown } from "../ui/components/SlateDropdown";
+import { createGraphiteActionRow, createGraphiteButton } from "../ui";
+import { createGraphiteIcon } from "../ui/components/GraphiteIcon";
+import { GraphiteDropdown } from "../ui/components/GraphiteDropdown";
 import { alignLocalPopover, LocalPopoverOptions } from "../ui/popover";
 
 interface ComposerOptions {
@@ -39,7 +39,7 @@ export class AddTaskComposer {
   private selectedProjectValue = "";
 
   render(parent: HTMLElement, options: ComposerOptions): () => void {
-    const form = parent.createEl("form", { cls: "slate-composer" });
+    const form = parent.createEl("form", { cls: "graphite-composer" });
     const isMobileScreen = options.presentation === "mobile-screen";
     form.toggleClass("is-mobile-screen", isMobileScreen);
     let selectedDue = options.defaultDue || "";
@@ -49,7 +49,7 @@ export class AddTaskComposer {
     let pendingAttachments: File[] = [];
 
     this.titleInput = form.createEl("textarea", {
-      cls: "slate-composer-title",
+      cls: "graphite-composer-title",
       attr: {
         placeholder: "Task title",
         rows: "1"
@@ -77,7 +77,7 @@ export class AddTaskComposer {
     resizeTitleInput();
 
     const descriptionInput = form.createEl("textarea", {
-      cls: "slate-composer-description",
+      cls: "graphite-composer-description",
       attr: {
         placeholder: "Description"
       }
@@ -105,28 +105,28 @@ export class AddTaskComposer {
       form.requestSubmit();
     });
 
-    const chipRow = form.createDiv({ cls: "slate-composer-chip-row" });
-    const dueDateWrap = chipRow.createDiv({ cls: "slate-date-picker-wrap" });
-    const repeatChipWrap = chipRow.createDiv({ cls: "slate-repeat-chip-wrap" });
+    const chipRow = form.createDiv({ cls: "graphite-composer-chip-row" });
+    const dueDateWrap = chipRow.createDiv({ cls: "graphite-date-picker-wrap" });
+    const repeatChipWrap = chipRow.createDiv({ cls: "graphite-repeat-chip-wrap" });
 
-    const priorityWrap = chipRow.createDiv({ cls: "slate-chip-select-wrap" });
+    const priorityWrap = chipRow.createDiv({ cls: "graphite-chip-select-wrap" });
     createIcon(priorityWrap, "priority");
-    const priorityIndicator = priorityWrap.createSpan({ cls: "slate-priority-indicator" });
-    const priorityDisplay = priorityWrap.createSpan({ cls: "slate-priority-display" });
+    const priorityIndicator = priorityWrap.createSpan({ cls: "graphite-priority-indicator" });
+    const priorityDisplay = priorityWrap.createSpan({ cls: "graphite-priority-display" });
     const priorityChoices = PRIORITIES.filter((priority) => priority !== "none");
     let priorityValue: Priority = "P4";
     const updatePriorityStyle = () => {
       const color = getPriorityColor(priorityValue);
       priorityWrap.setCssProps({
-        "--slate-priority-text": color.color,
-        "--slate-priority-bg": color.light,
-        "--slate-priority-border": color.color
+        "--graphite-priority-text": color.color,
+        "--graphite-priority-bg": color.light,
+        "--graphite-priority-border": color.color
       });
       priorityWrap.toggleClass("has-priority", hasVisiblePriority(priorityValue));
       priorityIndicator.setCssStyles({ backgroundColor: color.color });
       priorityDisplay.setText(getPriorityDisplayLabel(priorityValue));
     };
-    const priorityDropdown = new SlateDropdown({
+    const priorityDropdown = new GraphiteDropdown({
       trigger: priorityWrap,
       ariaLabel: "Priority",
       getValue: () => priorityValue,
@@ -153,7 +153,7 @@ export class AddTaskComposer {
       }
     });
     const pendingAttachmentsEl = form.createDiv({
-      cls: "slate-composer-attachments is-hidden"
+      cls: "graphite-composer-attachments is-hidden"
     });
 
     const renderPendingAttachments = () => {
@@ -161,19 +161,19 @@ export class AddTaskComposer {
       pendingAttachmentsEl.toggleClass("is-hidden", pendingAttachments.length === 0);
 
       for (const [index, file] of pendingAttachments.entries()) {
-        const item = pendingAttachmentsEl.createDiv({ cls: "slate-composer-attachment" });
-        createSlateIcon(item, isImageFile(file) ? "attachment" : "file", {
-          className: "slate-composer-attachment-icon"
+        const item = pendingAttachmentsEl.createDiv({ cls: "graphite-composer-attachment" });
+        createGraphiteIcon(item, isImageFile(file) ? "attachment" : "file", {
+          className: "graphite-composer-attachment-icon"
         });
-        item.createDiv({ cls: "slate-composer-attachment-name", text: file.name });
+        item.createDiv({ cls: "graphite-composer-attachment-name", text: file.name });
         const removeButton = item.createEl("button", {
-          cls: "slate-composer-attachment-remove",
+          cls: "graphite-composer-attachment-remove",
           attr: {
             type: "button",
             "aria-label": `Remove ${file.name}`
           }
         });
-        createSlateIcon(removeButton, "close");
+        createGraphiteIcon(removeButton, "close");
         removeButton.addEventListener("click", () => {
           pendingAttachments = pendingAttachments.filter((_, candidateIndex) => candidateIndex !== index);
           renderPendingAttachments();
@@ -193,22 +193,22 @@ export class AddTaskComposer {
     });
 
     const mobilePanelSide = Platform.isMobile ? "above" : "below";
-    const labelsWrap = chipRow.createDiv({ cls: "slate-composer-labels-wrap" });
+    const labelsWrap = chipRow.createDiv({ cls: "graphite-composer-labels-wrap" });
     const labelsButton = createChipButton(labelsWrap, "Labels", "tag");
-    const deadlineWrap = chipRow.createDiv({ cls: "slate-composer-deadline-wrap" });
+    const deadlineWrap = chipRow.createDiv({ cls: "graphite-composer-deadline-wrap" });
 
-    const labelsPanel = labelsWrap.createDiv({ cls: "slate-composer-popover is-hidden" });
-    const selectedLabelsEl = labelsPanel.createDiv({ cls: "slate-selected-labels" });
+    const labelsPanel = labelsWrap.createDiv({ cls: "graphite-composer-popover is-hidden" });
+    const selectedLabelsEl = labelsPanel.createDiv({ cls: "graphite-selected-labels" });
     const labelInput = labelsPanel.createEl("input", {
-      cls: "slate-label-input",
+      cls: "graphite-label-input",
       attr: {
         type: "text",
         placeholder: "#label"
       }
     });
-    const labelSuggestions = labelsPanel.createDiv({ cls: "slate-label-suggestions" });
+    const labelSuggestions = labelsPanel.createDiv({ cls: "graphite-label-suggestions" });
 
-    const labelChipsRow = form.createDiv({ cls: "slate-composer-label-chips is-hidden" });
+    const labelChipsRow = form.createDiv({ cls: "graphite-composer-label-chips is-hidden" });
 
     let detachOutsideListener = () => undefined;
     let closeProjectMenu = () => undefined;
@@ -286,17 +286,17 @@ export class AddTaskComposer {
       deadlineWrap.empty();
       const hasDeadline = Boolean(selectedDeadline);
       const btn = deadlineWrap.createEl("button", {
-        cls: `slate-chip-button${hasDeadline ? " slate-date-chip is-active is-selected" : ""}`,
+        cls: `graphite-chip-button${hasDeadline ? " graphite-date-chip is-active is-selected" : ""}`,
         attr: { type: "button", "aria-label": "Set deadline" }
       });
       createIcon(btn, "deadline");
       btn.createSpan({
-        cls: "slate-chip-label",
+        cls: "graphite-chip-label",
         text: hasDeadline ? formatDueDateChip(selectedDeadline) : "Deadline"
       });
 
       if (hasDeadline) {
-        const clearSpan = createSlateIcon(btn, "close", { className: "slate-deadline-clear" });
+        const clearSpan = createGraphiteIcon(btn, "close", { className: "graphite-deadline-clear" });
         clearSpan.addEventListener("click", (e) => {
           e.stopPropagation();
           selectedDeadline = "";
@@ -305,8 +305,8 @@ export class AddTaskComposer {
         });
       }
 
-      const panel = deadlineWrap.createDiv({ cls: "slate-composer-popover slate-date-popover is-hidden" });
-      panel.createDiv({ cls: "slate-popover-title", text: "Deadline" });
+      const panel = deadlineWrap.createDiv({ cls: "graphite-composer-popover graphite-date-popover is-hidden" });
+      panel.createDiv({ cls: "graphite-popover-title", text: "Deadline" });
       closeDeadlinePanel = () => {
         panel.addClass("is-hidden");
         panel.removeClass("is-calendar-open");
@@ -326,7 +326,7 @@ export class AddTaskComposer {
 
       const addPreset = (label: string, value: string) => {
         const presetBtn = panel.createEl("button", {
-          cls: "slate-date-preset",
+          cls: "graphite-date-preset",
           text: label,
           attr: { type: "button" }
         });
@@ -393,7 +393,7 @@ export class AddTaskComposer {
         };
 
         const chip = selectedLabelsEl.createEl("button", {
-          cls: "slate-selected-label",
+          cls: "graphite-selected-label",
           text: displayLabel(label),
           attr: { type: "button" }
         });
@@ -401,14 +401,14 @@ export class AddTaskComposer {
         chip.addEventListener("click", removeLabel);
 
         const externalChip = labelChipsRow.createEl("span", {
-          cls: "slate-label-chip",
+          cls: "graphite-label-chip",
           attr: { "aria-label": `Remove label ${displayLabel(label)}` }
         });
-        externalChip.setCssProps({ "--slate-label-chip-color": color.regular, "--slate-label-chip-bg": color.light });
+        externalChip.setCssProps({ "--graphite-label-chip-color": color.regular, "--graphite-label-chip-bg": color.light });
         createIcon(externalChip, "tag");
-        externalChip.createSpan({ cls: "slate-label-chip-name", text: displayLabel(label) });
+        externalChip.createSpan({ cls: "graphite-label-chip-name", text: displayLabel(label) });
         const removeBtn = externalChip.createEl("button", {
-          cls: "slate-label-chip-remove",
+          cls: "graphite-label-chip-remove",
           attr: { type: "button", "aria-label": `Remove ${displayLabel(label)}` }
         });
         createIcon(removeBtn, "close");
@@ -419,7 +419,7 @@ export class AddTaskComposer {
       const query = normalizeLabelName(labelInput.value);
       if (!query) {
         labelSuggestions.createDiv({
-          cls: "slate-label-empty",
+          cls: "graphite-label-empty",
           text: "Type a label name"
         });
         return;
@@ -431,7 +431,7 @@ export class AddTaskComposer {
 
       for (const label of matches) {
         const suggestion = labelSuggestions.createEl("button", {
-          cls: "slate-label-suggestion",
+          cls: "graphite-label-suggestion",
           text: displayLabel(label),
           attr: { type: "button" }
         });
@@ -440,7 +440,7 @@ export class AddTaskComposer {
 
       if (!dedupeLabels(options.labels).includes(query) && !selectedLabels.includes(query)) {
         const create = labelSuggestions.createEl("button", {
-          cls: "slate-label-suggestion",
+          cls: "graphite-label-suggestion",
           text: `Create label: ${displayLabel(query)}`,
           attr: { type: "button" }
         });
@@ -471,21 +471,21 @@ export class AddTaskComposer {
     });
     renderLabels();
 
-    const footer = form.createDiv({ cls: "slate-composer-footer" });
-    const projectArea = footer.createDiv({ cls: "slate-composer-project" });
+    const footer = form.createDiv({ cls: "graphite-composer-footer" });
+    const projectArea = footer.createDiv({ cls: "graphite-composer-project" });
 
     const projectPicker = projectArea.createEl("button", {
-      cls: "slate-project-picker slate-location-picker",
+      cls: "graphite-project-picker graphite-location-picker",
       attr: {
         type: "button",
         "aria-haspopup": "listbox",
         "aria-expanded": "false"
       }
     });
-    const projectDot = projectPicker.createSpan({ cls: "slate-project-dot slate-composer-project-dot" });
-    const projectLabel = projectPicker.createSpan({ cls: "slate-project-trigger-label" });
+    const projectDot = projectPicker.createSpan({ cls: "graphite-project-dot graphite-composer-project-dot" });
+    const projectLabel = projectPicker.createSpan({ cls: "graphite-project-trigger-label" });
     const projectMenu = createEl("div", {
-      cls: "slate-project-menu",
+      cls: "graphite-project-menu",
       attr: {
         role: "listbox"
       }
@@ -496,25 +496,25 @@ export class AddTaskComposer {
       ? defaultProject
       : "";
 
-    const customProjectWrap = projectArea.createDiv({ cls: "slate-custom-project-wrap is-hidden" });
+    const customProjectWrap = projectArea.createDiv({ cls: "graphite-custom-project-wrap is-hidden" });
     this.customProjectInput = customProjectWrap.createEl("input", {
-      cls: "slate-chip-input slate-custom-project",
+      cls: "graphite-chip-input graphite-custom-project",
       attr: {
         type: "text",
         placeholder: "Project name"
       }
     });
     const confirmProjectBtn = customProjectWrap.createEl("button", {
-      cls: "slate-custom-project-confirm",
+      cls: "graphite-custom-project-confirm",
       attr: { type: "button", "aria-label": "Confirm project" }
     });
-    createSlateIcon(confirmProjectBtn, "completed");
+    createGraphiteIcon(confirmProjectBtn, "completed");
 
     const cancelProjectBtn = customProjectWrap.createEl("button", {
-      cls: "slate-custom-project-cancel",
+      cls: "graphite-custom-project-cancel",
       attr: { type: "button", "aria-label": "Cancel" }
     });
-    createSlateIcon(cancelProjectBtn, "close");
+    createGraphiteIcon(cancelProjectBtn, "close");
 
     let previousProjectValue = "";
 
@@ -581,7 +581,7 @@ export class AddTaskComposer {
       projectColor?: { regular: string; light: string }
     ) => {
       const option = parent.createEl("button", {
-        cls: "slate-project-option",
+        cls: "graphite-project-option",
         attr: {
           type: "button",
           role: "option",
@@ -591,15 +591,15 @@ export class AddTaskComposer {
       option.toggleClass("is-selected", this.selectedProjectValue === value);
       option.toggleClass("has-project", Boolean(projectColor));
       option.createSpan({
-        cls: "slate-project-option-check",
+        cls: "graphite-project-option-check",
         text: this.selectedProjectValue === value ? "✓" : ""
       });
       if (projectColor) {
         option
-          .createSpan({ cls: "slate-project-dot" })
+          .createSpan({ cls: "graphite-project-dot" })
           .setCssStyles({ backgroundColor: projectColor.regular });
       }
-      option.createSpan({ cls: "slate-project-option-label", text: label });
+      option.createSpan({ cls: "graphite-project-option-label", text: label });
       option.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -610,7 +610,7 @@ export class AddTaskComposer {
     const renderProjectMenu = () => {
       projectMenu.empty();
       renderProjectOption(projectMenu, "Inbox", "");
-      projectMenu.createDiv({ cls: "slate-project-section-label", text: "Projects" });
+      projectMenu.createDiv({ cls: "graphite-project-section-label", text: "Projects" });
 
       for (const project of projects) {
         renderProjectOption(
@@ -629,10 +629,10 @@ export class AddTaskComposer {
       const project = normalizeTaskProject(displayValue) || "";
       projectLabel.setText(project || "Inbox");
       if (!project) {
-        projectDot.setCssStyles({ backgroundColor: "var(--slate-faint)" });
+        projectDot.setCssStyles({ backgroundColor: "var(--graphite-faint)" });
         projectPicker.setCssStyles({
-          backgroundColor: "var(--slate-hover)",
-          borderColor: "var(--slate-border)"
+          backgroundColor: "var(--graphite-hover)",
+          borderColor: "var(--graphite-border)"
         });
         return;
       }
@@ -647,9 +647,9 @@ export class AddTaskComposer {
 
     const hasOpenComposerPopover = () =>
       !labelsPanel.hasClass("is-hidden") ||
-      Boolean(deadlineWrap.querySelector(".slate-composer-popover:not(.is-hidden)")) ||
+      Boolean(deadlineWrap.querySelector(".graphite-composer-popover:not(.is-hidden)")) ||
       projectMenu.isConnected ||
-      Boolean(dueDateWrap.querySelector(".slate-date-popover:not(.is-hidden)"));
+      Boolean(dueDateWrap.querySelector(".graphite-date-popover:not(.is-hidden)"));
 
     projectPicker.addEventListener("click", (event) => {
       event.preventDefault();
@@ -674,9 +674,9 @@ export class AddTaskComposer {
     renderProjectMenu();
     updateProjectDot();
 
-    const actions = createSlateActionRow(footer, { className: "slate-composer-actions" });
-    const cancelButton = createSlateButton(actions, { text: "Cancel" });
-    const addButton = createSlateButton(actions, {
+    const actions = createGraphiteActionRow(footer, { className: "graphite-composer-actions" });
+    const cancelButton = createGraphiteButton(actions, { text: "Cancel" });
+    const addButton = createGraphiteButton(actions, {
       text: "Add task",
       variant: "primary",
       attr: {
@@ -722,18 +722,18 @@ export class AddTaskComposer {
       dueDateWrap.empty();
       const hasDate = Boolean(selectedDue);
       const dueDateButton = dueDateWrap.createEl("button", {
-        cls: `slate-chip-button slate-date-chip${hasDate ? " is-active is-selected" : ""}`,
+        cls: `graphite-chip-button graphite-date-chip${hasDate ? " is-active is-selected" : ""}`,
         attr: { type: "button", "aria-label": "Set due date" }
       });
-      createSlateIcon(dueDateButton, "calendar", { className: "slate-chip-icon" });
-      dueDateButton.createSpan({ cls: "slate-chip-label", text: formatDueDateChip(selectedDue) });
+      createGraphiteIcon(dueDateButton, "calendar", { className: "graphite-chip-icon" });
+      dueDateButton.createSpan({ cls: "graphite-chip-label", text: formatDueDateChip(selectedDue) });
 
       if (hasDate) {
         const clearBtn = dueDateWrap.createEl("button", {
-          cls: "slate-date-chip-clear",
+          cls: "graphite-date-chip-clear",
           attr: { type: "button", "aria-label": "Clear due date" }
         });
-        createSlateIcon(clearBtn, "close");
+        createGraphiteIcon(clearBtn, "close");
         clearBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           if (selectedRepeat) new Notice("Date and repeat rule removed.");
@@ -745,7 +745,7 @@ export class AddTaskComposer {
         });
       }
 
-      const datePopover = dueDateWrap.createDiv({ cls: "slate-composer-popover slate-date-popover is-hidden" });
+      const datePopover = dueDateWrap.createDiv({ cls: "graphite-composer-popover graphite-date-popover is-hidden" });
       closeDueDatePopover = () => {
         datePopover.addClass("is-hidden");
         datePopover.removeClass("is-calendar-open");
@@ -761,7 +761,7 @@ export class AddTaskComposer {
 
       const addPreset = (label: string, value: string) => {
         const btn = datePopover.createEl("button", {
-          cls: "slate-date-preset",
+          cls: "graphite-date-preset",
           text: label,
           attr: { type: "button" }
         });
@@ -779,19 +779,19 @@ export class AddTaskComposer {
 
       renderComposerCustomDatePicker(datePopover, selectedDue, selectDate);
 
-      datePopover.createDiv({ cls: "slate-date-divider" });
-      const repeatHeader = datePopover.createDiv({ cls: "slate-repeat-header" });
-      createSlateIcon(repeatHeader, "recurring", { className: "slate-chip-icon" });
+      datePopover.createDiv({ cls: "graphite-date-divider" });
+      const repeatHeader = datePopover.createDiv({ cls: "graphite-repeat-header" });
+      createGraphiteIcon(repeatHeader, "recurring", { className: "graphite-chip-icon" });
       repeatHeader.createSpan({ text: "Repeat" });
 
       const presetDue = selectedDue || todayIso();
       const presets = getRepeatPresets(presetDue);
       for (const preset of presets) {
         const btn = datePopover.createEl("button", {
-          cls: "slate-date-preset",
+          cls: "graphite-date-preset",
           attr: { type: "button" }
         });
-        createSlateIcon(btn, "recurring", { className: "slate-chip-icon" });
+        createGraphiteIcon(btn, "recurring", { className: "graphite-chip-icon" });
         btn.createSpan({ text: preset.label });
         btn.toggleClass("is-active", repeatRulesEqual(preset.rule, selectedRepeat));
         btn.addEventListener("click", (e) => {
@@ -805,7 +805,7 @@ export class AddTaskComposer {
         });
       }
       const customRepeatBtn = datePopover.createEl("button", {
-        cls: "slate-date-preset",
+        cls: "graphite-date-preset",
         text: "Custom...",
         attr: { type: "button" }
       });
@@ -836,16 +836,16 @@ export class AddTaskComposer {
       if (!selectedRepeat) return;
       const fullLabel = getRepeatLabel(selectedRepeat);
       const chip = repeatChipWrap.createEl("button", {
-        cls: "slate-chip-button slate-repeat-chip is-active is-selected",
+        cls: "graphite-chip-button graphite-repeat-chip is-active is-selected",
         attr: { type: "button", title: fullLabel, "aria-label": fullLabel }
       });
-      createSlateIcon(chip, "recurring", { className: "slate-chip-icon" });
-      chip.createSpan({ cls: "slate-chip-label", text: getRepeatChipLabel(selectedRepeat) });
+      createGraphiteIcon(chip, "recurring", { className: "graphite-chip-icon" });
+      chip.createSpan({ cls: "graphite-chip-label", text: getRepeatChipLabel(selectedRepeat) });
       chip.addEventListener("click", () => {
-        const shouldOpen = dueDateWrap.querySelector(".slate-date-popover:not(.is-hidden)") === null;
+        const shouldOpen = dueDateWrap.querySelector(".graphite-date-popover:not(.is-hidden)") === null;
         closeComposerPopovers();
         if (shouldOpen) {
-          const popover = dueDateWrap.querySelector<HTMLElement>(".slate-date-popover");
+          const popover = dueDateWrap.querySelector<HTMLElement>(".graphite-date-popover");
           if (popover) {
             popover.removeClass("is-hidden");
             watchLocalPopover(dueDateWrap, popover, { preferredSide: mobilePanelSide });
@@ -853,10 +853,10 @@ export class AddTaskComposer {
         }
       });
       const clearRepeat = repeatChipWrap.createEl("button", {
-        cls: "slate-date-chip-clear",
+        cls: "graphite-date-chip-clear",
         attr: { type: "button", "aria-label": "Clear repeat" }
       });
-      createSlateIcon(clearRepeat, "close");
+      createGraphiteIcon(clearRepeat, "close");
       clearRepeat.addEventListener("click", (e) => {
         e.stopPropagation();
         selectedRepeat = undefined;
@@ -899,7 +899,7 @@ function createChipButton(
   ariaLabel?: string
 ): HTMLButtonElement {
   const button = parent.createEl("button", {
-    cls: "slate-chip-button",
+    cls: "graphite-chip-button",
     attr: {
       type: "button"
     }
@@ -914,7 +914,7 @@ function createChipButton(
 
   createIcon(button, iconName);
   if (label) {
-    button.createSpan({ cls: "slate-chip-label", text: label });
+    button.createSpan({ cls: "graphite-chip-label", text: label });
   }
 
   return button;
@@ -923,9 +923,9 @@ function createChipButton(
 function createIcon(
   parent: HTMLElement,
   iconName: string,
-  className = "slate-chip-icon"
+  className = "graphite-chip-icon"
 ): HTMLElement {
-  return createSlateIcon(parent, iconName, { className });
+  return createGraphiteIcon(parent, iconName, { className });
 }
 
 function renderComposerCustomDatePicker(
@@ -938,34 +938,34 @@ function renderComposerCustomDatePicker(
   let viewYear = initialDate.getFullYear();
   let viewMonth = initialDate.getMonth();
 
-  const container = parent.createDiv({ cls: "slate-date-custom-wrap" });
+  const container = parent.createDiv({ cls: "graphite-date-custom-wrap" });
   const trigger = container.createEl("button", {
-    cls: "slate-date-preset slate-cal-trigger",
+    cls: "graphite-date-preset graphite-cal-trigger",
     attr: { type: "button" }
   });
   trigger.createSpan({ text: currentValue ? formatDueDateChip(currentValue) : "Custom date..." });
   trigger.toggleClass("is-active", Boolean(currentValue));
 
-  const calendarWrap = container.createDiv({ cls: "slate-cal-wrap is-hidden" });
+  const calendarWrap = container.createDiv({ cls: "graphite-cal-wrap is-hidden" });
 
   const renderCalendar = () => {
     calendarWrap.empty();
 
-    const header = calendarWrap.createDiv({ cls: "slate-cal-header" });
+    const header = calendarWrap.createDiv({ cls: "graphite-cal-header" });
     const previousButton = header.createEl("button", {
-      cls: "slate-cal-nav",
+      cls: "graphite-cal-nav",
       text: "‹",
       attr: { type: "button" }
     });
     header.createSpan({
-      cls: "slate-cal-title",
+      cls: "graphite-cal-title",
       text: new Date(viewYear, viewMonth, 1).toLocaleDateString(undefined, {
         month: "long",
         year: "numeric"
       })
     });
     const nextButton = header.createEl("button", {
-      cls: "slate-cal-nav",
+      cls: "graphite-cal-nav",
       text: "›",
       attr: { type: "button" }
     });
@@ -993,22 +993,22 @@ function renderComposerCustomDatePicker(
       renderCalendar();
     });
 
-    const grid = calendarWrap.createDiv({ cls: "slate-cal-grid" });
+    const grid = calendarWrap.createDiv({ cls: "graphite-cal-grid" });
     for (const dayName of ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]) {
-      grid.createSpan({ cls: "slate-cal-day-hdr", text: dayName });
+      grid.createSpan({ cls: "graphite-cal-day-hdr", text: dayName });
     }
 
     const firstDay = new Date(viewYear, viewMonth, 1).getDay();
     const leadingEmptyDays = firstDay === 0 ? 6 : firstDay - 1;
     for (let index = 0; index < leadingEmptyDays; index += 1) {
-      grid.createDiv({ cls: "slate-cal-day is-empty" });
+      grid.createDiv({ cls: "graphite-cal-day is-empty" });
     }
 
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
     for (let day = 1; day <= daysInMonth; day += 1) {
       const iso = `${viewYear}-${String(viewMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
       const dayButton = grid.createEl("button", {
-        cls: "slate-cal-day",
+        cls: "graphite-cal-day",
         text: String(day),
         attr: { type: "button" }
       });
@@ -1023,7 +1023,7 @@ function renderComposerCustomDatePicker(
     const renderedCells = leadingEmptyDays + daysInMonth;
     const trailingEmptyDays = 42 - renderedCells;
     for (let index = 0; index < trailingEmptyDays; index += 1) {
-      grid.createDiv({ cls: "slate-cal-day is-empty" });
+      grid.createDiv({ cls: "graphite-cal-day is-empty" });
     }
   };
 
@@ -1045,7 +1045,7 @@ function clampPopoverToViewport(popover: HTMLElement): void {
   const ownerWindow = popover.ownerDocument.defaultView || window;
   const margin = 12;
   const currentShift = Number.parseFloat(
-    ownerWindow.getComputedStyle(popover).getPropertyValue("--slate-popover-shift-x") || "0"
+    ownerWindow.getComputedStyle(popover).getPropertyValue("--graphite-popover-shift-x") || "0"
   ) || 0;
   const rect = popover.getBoundingClientRect();
   let nextShift = currentShift;
@@ -1060,7 +1060,7 @@ function clampPopoverToViewport(popover: HTMLElement): void {
   }
 
   if (nextShift !== currentShift) {
-    popover.setCssProps({ "--slate-popover-shift-x": `${Math.round(nextShift)}px` });
+    popover.setCssProps({ "--graphite-popover-shift-x": `${Math.round(nextShift)}px` });
   }
 }
 

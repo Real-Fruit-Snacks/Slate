@@ -1,5 +1,5 @@
 export type Priority = "none" | "P1" | "P2" | "P3" | "P4";
-export type SlateSortMode =
+export type GraphiteSortMode =
   | "smart"
   | "due"
   | "priority"
@@ -8,7 +8,7 @@ export type SlateSortMode =
   | "project"
   | "alphabetical";
 export type OverdueRange = "yesterday" | "last7" | "last30" | "older";
-export type SlateFontOption =
+export type GraphiteFontOption =
   | "system"
   | "ibmPlexSans"
   | "ibmPlexMono"
@@ -38,7 +38,7 @@ export interface RepeatRule {
   endsCount?: number;
 }
 
-export interface SlateTask {
+export interface GraphiteTask {
   id: string;
   title: string;
   completed: boolean;
@@ -76,7 +76,7 @@ export type TaskDocumentBlock =
 
 export interface ParsedTaskDocument {
   blocks: TaskDocumentBlock[];
-  tasks: SlateTask[];
+  tasks: GraphiteTask[];
 }
 
 export interface CreateTaskInput {
@@ -93,7 +93,7 @@ export interface CreateTaskInput {
   parentId?: string;
 }
 
-export type TaskPatch = Partial<Omit<SlateTask, "id" | "order">>;
+export type TaskPatch = Partial<Omit<GraphiteTask, "id" | "order">>;
 
 export type BoardViewMode =
   | "inbox"
@@ -108,7 +108,7 @@ export type BoardViewMode =
   | "daily-note";
 
 export const PRIORITIES: Priority[] = ["none", "P1", "P2", "P3", "P4"];
-export const SORT_MODES: SlateSortMode[] = [
+export const SORT_MODES: GraphiteSortMode[] = [
   "smart",
   "due",
   "priority",
@@ -123,7 +123,7 @@ export const OVERDUE_RANGES: OverdueRange[] = [
   "last30",
   "older"
 ];
-export const FONT_OPTIONS: SlateFontOption[] = [
+export const FONT_OPTIONS: GraphiteFontOption[] = [
   "system",
   "ibmPlexSans",
   "ibmPlexMono",

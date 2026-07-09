@@ -1,9 +1,9 @@
 import { App, Modal, Notice } from "obsidian";
 import { RepeatFrequency, RepeatRule } from "../types";
 import { getRepeatLabel, getRepeatWeekdays, normalizeRepeatRule } from "../repeatUtils";
-import { createSlateActionRow, createSlateButton } from "../ui";
-import { createSlateIcon } from "../ui/components/SlateIcon";
-import { SlateDropdown } from "../ui/components/SlateDropdown";
+import { createGraphiteActionRow, createGraphiteButton } from "../ui";
+import { createGraphiteIcon } from "../ui/components/GraphiteIcon";
+import { GraphiteDropdown } from "../ui/components/GraphiteDropdown";
 
 const FREQ_LABELS: Record<RepeatFrequency, string> = {
   daily: "Day",
@@ -26,7 +26,7 @@ const DISPLAY_DAYS = [
 export class CustomRepeatModal extends Modal {
   private draft: RepeatRule;
   private onSave: (rule: RepeatRule) => void;
-  private freqDropdown: SlateDropdown | null = null;
+  private freqDropdown: GraphiteDropdown | null = null;
 
   constructor(app: App, current: RepeatRule | undefined, onSave: (rule: RepeatRule) => void) {
     super(app);
@@ -38,7 +38,7 @@ export class CustomRepeatModal extends Modal {
 
   onOpen(): void {
     this.titleEl.setText("Custom repeat");
-    this.modalEl.addClass("slate-custom-repeat-modal");
+    this.modalEl.addClass("graphite-custom-repeat-modal");
     this.render();
   }
 
@@ -54,7 +54,7 @@ export class CustomRepeatModal extends Modal {
 
     // Based on
     this.renderSection(contentEl, "Based on");
-    const modeWrap = contentEl.createDiv({ cls: "slate-repeat-radio-group" });
+    const modeWrap = contentEl.createDiv({ cls: "graphite-repeat-radio-group" });
     this.renderRadio(modeWrap, "Scheduled date", this.draft.mode === "scheduledDate", () => {
       this.draft.mode = "scheduledDate";
       this.render();
@@ -67,9 +67,9 @@ export class CustomRepeatModal extends Modal {
 
     // Every
     this.renderSection(contentEl, "Every");
-    const everyRow = contentEl.createDiv({ cls: "slate-repeat-every-row" });
+    const everyRow = contentEl.createDiv({ cls: "graphite-repeat-every-row" });
     const intervalInput = everyRow.createEl("input", {
-      cls: "slate-repeat-interval-input",
+      cls: "graphite-repeat-interval-input",
       attr: { type: "number", min: "1", step: "1", value: String(this.draft.interval) }
     });
     intervalInput.addEventListener("input", () => {
@@ -86,9 +86,9 @@ export class CustomRepeatModal extends Modal {
 
     const freqs: RepeatFrequency[] = ["daily", "weekly", "weekdays", "monthly", "yearly"];
     this.freqDropdown?.destroy();
-    this.freqDropdown = new SlateDropdown({
+    this.freqDropdown = new GraphiteDropdown({
       triggerParent: everyRow,
-      triggerClassName: "slate-repeat-freq-trigger",
+      triggerClassName: "graphite-repeat-freq-trigger",
       ariaLabel: "Frequency",
       getOptions: () => freqs.map((f) => ({ value: f, label: FREQ_LABELS[f] })),
       getValue: () => this.draft.frequency,
@@ -104,11 +104,11 @@ export class CustomRepeatModal extends Modal {
     // On (weekday selector) — only for weekly + scheduledDate
     if (this.draft.frequency === "weekly" && this.draft.mode === "scheduledDate") {
       this.renderSection(contentEl, "On");
-      const dayRow = contentEl.createDiv({ cls: "slate-repeat-day-row" });
+      const dayRow = contentEl.createDiv({ cls: "graphite-repeat-day-row" });
       const selectedWeekdays = getRepeatWeekdays(this.draft);
       for (const { label, value } of DISPLAY_DAYS) {
         const btn = dayRow.createEl("button", {
-          cls: "slate-repeat-day-btn",
+          cls: "graphite-repeat-day-btn",
           text: label,
           attr: { type: "button" }
         });
@@ -126,7 +126,7 @@ export class CustomRepeatModal extends Modal {
 
     // Ends
     this.renderSection(contentEl, "Ends");
-    const endsWrap = contentEl.createDiv({ cls: "slate-repeat-radio-group" });
+    const endsWrap = contentEl.createDiv({ cls: "graphite-repeat-radio-group" });
 
     this.renderRadio(endsWrap, "Never", this.draft.ends === "never", () => {
       this.draft.ends = "never";
@@ -135,7 +135,7 @@ export class CustomRepeatModal extends Modal {
       this.render();
     });
 
-    const onDateRow = endsWrap.createDiv({ cls: "slate-repeat-ends-row" });
+    const onDateRow = endsWrap.createDiv({ cls: "graphite-repeat-ends-row" });
     this.renderRadio(onDateRow, "On date", this.draft.ends === "onDate", () => {
       this.draft.ends = "onDate";
       this.draft.endsCount = undefined;
@@ -143,7 +143,7 @@ export class CustomRepeatModal extends Modal {
     });
     if (this.draft.ends === "onDate") {
       const dateInput = onDateRow.createEl("input", {
-        cls: "slate-repeat-ends-date",
+        cls: "graphite-repeat-ends-date",
         attr: { type: "date", value: this.draft.endsDate || "" }
       });
       dateInput.addEventListener("change", () => {
@@ -151,7 +151,7 @@ export class CustomRepeatModal extends Modal {
       });
     }
 
-    const afterRow = endsWrap.createDiv({ cls: "slate-repeat-ends-row" });
+    const afterRow = endsWrap.createDiv({ cls: "graphite-repeat-ends-row" });
     this.renderRadio(afterRow, "After", this.draft.ends === "afterOccurrences", () => {
       this.draft.ends = "afterOccurrences";
       this.draft.endsDate = undefined;
@@ -159,25 +159,25 @@ export class CustomRepeatModal extends Modal {
     });
     if (this.draft.ends === "afterOccurrences") {
       const countInput = afterRow.createEl("input", {
-        cls: "slate-repeat-ends-count",
+        cls: "graphite-repeat-ends-count",
         attr: { type: "number", min: "1", step: "1", value: String(this.draft.endsCount || 1) }
       });
       countInput.addEventListener("input", () => {
         const v = parseInt(countInput.value);
         if (v >= 1) this.draft.endsCount = v;
       });
-      afterRow.createSpan({ cls: "slate-repeat-ends-label", text: "occurrences" });
+      afterRow.createSpan({ cls: "graphite-repeat-ends-label", text: "occurrences" });
     }
 
     // Preview
-    const preview = contentEl.createDiv({ cls: "slate-repeat-preview" });
-    createSlateIcon(preview, "recurring", { className: "slate-chip-icon" });
+    const preview = contentEl.createDiv({ cls: "graphite-repeat-preview" });
+    createGraphiteIcon(preview, "recurring", { className: "graphite-chip-icon" });
     preview.createSpan({ text: getRepeatLabel(this.draft) });
 
     // Actions
-    const actions = createSlateActionRow(contentEl, { className: "slate-repeat-modal-actions" });
-    const cancelBtn = createSlateButton(actions, { text: "Cancel" });
-    const saveBtn = createSlateButton(actions, { text: "Save", variant: "primary" });
+    const actions = createGraphiteActionRow(contentEl, { className: "graphite-repeat-modal-actions" });
+    const cancelBtn = createGraphiteButton(actions, { text: "Cancel" });
+    const saveBtn = createGraphiteButton(actions, { text: "Save", variant: "primary" });
     const requiresWeekdays = this.requiresWeekdays();
     saveBtn.toggleAttribute("disabled", requiresWeekdays && getRepeatWeekdays(this.draft).length === 0);
 
@@ -196,12 +196,12 @@ export class CustomRepeatModal extends Modal {
   }
 
   private renderSection(parent: HTMLElement, title: string): void {
-    parent.createEl("h3", { cls: "slate-repeat-section-title", text: title });
+    parent.createEl("h3", { cls: "graphite-repeat-section-title", text: title });
   }
 
   private renderRadio(parent: HTMLElement, label: string, checked: boolean, onClick: () => void): HTMLElement {
-    const row = parent.createDiv({ cls: `slate-repeat-radio-row${checked ? " is-checked" : ""}` });
-    const dot = row.createDiv({ cls: "slate-repeat-radio-dot" });
+    const row = parent.createDiv({ cls: `graphite-repeat-radio-row${checked ? " is-checked" : ""}` });
+    const dot = row.createDiv({ cls: "graphite-repeat-radio-dot" });
     if (checked) dot.addClass("is-active");
     row.createSpan({ text: label });
     row.addEventListener("click", onClick);

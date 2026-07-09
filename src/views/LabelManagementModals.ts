@@ -14,11 +14,11 @@ export class RenameLabelModal extends Modal {
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-label-prompt");
+    contentEl.addClass("graphite-label-prompt");
     contentEl.createEl("h2", { text: "Rename label" });
 
     const input = contentEl.createEl("input", {
-      cls: "slate-label-prompt-input",
+      cls: "graphite-label-prompt-input",
       attr: {
         type: "text",
         value: displayLabel(this.currentLabel)
@@ -27,11 +27,11 @@ export class RenameLabelModal extends Modal {
     input.select();
 
     let errorEl: HTMLElement | null = null;
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
 
     const showError = (message: string) => {
       if (!errorEl) {
-        errorEl = contentEl.createDiv({ cls: "slate-modal-error" });
+        errorEl = contentEl.createDiv({ cls: "graphite-modal-error" });
         actions.before(errorEl);
       }
       errorEl.setText(message);
@@ -39,14 +39,14 @@ export class RenameLabelModal extends Modal {
 
     actions
       .createEl("button", {
-        cls: "slate-button",
+        cls: "graphite-button",
         text: "Cancel",
         attr: { type: "button" }
       })
       .addEventListener("click", () => this.close());
 
     const submitButton = actions.createEl("button", {
-      cls: "slate-button slate-button-primary",
+      cls: "graphite-button graphite-button-primary",
       text: "Rename",
       attr: { type: "button" }
     });
@@ -98,19 +98,19 @@ export class DeleteLabelModal extends Modal {
   onOpen(): void {
     const { contentEl } = this;
     contentEl.empty();
-    contentEl.addClass("slate-label-prompt");
+    contentEl.addClass("graphite-label-prompt");
     contentEl.createEl("h2", { text: `Delete ${displayLabel(this.label)}?` });
 
     const desc =
       this.taskCount > 0
         ? `This will remove ${displayLabel(this.label)} from ${this.taskCount} task${this.taskCount === 1 ? "" : "s"}. Tasks will not be deleted.`
         : "This label is not assigned to any tasks.";
-    contentEl.createEl("p", { text: desc, cls: "slate-modal-desc" });
+    contentEl.createEl("p", { text: desc, cls: "graphite-modal-desc" });
 
-    const actions = contentEl.createDiv({ cls: "slate-label-prompt-actions" });
+    const actions = contentEl.createDiv({ cls: "graphite-label-prompt-actions" });
     actions
       .createEl("button", {
-        cls: "slate-button",
+        cls: "graphite-button",
         text: "Cancel",
         attr: { type: "button" }
       })
@@ -118,7 +118,7 @@ export class DeleteLabelModal extends Modal {
 
     actions
       .createEl("button", {
-        cls: "slate-button slate-button-destructive",
+        cls: "graphite-button graphite-button-destructive",
         text: "Delete label",
         attr: { type: "button" }
       })

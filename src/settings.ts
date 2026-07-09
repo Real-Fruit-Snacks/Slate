@@ -8,32 +8,32 @@ import { dedupeLabels, displayLabel, normalizeLabelName } from "./labels";
 import { normalizeTaskProject } from "./projects";
 import { DeleteLabelModal, RenameLabelModal } from "./views/LabelManagementModals";
 import {
-  SlateFontOption,
-  SlateSortMode,
+  GraphiteFontOption,
+  GraphiteSortMode,
   FONT_OPTIONS,
   OVERDUE_RANGES,
   OverdueRange,
   SORT_MODES
 } from "./types";
 
-export const DEFAULT_DATA_FOLDER_PATH = "_slate_files";
+export const DEFAULT_DATA_FOLDER_PATH = "_graphite_files";
 
-export interface SlateSettings {
+export interface GraphiteSettings {
   tasksFilePath: string;
   dataFolderPath: string;
   defaultProject: string;
-  icons: SlateIconSettings;
+  icons: GraphiteIconSettings;
   projectColors: Record<string, string>;
   labelColors: Record<string, string>;
   labelRegistry: string[];
   projectRegistry: string[];
-  sortMode: SlateSortMode;
+  sortMode: GraphiteSortMode;
   groupBy: "none" | "label" | "priority";
   defaultOverdueRange: OverdueRange;
-  uiFont: SlateFontOption;
-  taskTitleFont: SlateFontOption;
-  taskDescriptionFont: SlateFontOption;
-  labelFont: SlateFontOption;
+  uiFont: GraphiteFontOption;
+  taskTitleFont: GraphiteFontOption;
+  taskDescriptionFont: GraphiteFontOption;
+  labelFont: GraphiteFontOption;
   archivedProjects: string[];
   hideDataFolderFromVault: boolean;
   dailyNotesIntegrationEnabled: boolean;
@@ -41,7 +41,7 @@ export interface SlateSettings {
   dailyNoteDateFormat: string;
 }
 
-export interface SlateIconSettings {
+export interface GraphiteIconSettings {
   search: string;
   inbox: string;
   today: string;
@@ -52,8 +52,8 @@ export interface SlateIconSettings {
   completed: string;
 }
 
-export const DEFAULT_SETTINGS: SlateSettings = {
-  tasksFilePath: "slate/tasks.md",
+export const DEFAULT_SETTINGS: GraphiteSettings = {
+  tasksFilePath: "graphite/tasks.md",
   dataFolderPath: DEFAULT_DATA_FOLDER_PATH,
   defaultProject: "",
   icons: {
@@ -91,7 +91,7 @@ const OVERDUE_RANGE_LABELS: Record<OverdueRange, string> = {
   older: "Older"
 };
 
-const FONT_OPTION_LABELS: Record<SlateFontOption, string> = {
+const FONT_OPTION_LABELS: Record<GraphiteFontOption, string> = {
   system: "System Font",
   ibmPlexSans: "IBM Plex Sans",
   ibmPlexMono: "IBM Plex Mono",
@@ -105,7 +105,7 @@ const FONT_OPTION_LABELS: Record<SlateFontOption, string> = {
   dmSans: "DM Sans"
 };
 
-const SLATE_FONT_STACKS: Record<SlateFontOption, string> = {
+const GRAPHITE_FONT_STACKS: Record<GraphiteFontOption, string> = {
   system: 'var(--font-interface), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   ibmPlexSans: '"IBM Plex Sans", var(--font-interface), system-ui, sans-serif',
   ibmPlexMono: '"IBM Plex Mono", var(--font-monospace), monospace',
@@ -153,9 +153,9 @@ export function normalizeDataFolderPath(value: string | undefined): string {
   return normalized || DEFAULT_DATA_FOLDER_PATH;
 }
 
-export function normalizeSortMode(value: string | undefined): SlateSortMode {
-  return SORT_MODES.includes(value as SlateSortMode)
-    ? (value as SlateSortMode)
+export function normalizeSortMode(value: string | undefined): GraphiteSortMode {
+  return SORT_MODES.includes(value as GraphiteSortMode)
+    ? (value as GraphiteSortMode)
     : DEFAULT_SETTINGS.sortMode;
 }
 
@@ -165,9 +165,9 @@ export function normalizeOverdueRange(value: string | undefined): OverdueRange {
     : DEFAULT_SETTINGS.defaultOverdueRange;
 }
 
-export function normalizeFontOption(value: string | undefined): SlateFontOption {
-  return FONT_OPTIONS.includes(value as SlateFontOption)
-    ? (value as SlateFontOption)
+export function normalizeFontOption(value: string | undefined): GraphiteFontOption {
+  return FONT_OPTIONS.includes(value as GraphiteFontOption)
+    ? (value as GraphiteFontOption)
     : "system";
 }
 
@@ -175,7 +175,7 @@ export function normalizeDefaultProject(value: string | undefined): string {
   return normalizeTaskProject(value) || "";
 }
 
-export function fontOptionLabel(option: SlateFontOption): string {
+export function fontOptionLabel(option: GraphiteFontOption): string {
   return FONT_OPTION_LABELS[option];
 }
 
@@ -183,27 +183,27 @@ export function overdueRangeLabel(range: OverdueRange): string {
   return OVERDUE_RANGE_LABELS[range];
 }
 
-export function fontStackForOption(option: SlateFontOption): string {
-  return SLATE_FONT_STACKS[option] || SLATE_FONT_STACKS.system;
+export function fontStackForOption(option: GraphiteFontOption): string {
+  return GRAPHITE_FONT_STACKS[option] || GRAPHITE_FONT_STACKS.system;
 }
 
-export function applySlateFontSettings(
+export function applyGraphiteFontSettings(
   element: HTMLElement,
-  settings: SlateSettings
+  settings: GraphiteSettings
 ): void {
   element.setCssProps({
-    "--slate-font-ui": fontStackForOption(settings.uiFont),
-    "--slate-font-task-title": fontStackForOption(settings.taskTitleFont),
-    "--slate-font-task-description": fontStackForOption(settings.taskDescriptionFont),
-    "--slate-font-label": fontStackForOption(settings.labelFont)
+    "--graphite-font-ui": fontStackForOption(settings.uiFont),
+    "--graphite-font-task-title": fontStackForOption(settings.taskTitleFont),
+    "--graphite-font-task-description": fontStackForOption(settings.taskDescriptionFont),
+    "--graphite-font-label": fontStackForOption(settings.labelFont)
   });
 }
 
-interface SlateSettingsPlugin extends Plugin {
-  settings: SlateSettings;
+interface GraphiteSettingsPlugin extends Plugin {
+  settings: GraphiteSettings;
   saveSettings(): Promise<void>;
   reloadTasks(): Promise<void>;
-  refreshSlateViews(): void;
+  refreshGraphiteViews(): void;
   getProjectNames(): string[];
   getLabelNames(): string[];
   getLabelTaskCount(label: string): number;
@@ -211,10 +211,10 @@ interface SlateSettingsPlugin extends Plugin {
   deleteLabel(label: string): Promise<void>;
 }
 
-export class SlateSettingTab extends PluginSettingTab {
+export class GraphiteSettingTab extends PluginSettingTab {
   private colorHexCache = new Map<string, string>();
 
-  constructor(app: App, private plugin: SlateSettingsPlugin) {
+  constructor(app: App, private plugin: GraphiteSettingsPlugin) {
     super(app, plugin);
   }
 
@@ -222,14 +222,14 @@ export class SlateSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
     this.colorHexCache = new Map();
-    applySlateFontSettings(containerEl, this.plugin.settings);
+    applyGraphiteFontSettings(containerEl, this.plugin.settings);
 
     new Setting(containerEl)
       .setName("Old task file")
-      .setDesc("Legacy Markdown file used by older slate versions.")
+      .setDesc("Legacy Markdown file used by older graphite versions.")
       .addText((text) => {
         text
-          .setPlaceholder("slate/tasks.md")
+          .setPlaceholder("graphite/tasks.md")
           .setValue(this.plugin.settings.tasksFilePath)
           .onChange(async (value) => {
             this.plugin.settings.tasksFilePath = value.trim() || DEFAULT_SETTINGS.tasksFilePath;
@@ -240,7 +240,7 @@ export class SlateSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Data folder")
-      .setDesc("Folder where slate stores task data and attachments.")
+      .setDesc("Folder where graphite stores task data and attachments.")
       .addText((text) => {
         let draftPath = this.plugin.settings.dataFolderPath;
         const commitPathChange = async () => {
@@ -279,7 +279,7 @@ export class SlateSettingTab extends PluginSettingTab {
     new Setting(containerEl)
       .setName("Hide data folder from the vault UI")
       .setDesc(
-        "Hide the Slate data folder from the file explorer, search, and graph. Files stay on disk and Slate keeps using them."
+        "Hide the Graphite data folder from the file explorer, search, and graph. Files stay on disk and Graphite keeps using them."
       )
       .addToggle((toggle) => {
         toggle
@@ -302,7 +302,7 @@ export class SlateSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings.defaultOverdueRange = normalizeOverdueRange(value);
             await this.plugin.saveSettings();
-            this.plugin.refreshSlateViews();
+            this.plugin.refreshGraphiteViews();
           });
       });
 
@@ -310,14 +310,14 @@ export class SlateSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Enable Daily Notes integration")
-      .setDesc("Allow slate to show completed tasks for the active daily note date.")
+      .setDesc("Allow graphite to show completed tasks for the active daily note date.")
       .addToggle((toggle) => {
         toggle
           .setValue(this.plugin.settings.dailyNotesIntegrationEnabled)
           .onChange(async (value) => {
             this.plugin.settings.dailyNotesIntegrationEnabled = value;
             await this.plugin.saveSettings();
-            this.plugin.refreshSlateViews();
+            this.plugin.refreshGraphiteViews();
           });
       });
 
@@ -331,7 +331,7 @@ export class SlateSettingTab extends PluginSettingTab {
           this.plugin.settings.dailyNoteDateFormat = normalized;
           text.setValue(normalized);
           await this.plugin.saveSettings();
-          this.plugin.refreshSlateViews();
+          this.plugin.refreshGraphiteViews();
         };
 
         text
@@ -356,7 +356,7 @@ export class SlateSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("Auto-add completed tasks block")
-      .setDesc("When a daily note is opened, append a slate-completed code block if the note does not already have one.")
+      .setDesc("When a daily note is opened, append a graphite-completed code block if the note does not already have one.")
       .addToggle((toggle) => {
         toggle
           .setValue(this.plugin.settings.dailyNotesAutoInsertCompletedBlock)
@@ -395,7 +395,7 @@ export class SlateSettingTab extends PluginSettingTab {
     if (projects.length === 0) {
       containerEl.createDiv({
         cls: "setting-item-description",
-        text: "No projects yet. slate will generate stable colors when projects appear."
+        text: "No projects yet. graphite will generate stable colors when projects appear."
       });
     }
 
@@ -437,7 +437,7 @@ export class SlateSettingTab extends PluginSettingTab {
           .onChange(async (value) => {
             this.plugin.settings[key] = normalizeFontOption(value);
             await this.plugin.saveSettings();
-            this.plugin.refreshSlateViews();
+            this.plugin.refreshGraphiteViews();
             this.display();
           });
       });
@@ -454,7 +454,7 @@ export class SlateSettingTab extends PluginSettingTab {
         picker.setValue(resolveColorToHex(override || automaticColor, this.colorHexCache)).onChange(async (value) => {
           this.plugin.settings.projectColors[project] = value;
           await this.plugin.saveSettings();
-          this.plugin.refreshSlateViews();
+          this.plugin.refreshGraphiteViews();
         });
       })
       .addButton((button) => {
@@ -462,7 +462,7 @@ export class SlateSettingTab extends PluginSettingTab {
           void (async () => {
             delete this.plugin.settings.projectColors[project];
             await this.plugin.saveSettings();
-            this.plugin.refreshSlateViews();
+            this.plugin.refreshGraphiteViews();
             this.display();
           })();
         });
@@ -493,7 +493,7 @@ export class SlateSettingTab extends PluginSettingTab {
               label
             ]);
             await this.plugin.saveSettings();
-            this.plugin.refreshSlateViews();
+            this.plugin.refreshGraphiteViews();
             this.display();
           })();
         });
@@ -511,7 +511,7 @@ export class SlateSettingTab extends PluginSettingTab {
         picker.setValue(resolveColorToHex(override || automaticColor, this.colorHexCache)).onChange(async (value) => {
           this.plugin.settings.labelColors[label] = value;
           await this.plugin.saveSettings();
-          this.plugin.refreshSlateViews();
+          this.plugin.refreshGraphiteViews();
         });
       })
       .addButton((button) => {
@@ -540,7 +540,7 @@ export class SlateSettingTab extends PluginSettingTab {
           void (async () => {
             delete this.plugin.settings.labelColors[label];
             await this.plugin.saveSettings();
-            this.plugin.refreshSlateViews();
+            this.plugin.refreshGraphiteViews();
             this.display();
           })();
         });

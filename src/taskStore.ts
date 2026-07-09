@@ -3,8 +3,8 @@ import { formatDueDateChip, todayIso } from "./dateUtils";
 import { parseTaskDocument } from "./parser";
 import { serializeTaskDocument } from "./serializer";
 import { isRepeatEnded, nextOccurrence } from "./repeatUtils";
-import { SlateSettings, normalizeDataFolderPath } from "./settings";
-import { SlateTask, CreateTaskInput, ParsedTaskDocument, TaskPatch } from "./types";
+import { GraphiteSettings, normalizeDataFolderPath } from "./settings";
+import { GraphiteTask, CreateTaskInput, ParsedTaskDocument, TaskPatch } from "./types";
 import { dedupeLabels, normalizeLabelName } from "./labels";
 import { normalizeTaskProject } from "./projects";
 
@@ -14,13 +14,13 @@ const MONTHLY_FILE_PATTERN = /^\d{4}-\d{2}\.md$/;
 
 export class TaskStore {
   private documents = new Map<string, ParsedTaskDocument>();
-  private tasks: SlateTask[] = [];
+  private tasks: GraphiteTask[] = [];
   private listeners = new Set<Listener>();
   private warnedStorageIssues = new Set<string>();
   private writingPaths = new Set<string>();
   private writeChain: Promise<void> = Promise.resolve();
 
-  constructor(private app: App, private settings: SlateSettings) {}
+  constructor(private app: App, private settings: GraphiteSettings) {}
 
   get filePath(): string {
     return normalizePath(this.settings.tasksFilePath);
@@ -55,13 +55,13 @@ export class TaskStore {
     );
   }
 
-  getTasks(): SlateTask[] {
+  getTasks(): GraphiteTask[] {
     return this.tasks.map((task) => cloneTask(task));
   }
 
-  getCompletedTasksForDate(date: string): SlateTask[] {
+  getCompletedTasksForDate(date: string): GraphiteTask[] {
     const seen = new Set<string>();
-    const completed: SlateTask[] = [];
+    const completed: GraphiteTask[] = [];
 
     for (const task of this.tasks) {
       const completedOnDate =
@@ -99,7 +99,7 @@ export class TaskStore {
   }
 
   async load(): Promise<void> {
-    console.debug("[slate] Loading task storage.", {
+    console.debug("[graphite] Loading task storage.", {
       rootDir: this.rootDir,
       dataDir: this.dataDir,
       attachmentsDir: this.attachmentsDir,
@@ -108,7 +108,7 @@ export class TaskStore {
     await this.ensureTaskStructure();
 
     const nextDocuments = new Map<string, ParsedTaskDocument>();
-    const nextTasks: SlateTask[] = [];
+    const nextTasks: GraphiteTask[] = [];
     let order = 0;
 
     const files = this.getDataFiles();
@@ -148,7 +148,7 @@ export class TaskStore {
     const sourcePath = this.monthlyPathForDate(created);
     const sourceReady = await this.ensureSourceDocument(sourcePath);
     if (!sourceReady) {
-      new Notice("slate could not create the task data file. Check the console for details.");
+      new Notice("graphite could not create the task data file. Check the console for details.");
       return;
     }
     const attachments = normalizeAttachments(input.attachments || []);
@@ -448,7 +448,7 @@ export class TaskStore {
     const folderPath = normalizePath(`${this.attachmentsDir}/${taskId}`);
     const folderReady = await this.ensureFolder(folderPath);
     if (!folderReady) {
-      throw new Error(`slate cannot use attachment folder: ${folderPath}`);
+      throw new Error(`graphite cannot use attachment folder: ${folderPath}`);
     }
     const data = await file.arrayBuffer();
     return this.createUniqueBinaryFile(folderPath, file.name, data);
@@ -537,7 +537,7 @@ export class TaskStore {
     // Group current in-memory tasks by source. Sources we did NOT just write keep
     // their in-memory tasks, which may hold edits still queued behind this write —
     // rebuilding those from this.documents would revert them.
-    const tasksBySource = new Map<string, SlateTask[]>();
+    const tasksBySource = new Map<string, GraphiteTask[]>();
     for (const task of this.tasks) {
       const path = task.sourcePath || this.monthlyPathForDate(task.created || todayIso());
       if (writtenSet.has(path)) {
@@ -555,7 +555,7 @@ export class TaskStore {
       if (!document) {
         // Invariant: writeSources always sets this.documents[path] before adding
         // path to writtenPaths. If this ever fires, that invariant broke.
-        console.warn("[slate] No parsed document for a just-written source; skipping.", { path });
+        console.warn("[graphite] No parsed document for a just-written source; skipping.", { path });
         continue;
       }
       tasksBySource.set(
@@ -564,7 +564,7 @@ export class TaskStore {
       );
     }
 
-    const nextTasks: SlateTask[] = [];
+    const nextTasks: GraphiteTask[] = [];
     let order = 0;
     for (const path of [...tasksBySource.keys()].sort((a, b) => a.localeCompare(b))) {
       for (const task of tasksBySource.get(path) || []) {
@@ -593,8 +593,8 @@ export class TaskStore {
       try {
         await this.app.vault.modify(file, content);
       } catch (error) {
-        new Notice("Slate could not save task changes. Open the developer console for details.");
-        console.error("[slate] Failed to write task data.", error, { sourcePath });
+        new Notice("Graphite could not save task changes. Open the developer console for details.");
+        console.error("[graphite] Failed to write task data.", error, { sourcePath });
         throw error;
       } finally {
         this.writingPaths.delete(normalizePath(sourcePath));
@@ -642,9 +642,9 @@ export class TaskStore {
     await this.ensureFile(
       this.mainFilePath,
       [
-        "# slate",
+        "# graphite",
         "",
-        `slate task data is stored in \`${this.dataDir}/*.md\`.`,
+        `graphite task data is stored in \`${this.dataDir}/*.md\`.`,
         `Attachments are stored in \`${this.attachmentsDir}/<task-id>/\`.`
       ].join("\n")
     );
@@ -717,7 +717,7 @@ export class TaskStore {
         return null;
       }
 
-      console.warn("[slate] File already exists but is not available in the vault index yet.", error, {
+      console.warn("[graphite] File already exists but is not available in the vault index yet.", error, {
         path: normalizedPath
       });
       return null;
@@ -727,7 +727,7 @@ export class TaskStore {
   private async replaceFile(path: string, content: string): Promise<TFile> {
     const file = await this.ensureFile(path, "");
     if (!file) {
-      throw new Error(`slate cannot write file because the path is unavailable: ${path}`);
+      throw new Error(`graphite cannot write file because the path is unavailable: ${path}`);
     }
     await this.app.vault.modify(file, content);
     return file;
@@ -782,7 +782,7 @@ export class TaskStore {
         return false;
       }
 
-      console.warn("[slate] Folder already exists but is not available in the vault index yet.", error, {
+      console.warn("[graphite] Folder already exists but is not available in the vault index yet.", error, {
         path: normalizedPath
       });
       return true;
@@ -817,7 +817,7 @@ export class TaskStore {
       }
     }
 
-    throw new Error(`slate could not create a unique attachment path for ${filename}`);
+    throw new Error(`graphite could not create a unique attachment path for ${filename}`);
   }
 
   private warnWrongType(
@@ -832,9 +832,9 @@ export class TaskStore {
 
     this.warnedStorageIssues.add(key);
     const actualType = existing instanceof TFolder ? "folder" : "file";
-    const message = `slate expected a ${expectedType} at "${path}", but found a ${actualType}.`;
+    const message = `graphite expected a ${expectedType} at "${path}", but found a ${actualType}.`;
     new Notice(`${message} Please rename or move the conflicting vault item.`);
-    console.warn("[slate] Storage path type mismatch.", {
+    console.warn("[graphite] Storage path type mismatch.", {
       path,
       expectedType,
       actualType,
@@ -899,7 +899,7 @@ export class TaskStore {
 // document. Shared by load() (from-disk) and reconcileSources (from the freshly
 // re-parsed written document) so the two paths can never drift. Callers assign
 // `order` separately.
-function withLoadedDefaults(task: SlateTask, sourcePath: string): SlateTask {
+function withLoadedDefaults(task: GraphiteTask, sourcePath: string): GraphiteTask {
   return {
     ...task,
     created: task.created || todayIso(),
@@ -909,7 +909,7 @@ function withLoadedDefaults(task: SlateTask, sourcePath: string): SlateTask {
   };
 }
 
-function normalizeTaskForSave(task: SlateTask, sourcePath: string): SlateTask {
+function normalizeTaskForSave(task: GraphiteTask, sourcePath: string): GraphiteTask {
   return {
     ...task,
     created: normalizeOptional(task.created) || todayIso(),
@@ -953,7 +953,7 @@ function createId(): string {
   return `task-${timestamp}-${random}`;
 }
 
-function cloneTask(task: SlateTask): SlateTask {
+function cloneTask(task: GraphiteTask): GraphiteTask {
   return {
     ...task,
     labels: [...task.labels],

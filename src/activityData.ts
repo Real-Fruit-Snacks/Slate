@@ -1,6 +1,6 @@
 import { todayIso, yesterdayIso } from "./dateUtils";
 import { normalizeTaskProject } from "./projects";
-import { SlateTask } from "./types";
+import { GraphiteTask } from "./types";
 
 export interface ActivityDay {
   count: number;
@@ -10,7 +10,7 @@ export interface ActivityDay {
 
 export interface ActivityData {
   allTimeCount: number;
-  byDate: Map<string, SlateTask[]>;
+  byDate: Map<string, GraphiteTask[]>;
   currentStreak: number;
   defaultSelectedDate: string | null;
   heatmapDays: ActivityDay[];
@@ -20,7 +20,7 @@ export interface ActivityData {
   yesterdayCount: number;
 }
 
-export function getActivityDataSignature(allTasks: SlateTask[]): string {
+export function getActivityDataSignature(allTasks: GraphiteTask[]): string {
   return getCompletedActivityTasks(allTasks)
     .map((task) => [
       task.id,
@@ -33,9 +33,9 @@ export function getActivityDataSignature(allTasks: SlateTask[]): string {
     .join("|");
 }
 
-export function buildActivityData(allTasks: SlateTask[]): ActivityData {
+export function buildActivityData(allTasks: GraphiteTask[]): ActivityData {
   const completedTasks = getCompletedActivityTasks(allTasks);
-  const byDate = new Map<string, SlateTask[]>();
+  const byDate = new Map<string, GraphiteTask[]>();
   for (const task of completedTasks) {
     const date = task.completedDate!;
     const group = byDate.get(date) || [];
@@ -104,7 +104,7 @@ export function formatActivityDayHeading(date: string, count: number): string {
   return `${formatShortDate(date)} · ${formatWeekday(date)} · ${count}`;
 }
 
-function getCompletedActivityTasks(allTasks: SlateTask[]): SlateTask[] {
+function getCompletedActivityTasks(allTasks: GraphiteTask[]): GraphiteTask[] {
   return allTasks.filter((task) =>
     task.completed &&
     Boolean(task.completedDate) &&
@@ -112,7 +112,7 @@ function getCompletedActivityTasks(allTasks: SlateTask[]): SlateTask[] {
   );
 }
 
-function byOrder(a: SlateTask, b: SlateTask): number {
+function byOrder(a: GraphiteTask, b: GraphiteTask): number {
   return a.order - b.order;
 }
 

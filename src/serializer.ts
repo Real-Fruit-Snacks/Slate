@@ -1,4 +1,4 @@
-import { SlateTask, ParsedTaskDocument } from "./types";
+import { GraphiteTask, ParsedTaskDocument } from "./types";
 import { dedupeLabels } from "./labels";
 import { normalizeTaskProject } from "./projects";
 import { serializeRepeat } from "./repeatUtils";
@@ -19,7 +19,7 @@ const KNOWN_PROPERTIES = new Set([
   "completedoccurrences"
 ]);
 
-export function serializeTasks(tasks: SlateTask[]): string {
+export function serializeTasks(tasks: GraphiteTask[]): string {
   return [...tasks]
     .sort((a, b) => a.order - b.order)
     .map(serializeTask)
@@ -28,7 +28,7 @@ export function serializeTasks(tasks: SlateTask[]): string {
 
 export function serializeTaskDocument(
   document: ParsedTaskDocument,
-  tasks: SlateTask[]
+  tasks: GraphiteTask[]
 ): string {
   const orderedTasks = [...tasks].sort((a, b) => a.order - b.order);
   const tasksById = new Map(orderedTasks.map((task) => [task.id, task]));
@@ -64,11 +64,11 @@ export function serializeTaskDocument(
   return outputLines.join("\n");
 }
 
-function serializeTask(task: SlateTask): string {
+function serializeTask(task: GraphiteTask): string {
   return serializeTaskLines(task).join("\n");
 }
 
-function serializeTaskLines(task: SlateTask): string[] {
+function serializeTaskLines(task: GraphiteTask): string[] {
   const lines = [`- [${task.completed ? "x" : " "}] ${singleLine(task.title)}`];
 
   lines.push(`  id:: ${singleLine(task.id)}`);
