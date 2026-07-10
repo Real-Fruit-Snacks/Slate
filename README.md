@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/cover-dark.svg" />
-  <img alt="Graphite" src="docs/assets/cover-light.svg" width="820" />
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Real-Fruit-Snacks/Graphite/main/docs/assets/cover-dark.svg" />
+  <img alt="Graphite" src="https://raw.githubusercontent.com/Real-Fruit-Snacks/Graphite/main/docs/assets/cover-light.svg" width="820" />
 </picture>
 
 <br/>
