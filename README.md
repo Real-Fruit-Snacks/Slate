@@ -45,11 +45,12 @@ Graphite sits between lightweight checkbox plugins and heavy task-note systems: 
 
 ## Installation
 
-### Community plugins
+### Community plugins (recommended)
 
-> Not yet listed in the Obsidian community catalog. Use BRAT or a manual install for now.
+1. Open **Settings → Community plugins → Browse**.
+2. Search for **Graphite**, install, and enable it.
 
-### BRAT (beta)
+### BRAT (latest pre-release)
 
 1. Install the **BRAT** plugin from Community plugins.
 2. Run **BRAT: Add a beta plugin** and enter `Real-Fruit-Snacks/Graphite`.
