@@ -12,7 +12,7 @@ A calm, Todoist-like task manager for Obsidian — every task is a line in a pla
 <br/>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-f0c674?style=flat-square)](LICENSE)
-&nbsp;![Version](https://img.shields.io/badge/version-0.1.0-6bdcff?style=flat-square)
+&nbsp;[![Latest release](https://img.shields.io/github/v/release/Real-Fruit-Snacks/Graphite?color=6bdcff&label=version&style=flat-square)](https://github.com/Real-Fruit-Snacks/Graphite/releases)
 &nbsp;![Obsidian](https://img.shields.io/badge/Obsidian-1.6.6%2B-63f2ab?style=flat-square)
 
 [Website](https://real-fruit-snacks.github.io/Graphite/) · [Changelog](CHANGELOG.md) · [Report an issue](https://github.com/Real-Fruit-Snacks/Graphite/issues)
