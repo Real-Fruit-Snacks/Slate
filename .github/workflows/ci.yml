@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          cache: npm
+      - run: npm ci
+      - name: Run tests
+        run: npm test
+      - name: Typecheck and build
+        run: npm run build
+      - name: Validate manifest against versions.json
+        run: |
+          version=$(node -p "require('./manifest.json').version")
+          node -e "const v=require('./versions.json'); const m=require('./manifest.json'); if (v[m.version] !== m.minAppVersion) { console.error('versions.json must map ' + m.version + ' to ' + m.minAppVersion); process.exit(1); }"
